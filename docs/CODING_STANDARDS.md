@@ -9,6 +9,9 @@ The repository uses npm workspaces for `apps/api`, `apps/web`, and `apps/ai`. In
 - Implement one supported endorsement flow end to end before generalizing it to other change types.
 - Reuse app structure and dependencies where present. Add a shared abstraction, package, service, or configuration only when a current requirement or a second concrete use needs it.
 - In `apps/web/`, use React and shadcn/ui. Select only the TanStack packages needed for the current flow, and record them in the dependency manifest.
+- In `apps/web/`, build page UI from focused React components with clear responsibilities. Extract a component when it represents a meaningful UI section, owns reusable behavior or state, or makes a page easier to understand; avoid both monolithic page components and components that only wrap a trivial element without adding value.
+- Share a component when the same UI and behavior are used in more than one place. Keep shared components in a clear shared area, expose differences through a small, explicit prop API, and keep page-specific components near their page or feature. Do not generalize for hypothetical future use; promote a component when a second concrete use appears.
+- When AI tools create or change React code, follow the conventions below and the existing patterns in the affected feature. Prefer small, reviewable changes that meet the requirement; do not add dependencies, architecture, or abstractions without a concrete need.
 - In `apps/api/`, use Fastify. Keep route validation, behavior, and Swagger/OpenAPI output aligned.
 - Start rule retrieval with structured lookup over versioned synthetic rules. Add RAG only when measured lookup failures justify it; retrieved text never decides eligibility or premium.
 
@@ -46,7 +49,27 @@ docs/
   TESTING_STANDARD.md
 ```
 
-Keep the API's validation, eligibility, quote, draft, and audit decisions on the server. The web page presents those results and uses `api.ts` as its request boundary; it does not recalculate eligibility or premiums. Start with one page and one route, then split UI components or add routing when another real flow needs them.
+Keep the API's validation, eligibility, quote, draft, and audit decisions on the server. The web page presents those results and uses `api.ts` as its request boundary; it does not recalculate eligibility or premiums. Start with one page and one route. Compose the page from focused components as the UI warrants, add shared components when a second concrete use appears, and add routing when another real flow needs it.
+
+## React implementation rules
+- Use function components and compose them from focused components. Keep component and hook names descriptive; define components at module scope, not inside another component.
+- Keep state minimal. Derive values from props or existing state during render instead of copying them into state or synchronizing them with an effect. Use effects only to synchronize with external systems, and include every reactive dependency they use.
+- Keep event-driven work in event handlers. Use functional state updates when the next value depends on the previous value. Do not add `useMemo`, `useCallback`, or `memo` by default; use them for measured or clearly expensive work, or when stable identity is required by an integration.
+- Use stable, unique keys when rendering lists. Avoid array indexes when items can be inserted, removed, or reordered.
+- Keep server data in the project's TanStack data-fetching patterns and API boundary. Do not duplicate server state in component state or reproduce server-side eligibility, quote, or premium decisions in the browser.
+- Use semantic HTML and accessible labels, names, and keyboard behavior. Prefer the project's shadcn/ui components where they fit, and preserve their accessibility behavior when composing them.
+- Handle loading, empty, error, and success states for asynchronous UI. Keep errors visible and actionable; never turn a failed request into an apparent approval or successful draft.
+- Follow the repository's TypeScript and formatting conventions. Avoid `any` and unsafe type assertions when a concrete type or runtime validation is available.
+
+## TypeScript and Fastify implementation rules
+- Use TypeScript for API code. Give route inputs, domain values, and responses explicit types; prefer narrow types and discriminated unions for workflow outcomes. Avoid `any`, non-null assertions, and type assertions that bypass validation.
+- Define request and response validation schemas at the route boundary. Derive or keep TypeScript types aligned with those schemas, and use the same schemas to produce Swagger/OpenAPI documentation; do not let the documented contract drift from runtime behavior.
+- Keep route handlers focused on HTTP concerns: validate and authorize the request, call the workflow/service, and map its result to the response. Keep eligibility, quote, draft, and audit decisions in domain/workflow code, not in route handlers.
+- Register related routes through Fastify plugins and use Fastify's encapsulation for feature-specific hooks and dependencies. Keep shared infrastructure in app setup; avoid global mutable state and hidden cross-request state.
+- Use Fastify's request logger and error handling. Return consistent, documented error responses without exposing stack traces, secrets, or unnecessary policyholder data. Do not swallow errors or convert failures into successful or eligible outcomes.
+- Pass dependencies such as mock tools and repositories into workflow code explicitly so behavior stays testable. Keep asynchronous operations awaited and propagate failures through Fastify's error path.
+- Keep authorization and validation before side-effecting tools. Call quote and draft tools only at the workflow gates defined by the PRD, and preserve the non-binding `PENDING_REVIEW` result.
+- When AI tools create or change API code, follow these rules and the existing Fastify patterns in the affected feature. Prefer the smallest correct change; do not introduce plugins, type-provider libraries, or abstractions without a concrete requirement.
 
 ## Preserve the hard gates
 
