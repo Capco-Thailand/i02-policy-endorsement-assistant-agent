@@ -608,7 +608,9 @@ def _publish(destination: Path, outputs: dict[str, bytes], manifest: dict[str, A
     # for a name collision and tries the next name, some two billion times. The render
     # would hang in a folder it cannot write to instead of halting.
     staging = destination.parent / f".staging-{os.urandom(8).hex()}"
-    staging.mkdir(mode=0o700)
+    # Managed Windows workspaces may deny access to a directory created with
+    # mode 0o700, even to the process that created it. Inherit the parent ACL.
+    staging.mkdir(mode=0o777 if os.name == "nt" else 0o700)
     try:
         for name, content in outputs.items():
             path = staging / name

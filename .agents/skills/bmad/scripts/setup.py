@@ -2325,16 +2325,18 @@ def materialize_bmad(
     # for a name collision and tries the next name, some two billion times. Setup
     # would hang in a folder it cannot write to instead of reporting the failure.
     staging = project_root / f"_bmad.setup-{os.urandom(8).hex()}"
-    staging.mkdir(mode=0o700)
+    # Managed Windows workspaces may deny access to a directory created with
+    # mode 0o700, even to the process that created it. Inherit the parent ACL.
+    staging.mkdir(mode=0o777 if os.name == "nt" else 0o700)
     try:
         # Seed staging so custom/, extra *.user.toml, and leftovers
         # survive replace_dir.
         if bmad.exists():
-            scripts = bmad / "scripts"
-
-            def ignore_scripts_link(directory: str, _names: list[str]) -> set[str]:
-                if scripts.is_symlink() and Path(directory) == bmad:
-                    return {"scripts"}
+            def ignore_generated(directory: str, names: list[str]) -> set[str]:
+                if Path(directory) == bmad:
+                    # Both trees are rebuilt from installed sources. Copying
+                    # them can preserve inaccessible Windows staging folders.
+                    return {"scripts", "render"}.intersection(names)
                 return set()
 
             shutil.copytree(
@@ -2342,7 +2344,7 @@ def materialize_bmad(
                 staging,
                 dirs_exist_ok=True,
                 symlinks=True,
-                ignore=ignore_scripts_link,
+                ignore=ignore_generated,
             )
         stage_bmad(
             staging,
