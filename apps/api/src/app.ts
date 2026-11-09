@@ -1,6 +1,7 @@
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import Fastify from 'fastify';
+import { registerPolicyRoutes } from './policies/routes.js';
 
 export async function buildApp() {
   const app = Fastify({ logger: true });
@@ -24,6 +25,8 @@ export async function buildApp() {
       },
     },
   }, async () => ({ status: 'ok' as const }));
+
+  await registerPolicyRoutes(app);
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof Error && 'validation' in error && error.validation) {
