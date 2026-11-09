@@ -4,3 +4,7 @@
 
 # tokenade — legacy per-project embedding model cache (now global)
 .fastembed_cache/
+
+# API build artifacts
+apps/api/node_modules/
+apps/api/dist/
