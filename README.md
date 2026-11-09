@@ -8,4 +8,4 @@ Prototype monorepo for synthetic insurance policy endorsements. It currently con
 - `apps/web` — TypeScript React/Vite shell; policy screens are future work.
 - `apps/ai` — reserved for synthetic data and retrieval code when needed.
 
-Run `npm ci` from the repository root. Use `npm run dev:api` and `npm run dev:web` in separate terminals, or `docker compose up --build` to run both. The web shell is at `http://localhost:5173`; API health and docs are at `http://localhost:3000/health` and `http://localhost:3000/docs`. Run `npm run build` to build implemented workspaces. See [API development](docs/API_DEVELOPMENT.md) for API details.
+Run `npm ci` from the repository root. Use `npm run dev:api` and `npm run dev:web` in separate terminals, or `podman compose up --build -d` to run both in containers. The web shell is at `http://localhost:5173`; API health and docs are at `http://localhost:3000/health` and `http://localhost:3000/docs`. Run `npm run build` to build implemented workspaces. See [API development](docs/API_DEVELOPMENT.md) for API details.
