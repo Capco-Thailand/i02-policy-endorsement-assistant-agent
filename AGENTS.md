@@ -15,7 +15,7 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 
 ## Where things are
 
-- PO/UX: `docs/` for product documents, `design/` for HTML/CSS/JS design output, and GitHub issues for tickets.
+- PO/UX: `docs/tickets/` for local tickets, `docs/backlog/` for candidate scopes awaiting refinement, `docs/` for other product documents, `design/` for HTML/CSS/JS design output, and GitHub issues for published tickets.
 - QA/Sec: work across affected components. Keep component tests beside their code; put shared test plans and security guidance in `docs/`.
 - BE/Infra: `apps/api/` uses Fastify with Swagger/OpenAPI documentation; own repository infrastructure such as Docker or scripts when added.
 - FE/Data/RAG: `apps/web/` uses React, TanStack, and shadcn/ui; `apps/ai/` holds data and RAG work when needed. Coordinate shared API and rule contracts with BE/Infra.
