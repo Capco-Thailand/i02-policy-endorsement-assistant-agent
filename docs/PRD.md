@@ -54,6 +54,8 @@ The numeric targets are project assumptions, not requirements shown on the sourc
 
 **Evaluator / administrator.** I need to inspect tool usage, rule versions, blocked actions, and outcome quality against known test cases.
 
+**Policyholder (synthetic demo user).** I need to find a synthetic life policy, review its details and beneficiaries, and start an endorsement request only when that policy is active.
+
 ## 5. Scope
 
 ### In scope — MVP
@@ -68,6 +70,7 @@ The numeric targets are project assumptions, not requirements shown on the sourc
 - Calls to `create_endorsement_draft` to produce a **non-binding** review artifact.
 - User-visible summary with rationale, rule citations, quote assumptions, and review status.
 - Audit logging and offline evaluation using synthetic cases.
+- A policyholder-facing policy list and policy detail flow for synthetic life insurance policies, including beneficiary display and a route into endorsement intake for active policies. Its backend may use a local synthetic database; it must not connect to live insurer or policy systems.
 
 Example MVP endorsement types: `add_driver`, `change_address`, `replace_vehicle`, and `change_coverage_limit`. Rules and rating behavior for these examples are invented for the prototype and must not be represented as real insurer rules.
 
@@ -95,6 +98,7 @@ Possible states: `INTAKE` -> `NEEDS_INFORMATION` / `UNSUPPORTED` / `INELIGIBLE` 
 Maintain a synthetic dataset with:
 
 - **Policies:** policy ID, line of business, status, term dates, base premium, coverage options, risk attributes, and authorized mock user roles.
+- For the policyholder policy list/detail flow: policy number, policyholder name, product name, status (`ACTIVE` or `EXPIRED`), sum assured, annual premium, effective and expiry dates, and current beneficiaries (ID, full name, relationship, and allocation percentage).
 - **Endorsement rules:** rule ID/version, supported change type, eligibility conditions, required inputs, effective dates, exclusions, and referral conditions.
 - **Rating tables:** rule/table version, factor keys, allowed ranges, calculation method, and currency.
 - **Requests:** request text, desired effective date, policy ID, proposed changes, and expected outcomes for testing.
@@ -164,6 +168,8 @@ Both tools should return structured errors and support idempotency using `reques
 
 A minimal chat or form interface should show: request interpretation; missing-data prompts; eligibility result with rule citations; an itemized mock premium comparison; and a downloadable or viewable approval draft with an explicit **NOT BOUND — PENDING HUMAN REVIEW** indicator. A reviewer/evaluator view should expose the audit trace and rule/tool versions.
 
+The policyholder entry flow also includes `/policies` and `/policies/:policyId`. The detail view shows policy data and beneficiaries, and offers a Request Endorsement action only for `ACTIVE` policies. The endorsement intake route is `/policies/:policyId/endorsements/new`; opening it does not create or bind an endorsement.
+
 ## 11. Assumptions, dependencies, and open decisions
 
 **Assumptions:** This is a teaching/demo prototype; all policies and premiums are synthetic; a single currency and one insurance product line may be selected for MVP; approval is human-only and outside scope. Proposed targets, example endorsement types, latency, and mock API fields remain open.
@@ -172,7 +178,7 @@ A minimal chat or form interface should show: request interpretation; missing-da
 
 **Open decisions:**
 
-1. Which insurance product line (e.g., personal auto) and which endorsement types are mandatory?
+1. The policyholder list/detail slice uses synthetic life policies; which line of business and endorsement types are mandatory for the service-representative assistant flow?
 2. What are the mock user roles and precise criteria for draft authorization?
 3. Which fields and rating logic must appear in the demonstration?
 4. Does the evaluator require true vector RAG, or is a cited structured-rule lookup acceptable?

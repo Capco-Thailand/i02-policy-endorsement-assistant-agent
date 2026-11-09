@@ -20,7 +20,7 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 
 ## Skill routing
 
-- Requirements and GitHub tickets: use BMad `bmad-agent-po`; UX decisions: `bmad-ux`; delivery from a ticket: `bmad-build`. Use `bmad` when the next BMad step is unclear.
+- Requirements and GitHub tickets: use BMad `bmad-agent-po`; local tickets based on `docs/tickets/TICKET-TEMPLATE.md`: use `ticket-from-template`; UX decisions: `bmad-ux`; delivery from a ticket: `bmad-build`. Use `bmad` when the next BMad step is unclear.
 - Module design: use Matt Pocock `codebase-design`; domain terminology: `domain-modeling`; hard bugs: `diagnosing-bugs`; test-first changes: `tdd`; branch or PR review: `code-review`.
 - When a task uses both, keep the BMad ticket as the requirements source and use the Matt Pocock skill for its focused engineering method.
 
