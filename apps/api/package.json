@@ -1,5 +1,5 @@
 {
-  "name": "pea-api",
+  "name": "@pea/api",
   "private": true,
   "type": "module",
   "scripts": {

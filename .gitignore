@@ -8,3 +8,6 @@
 # API build artifacts
 apps/api/node_modules/
 apps/api/dist/
+node_modules/
+apps/web/dist/
+apps/web/*.tsbuildinfo
