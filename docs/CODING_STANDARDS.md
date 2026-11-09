@@ -2,6 +2,8 @@
 
 Apply these rules to code and infrastructure changes. [PRD.md](PRD.md) defines product behavior; [TESTING_STANDARD.md](TESTING_STANDARD.md) defines test coverage.
 
+The repository uses npm workspaces for `apps/api`, `apps/web`, and `apps/ai`. Install dependencies from the root with `npm ci` and keep one root `package-lock.json`. Add dependencies to the workspace that uses them. The AI workspace has no runtime until a concrete retrieval or data need exists.
+
 ## Start with the smallest useful slice
 
 - Implement one supported endorsement flow end to end before generalizing it to other change types.

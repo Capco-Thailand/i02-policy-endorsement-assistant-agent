@@ -1,9 +1,11 @@
 <!-- bmad:context -->
-<!-- Verified 2026-11-09 against the initial working tree; no commit exists yet. Managed by bmad-project-context. -->
+<!-- Verified 2026-11-09 against the monorepo workspace setup. Managed by bmad-project-context. -->
 
 ## Policy Endorsement Assistant
 
 This is a prototype for synthetic insurance policy endorsements. Read `docs/PRD.md` for product behavior and boundaries. The four roles share the repository; folder routes indicate the usual work area, not exclusive ownership.
+
+Use the root npm workspace for `apps/api`, `apps/web`, and `apps/ai`; install from the repository root and keep the root lockfile. See [README.md](README.md) for development commands.
 
 For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STANDARDS.md). For tests or security checks, read [TESTING_STANDARD.md](docs/TESTING_STANDARD.md). For UX design files, read [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md).
 
