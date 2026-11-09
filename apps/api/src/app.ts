@@ -9,6 +9,11 @@ export async function buildApp() {
   await app.register(swagger, {
     openapi: {
       info: { title: 'Policy Endorsement Assistant API', version: '0.1.0' },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
     },
   });
   await app.register(swaggerUi, { routePrefix: '/docs' });

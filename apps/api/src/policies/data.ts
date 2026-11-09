@@ -58,8 +58,9 @@ const records: ReadonlyArray<{ owner: string; policy: Policy }> = [
 ];
 
 export function resolveDemoUser(authorization: string | undefined): string | undefined {
-  if (!authorization?.startsWith('Bearer ')) return undefined;
-  return usersByToken.get(authorization.slice('Bearer '.length));
+  const match = authorization?.match(/^Bearer\s+(.+)$/i);
+  if (!match?.[1]) return undefined;
+  return usersByToken.get(match[1]);
 }
 
 export function listPolicies(userId: string): Policy[] {

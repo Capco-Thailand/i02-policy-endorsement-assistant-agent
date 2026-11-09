@@ -90,3 +90,17 @@ context:
 **Manual checks:**
 
 - Inspect the API docs for the three routes and verify that the response examples contain synthetic data only.
+
+## Code Review
+
+### 2026-11-09
+
+Review of `feat/gh-3-policy-api` against `main`: 7 files changed, 292 additions, 1 deletion. Five patch findings remain; one false finding was rejected.
+
+- [x] [Review][Patch] Verify all policy detail fields, beneficiary fields, and the OpenAPI 200 schema [apps/api/src/policies/routes.test.ts:20]
+- [x] [Review][Patch] Match the Bearer authentication scheme case-insensitively [apps/api/src/policies/data.ts:60]
+- [x] [Review][Patch] Document bearer authentication in OpenAPI [apps/api/src/app.ts:8]
+- [x] [Review][Patch] Cover rejection of an unknown demo token [apps/api/src/policies/routes.test.ts:7]
+- [x] [Review][Patch] Verify foreign initiation returns the generic 404 body [apps/api/src/policies/routes.test.ts:35]
+
+Rejected: The OpenAPI 204 response suggestion was false; generated output contains only a description and no response content schema.

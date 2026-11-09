@@ -17,7 +17,7 @@ const problem = {
 
 export async function registerPolicyRoutes(app: FastifyInstance): Promise<void> {
   app.get('/policies', {
-    schema: { description: 'List policies available to the authenticated demo user', response: { 200: { type: 'array', items: policySummary }, 401: problem } },
+    schema: { description: 'List policies available to the authenticated demo user', security: [{ bearerAuth: [] }], response: { 200: { type: 'array', items: policySummary }, 401: problem } },
   }, async (request, reply) => {
     const userId = resolveDemoUser(request.headers.authorization);
     if (!userId) return reply.code(401).send({ error: 'Unauthorized' });
@@ -27,6 +27,7 @@ export async function registerPolicyRoutes(app: FastifyInstance): Promise<void> 
   app.get<{ Params: { policyId: string } }>('/policies/:policyId', {
     schema: {
       description: 'Get an owned synthetic policy and its beneficiaries',
+      security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['policyId'], properties: { policyId: { type: 'string' } } },
       response: { 200: { ...policySummary, required: [...policySummary.required, 'policyholder_name', 'sum_assured', 'annual_premium', 'beneficiaries'], properties: { ...policySummary.properties, policyholder_name: { type: 'string' }, sum_assured: { type: 'string' }, annual_premium: { type: 'string' }, beneficiaries: { type: 'array', items: { type: 'object', required: ['beneficiary_id', 'full_name', 'relationship', 'allocation_percentage'], properties: { beneficiary_id: { type: 'string' }, full_name: { type: 'string' }, relationship: { type: 'string' }, allocation_percentage: { type: 'number' } } } } } }, 401: problem, 404: problem },
     },
@@ -41,6 +42,7 @@ export async function registerPolicyRoutes(app: FastifyInstance): Promise<void> 
   app.post<{ Params: { policyId: string } }>('/policies/:policyId/endorsements/initiate', {
     schema: {
       description: 'Check whether an owned active policy may enter endorsement intake; creates no draft',
+      security: [{ bearerAuth: [] }],
       params: { type: 'object', required: ['policyId'], properties: { policyId: { type: 'string' } } },
       response: { 204: { type: 'null' }, 401: problem, 404: problem, 409: problem },
     },
