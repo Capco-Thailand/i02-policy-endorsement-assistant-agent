@@ -1,6 +1,6 @@
 ---
 name: pr
-description: "Use when writing a PR body."
+description: "Use when creating a pull request or writing and revising its body."
 metadata:
   credits:
     skill: show-me
@@ -31,6 +31,14 @@ Use this template for writing the PR body:
 
 <optional: potential ramifications of merge>
 ```
+
+## Create or update a pull request
+
+When the user asks to open a PR, prepare the title and body from the current branch's complete diff against the intended base branch. Confirm the branch is pushed and inspect whether a PR already exists before creating one. Never include unrelated working-tree changes in the PR unless the user asks for them.
+
+Create the PR with the GitHub CLI when authenticated. Put a multiline body in a temporary file and pass it with `gh pr create --base <base> --head <branch> --title <title> --body-file <path>`. After creation, read back the PR number, URL, title, and state with `gh pr view --json number,url,title,state` and report the link.
+
+If authentication or network access blocks GitHub operations, do not claim the PR was created and do not request or handle a pasted access token. Report the specific blocker and provide the branch's GitHub compare/new-PR URL so the user can create it or restore CLI authentication.
 
 ## Sections
 
