@@ -12,4 +12,14 @@ Start the Podman machine if needed with `podman machine start`. From the reposit
 
 Check `GET http://localhost:3000/health` for `{ "status": "ok" }`. Open `http://localhost:3000/docs` for Swagger UI or `http://localhost:3000/docs/json` for OpenAPI JSON. Unknown routes return a JSON 404. Schema validation errors on future routes return JSON 400 responses.
 
+## Synthetic policy API
+
+Use these demo bearer tokens with `GET /policies`, `GET /policies/:policyId`, and `POST /policies/:policyId/endorsements/initiate`:
+
+- `demo-alice` owns `SYN-POL-1001` (active) and `SYN-POL-1002` (expired).
+- `demo-bob` owns `SYN-POL-2001` (active).
+- `demo-empty` has no policies.
+
+The in-memory records and token-to-user mapping are deterministic fixtures, not authentication. Missing or invalid tokens return `401`. A policy that is missing or belongs to another user returns the same `404`. Initiation returns `204` for an owned active policy and `409` for an owned expired policy. It never creates a draft. Eligibility uses the stored status even when its dates disagree. Monetary values are decimal strings to preserve their exact values.
+
 Use synthetic data only. This setup does not connect to insurer systems or create endorsements.

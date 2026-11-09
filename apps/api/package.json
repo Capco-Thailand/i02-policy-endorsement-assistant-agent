@@ -6,7 +6,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "test": "node --import tsx --test src/app.test.ts"
+    "test": "node --import tsx --test src/app.test.ts src/policies/routes.test.ts"
   },
   "dependencies": {
     "@fastify/swagger": "^9.0.0",
