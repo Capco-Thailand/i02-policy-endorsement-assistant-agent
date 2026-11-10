@@ -163,3 +163,14 @@ deferred: []
 - [x] [Review][Patch] Document sign-in 400 response [apps/api/src/app.ts:42]
 - [x] [Review][Patch] Record expired sign-out sessions accurately [apps/api/src/auth.ts:56]
 Rejected: none.
+
+### 2026-11-10 - Web and documentation groups
+0 decision-needed; 7 patch; 0 defer; 9 rejected. The docs edge-case lens returned no findings; other docs lenses completed.
+- [ ] [Review][Patch] Ignore stale overlapping session checks [apps/web/src/app/policies/layout.tsx:27]
+- [ ] [Review][Patch] Do not label a first unauthenticated visit as an expired session [apps/web/src/app/policies/layout.tsx:35]
+- [ ] [Review][Patch] Bound pending API requests and allow retry [apps/web/src/lib/api.ts:12]
+- [ ] [Review][Patch] Preserve a safe requested destination for an already signed-in visitor [apps/web/src/app/sign-in/page.tsx:28]
+- [ ] [Review][Patch] Cover session failure, sign-out failure, and list retry in browser tests [apps/web/src/app/policies/layout.tsx:22]
+- [ ] [Review][Patch] Document the Node version required for Next.js [README.md:5]
+- [ ] [Review][Patch] Remove machine-local stash restoration instructions from the plan [_bmad-output/plan-gh-13-authenticate-staff.md:145]
+Rejected: failed sign-out deliberately hides protected content and offers retry; eight docs/source mismatch reports inspected the repository other local branch rather than this PR checkout.
