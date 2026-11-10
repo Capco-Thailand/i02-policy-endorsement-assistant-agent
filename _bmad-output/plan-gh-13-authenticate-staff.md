@@ -138,6 +138,7 @@ deferred: []
 - Review: two medium findings required plan-level corrections, then one medium finding was patched. No findings were deferred or rejected. Follow-up review recommended: false (zero high patches in this follow-up pass).
 - Verification: six API tests passed during implementation; the API and web production builds passed after the final focus correction; `git diff --check` passed. Browser interaction checks remain pending.
 - Residual risk: no automated browser test covers retry, sign-out failure, or cross-tab account switching. The implementation PR and CI remain pending.
+- PO handoff: GitHub Issue #13 remains open and **In Review**; its Progress & Handover now names `codex/bmad-build-docs-guidance`, the follow-up commit, passing checks, and outstanding browser/PR/CI work.
 
 - Status: built. FR-14 authentication, session revocation, assignment enforcement, review authorization guard, and sign-in UI are implemented.
 - Files: `apps/api/` contains Fastify routes, stores, schemas, and six API tests; `apps/web/` contains sign-in and protected pages; `README.md`, `docs/API_DEVELOPMENT.md`, `docs/ADR.md`, and the root lockfile document and support the new workspaces.
