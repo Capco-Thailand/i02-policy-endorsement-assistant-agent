@@ -25,7 +25,7 @@ export default function SignInPage() {
   useEffect(() => {
     const reason = new URLSearchParams(window.location.search).get('reason');
     setNotice(reason === 'expired' ? 'Your session ended. Sign in again to continue.' : reason === 'signed-out' ? 'You signed out.' : '');
-    currentActor().then(() => router.replace('/policies')).catch(() => setChecking(false));
+    currentActor().then(() => router.replace(safeReturnPath(new URLSearchParams(window.location.search).get('next')))).catch(() => setChecking(false));
   }, [router]);
 
   useEffect(() => {

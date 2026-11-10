@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { StaffDto } from '@pea/api/contracts';
 import { ApiError, currentActor, signOut } from '@/lib/api';
 
-export function redirectForExpiredSession(router: ReturnType<typeof useRouter>) {
+export function redirectForExpiredSession(router: ReturnType<typeof useRouter>, expired = true) {
   const next = window.location.pathname;
-  router.replace(`/sign-in?reason=expired&next=${encodeURIComponent(next)}`);
+  router.replace(`/sign-in?${expired ? 'reason=expired&' : ''}next=${encodeURIComponent(next)}`);
 }
 
 export default function PoliciesLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -18,31 +18,35 @@ export default function PoliciesLayout({ children }: Readonly<{ children: React.
   const [checkAttempt, setCheckAttempt] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutFailed, setSignOutFailed] = useState(false);
+  const latestCheck = useRef(0);
+  const hadActor = useRef(false);
 
   useEffect(() => {
     let active = true;
     async function check() {
+      const checkId = ++latestCheck.current;
       try {
         const response = await currentActor();
-        if (active) {
+        if (active && checkId === latestCheck.current) {
+          hadActor.current = true;
           setActor(response.actor);
           setSessionCheckFailed(false);
         }
       } catch (error) {
-        if (active && error instanceof ApiError && error.status === 401) {
+        if (active && checkId === latestCheck.current && error instanceof ApiError && error.status === 401) {
           setActor(null);
-          redirectForExpiredSession(router);
-        } else if (active) {
+          redirectForExpiredSession(router, hadActor.current);
+        } else if (active && checkId === latestCheck.current) {
           setActor(null);
           setSessionCheckFailed(true);
         }
       } finally {
-        if (active) setChecking(false);
+        if (active && checkId === latestCheck.current) setChecking(false);
       }
     }
     void check();
     const timer = window.setInterval(check, 30_000);
-    return () => { active = false; window.clearInterval(timer); };
+    return () => { active = false; latestCheck.current++; window.clearInterval(timer); };
   }, [router, checkAttempt]);
 
   function retrySessionCheck() {
@@ -54,6 +58,7 @@ export default function PoliciesLayout({ children }: Readonly<{ children: React.
 
   async function leave() {
     if (signingOut) return;
+    latestCheck.current++;
     setSigningOut(true);
     setSignOutFailed(false);
     try {
