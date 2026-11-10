@@ -8,7 +8,7 @@
 
 ## Context
 
-The frontend, API, and retrieval workspaces need one consistent stack and contract boundary. The product uses synthetic insurance data and must keep authorization, eligibility, quoting, and draft decisions on the server. The repository currently has workspace declarations but no application implementation files in this checkout.
+The frontend, API, and retrieval workspaces need one consistent stack and contract boundary. The product uses synthetic insurance data and must keep authorization, eligibility, quoting, and draft decisions on the server. At the time of this decision, the repository had workspace declarations but no application implementation files.
 
 ## Decision
 
@@ -23,7 +23,7 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 - Next.js and Fastify run as separate services; local development reserves port 3001 for Next.js and port 3000 for Fastify.
 - The web app displays server results and does not recalculate eligibility or premiums.
 - Changes to route schemas require regenerated or rederived client types and updated API consumers.
-- The planned Next.js app replaces the earlier Vite shell direction. No application migration is required in this checkout because the workspace implementation files are absent.
+- The Next.js app replaces the earlier Vite shell direction. No application migration was required because the workspace implementation files were absent when this decision was made.
 
 ## Alternatives considered
 
