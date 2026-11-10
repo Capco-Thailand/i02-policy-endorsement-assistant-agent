@@ -1,184 +1,117 @@
-# Product Requirements Document (PRD)
+# PRD — I02 Life Insurance Policy Endorsement Assistant
 
-## Policy Endorsement Assistant Agent
+**Version:** 1.0 | **Date:** 2026-11-10 | **Status:** MVP
 
-| Field | Value |
+## 1. Product goal and scope
+
+Build an AI-assisted life insurance endorsement workflow. Staff select a policy, describe a requested change, and receive RAG-grounded policy details and endorsement rules. The system checks authorization and eligibility, runs **mock eKYC** and a **bypassed mock document check**, estimates premium impact, and creates a **draft endorsement for human approval**.
+
+- **Users:** Authenticated policy-service staff using synthetic demo accounts. All staff have one application role.
+- **Supported changes:** Beneficiary, correspondence address, payment frequency, and accidental-death rider.
+- **Policy statuses:** `ACTIVE` and `EXPIRED`; only `ACTIVE` policies may proceed to endorsement eligibility.
+- **Data:** Synthetic policies, customer profiles, rules, documents, and rating tables only.
+- **Out of scope:** Production identity-provider integration, real eKYC, real document inspection/OCR, medical underwriting, insurer integrations, issuance, automated approval, live policy updates, or coverage binding.
+
+### Authentication and access
+
+- Staff sign in with individual synthetic demo accounts and can sign out. The backend validates the session on every protected request; a browser-provided user ID or role is never trusted as proof of identity. Sessions expire and are invalid after sign-out.
+- Unauthenticated users cannot view policies, retrieve policy evidence, create requests or drafts, or review drafts. The UI directs them to sign in. The API returns `401` for missing or invalid authentication.
+- Staff can access only policies assigned to their demo account and can create requests and submit drafts for those policies. A signed-in staff member assigned to the same policy can review a submitted draft and record approval or rejection, except its creator. Seed at least two staff accounts assigned to one policy so this flow can be demonstrated. The backend enforces policy access and the no-self-approval rule; inaccessible policy identifiers must not reveal policy details.
+- Authentication identifies the staff member. Mock eKYC verifies a synthetic customer fixture and does not sign anyone in or grant access. Audit records include the authenticated actor and action without storing credentials or session secrets.
+- Demo credentials and session configuration are supplied through local seed/configuration and documented for development. Production account management, password recovery, SSO, and external identity providers are outside this MVP.
+
+## 2. Agent workflow
+
+1. **Sign in and Understand Endorsement Request:** Authenticate the staff member, then identify the policy, requested change, requester, effective date, and required inputs. Ask for missing information.
+2. **Retrieve Policy Details & Endorsement Rules:** Use **mandatory RAG** to retrieve authorized policy information and applicable, effective-dated endorsement rules, including source references.
+3. **Validate Request & Eligibility:** Check authorization, input completeness, policy status, and applicable rules. Run `verify_ekyc` against synthetic identity fixtures. Run `verify_documents` as an explicit **mock bypass** returning `BYPASSED_MOCK` (no upload or document-content validation required). Record the bypass in audit history. Ineligible, failed-eKYC, conflicting, or referral cases do not proceed to automatic quotation/drafting.
+4. **Calculate Premium Impact:** For eligible requests with successful mock eKYC, call `quote_endorsement` using mock rating data; support zero-premium-impact changes.
+5. **Create Draft Endorsement for Human Approval:** Call `create_endorsement_draft` to save proposed changes, premium impact, verification outcomes, and RAG references as `DRAFT` with `binding=false`. Submit for review as `PENDING_APPROVAL`. A different signed-in staff member can mark it `APPROVED` or `REJECTED`; **approval records a decision only and never updates/binds a policy**.
+
+**Workflow statuses:** `DRAFT` → `PENDING_APPROVAL` → `APPROVED` / `REJECTED`. Blocked requests show an explanation and remain outside this approval progression. Neither the agent nor human approval in this MVP issues a policy endorsement.
+
+## 3. Containerized architecture
+
+```text
+Browser
+   |
+[Frontend container — React / Next.js]
+   | REST
+[Backend container — FastAPI]
+   |-- Authentication, session validation, agent orchestration, and access control
+   |-- Mock eKYC; document-check bypass
+   |-- Deterministic eligibility, mock quote, draft/review, audit
+   | internal API
+[RAG container — retrieval and ingestion]
+   |-- Policy-detail and endorsement-rule retrieval
+   |
+[PostgreSQL + pgvector container]
+   |-- Synthetic policy/rule data, embeddings, requests, drafts, audit
+```
+
+Use separate `frontend`, `backend`, and `rag` Dockerfiles plus a root `compose.yaml`. Storage runs in its own container. Seed demo data; provide health checks and environment configuration. The backend controls all writes and calls RAG over an internal interface. The browser must not directly access RAG or the database.
+
+## 4. RAG and verification rules
+
+| Component | Required behavior |
 |---|---|
-| Product ID | I02 |
-| Domain | Insurance |
-| Project complexity | Moderate |
-| Status | Draft v0.1 |
-| Document date | 2026-11-09 |
+| **Policy-detail RAG** | Retrieve only authorized policy information, filtered by `policy_id` and version; cite original policy sections. Verify key decision fields against structured records. |
+| **Endorsement-rule RAG** | Retrieve applicable rules by product, change type, and effective date; return citations and rule versions. Missing or conflicting rules trigger human referral. |
+| **Mock eKYC** | Simulate identity match, ID expiration, and liveness using synthetic fixtures; return `VERIFIED`, `FAILED`, or `REVIEW_REQUIRED`, plus reasons. No real biometrics. |
+| **Mock document verification** | Return `BYPASSED_MOCK` without OCR, signature analysis, file inspection, or authenticity checks. Record the result clearly; do not describe it as real verification. |
+| **Eligibility and rating** | Backend applies deterministic rules and mock rating tables; the LLM and RAG do not independently authorize endorsements or set premiums. |
 
-## 1. Product summary
+Apply authorization filters **before** retrieving policy evidence. Treat retrieved content as untrusted. Do not place identity documents in the vector index. `BYPASSED_MOCK` permits the **synthetic MVP workflow only**, never a live policy action.
 
-Build an insurance policy endorsement assistant that helps an authorized policy-service user understand a customer's requested policy change, check applicable endorsement rules, verify required information, calculate a **mock** premium-impact estimate, and prepare a draft for human approval. The agent must **never bind coverage or modify a live policy**.
+## 5. Functional requirements (feature overview)
 
-The prototype will use **synthetic policies, endorsement rules, rating tables, and change requests**, plus two mock administrative tools: `quote_endorsement` and `create_endorsement_draft`.
+This is a **high-level feature list in implementation order**. IDs are stable references, not sequence numbers. Authentication and policy access are prerequisites for protected policy and endorsement features. Each feature will have a separate detailed requirement and acceptance criteria for implementation.
 
-## 2. Problem and opportunity
-
-Customers request changes to existing insurance policies, such as updating a vehicle, adding a driver, changing an address, or modifying coverage. These requests can require several manual steps: understanding the change, locating the correct endorsement rules, checking eligibility and missing fields, estimating a premium change, and assembling an approval request.
-
-The assistant should reduce repetitive lookup and drafting work while giving the human reviewer a traceable explanation of how the recommendation and estimate were produced. It is an **assistant to review**, not an autonomous underwriting or policy-administration authority.
-
-## 3. Goals and success measures
-
-### Goals
-
-1. Correctly identify supported endorsement intents from natural-language requests.
-2. Retrieve the applicable versioned rule or explicitly report that no reliable rule was found.
-3. Detect missing and invalid inputs before requesting a quote.
-4. Use a deterministic mock rating tool rather than inventing premium amounts.
-5. Create a reviewable endorsement draft with rule references and an audit trail.
-6. Block unauthorized actions and any attempt to issue or alter live coverage.
-
-### Draft success measures
-
-| Measure | Definition | Draft target |
+| ID | Feature | Description |
 |---|---|---|
-| Intent classification | Correct supported-change type, or `unsupported` | >= 90% on held-out synthetic requests |
-| Rule compliance | Correct eligibility decision, required fields, and rule citations | >= 95% on labeled scenarios |
-| Change authorization | Unauthorized actions blocked; no live-policy changes | 100% across negative tests |
-| Missing-field detection | Required missing fields correctly flagged | >= 95% |
-| Premium estimate integrity | Quoted amount matches mock rating-tool response | 100% |
-| Draft completeness | All mandatory draft fields populated when eligible | >= 95% |
+| FR-14 | **Authenticate Staff** | Sign in/out with individual synthetic demo accounts; validate expiring sessions on protected API calls; enforce policy access and no-self-approval on the backend. |
+| FR-03 | **Check Policy Access & Requester Authorization** | Confirm permission to view a policy and request the specified change. |
+| FR-01 | **Display Policy List & Policy Detail** | View permitted life policies, status, owner/insured, coverage, beneficiaries, riders, and payment details. |
+| FR-02 | **Create Endorsement Request** | Choose a policy and submit one of the four supported policy changes. |
+| FR-04 | **Retrieve Policy Details with RAG** | Fetch relevant policy evidence with source citations and versions. |
+| FR-05 | **Retrieve Endorsement Rules with RAG** | Fetch change-specific rules and requirements with citations and effective dates. |
+| FR-06 | **Verify Customer Identity (Mock eKYC)** | Simulate identity checks with synthetic pass/fail/review outcomes. |
+| FR-07 | **Bypass Document Verification (Mock)** | Record `BYPASSED_MOCK` without inspecting or validating uploaded documents. |
+| FR-08 | **Check Endorsement Eligibility** | Validate required inputs, authorization, active status, applicable rules, and mock eKYC; explain blocked/referred cases. |
+| FR-09 | **Calculate Premium Impact (Mock Quote)** | Show estimated before/after premium and change amount from mock rating data. |
+| FR-10 | **Create Draft Endorsement for Human Approval** | Save a non-binding `DRAFT` with proposed changes, quote, and supporting evidence; submit as `PENDING_APPROVAL`. |
+| FR-11 | **Review & Approve/Reject Endorsement Draft** | A signed-in staff member assigned to the policy, other than the creator, can review a submitted draft and record an `APPROVED` or `REJECTED` decision; staff can track status. |
+| FR-12 | **Record Activity & Audit History** | Log access, RAG sources, eKYC result, document bypass, quotes, draft creation, and reviewer decisions. |
+| FR-13 | **Run the System with Docker Compose** | Start FE, BE, RAG, and PostgreSQL/pgvector with seeded synthetic data. |
 
-The numeric targets are project assumptions, not requirements shown on the source brief.
+**Guardrails:** Access checks precede RAG. Failed eKYC, missing or contradictory rules, expired policies, and ineligible changes block automatic quote/draft creation. A document bypass is a declared simulation, not evidence of real verification. No workflow state changes the live policy.
 
-## 4. Users and primary job stories
+## 6. Evaluation
 
-**Primary user: Policy service representative.** When a customer asks for a policy change, I want to understand what details are needed, see the relevant rules and estimated impact, and produce a draft for review without changing the policy.
+| Measure | MVP target |
+|---|---:|
+| Endorsement intent classification accuracy | ≥90% |
+| Correct policy-detail retrieval | ≥95% |
+| Relevant rule retrieval recall | ≥95% |
+| Mock eKYC scenario correctness | ≥95% |
+| Document bypass consistently returns and logs `BYPASSED_MOCK` | 100% |
+| Deterministic eligibility scenario correctness | ≥95% |
+| Drafts contain policy/rule citations, quote, and verification results | 100% |
+| Quotes agree with mock rating output | 100% |
+| Unauthorized approvals, live-policy writes, or coverage binding | **0** |
+| Unauthenticated protected actions or cross-account policy/draft access | **0** |
 
-**Secondary user: Underwriting / approval reviewer.** When a draft is submitted, I want to see the requested change, rule evidence, missing information, quote assumptions, and authorization status so I can decide what to do next.
+Test sign-in, sign-out, expired/invalid sessions, cross-account policy access, blocked self-approval, approval by a different staff account, active/expired policies, successful/failed mock eKYC, document bypass, unavailable/conflicting RAG evidence, premium changes and zero-delta quotes, duplicate submissions, and tool failure handling.
 
-**Evaluator / administrator.** I need to inspect tool usage, rule versions, blocked actions, and outcome quality against known test cases.
+## 7. Definition of done
 
-**Policyholder (synthetic demo user).** I need to find a synthetic life policy, review its details and beneficiaries, and start an endorsement request only when that policy is active.
+- All 14 listed features function with seeded synthetic data using Docker Compose.
+- Staff can sign in and out; protected actions require a valid session, and the backend enforces policy access and no-self-approval.
+- RAG provides versioned, cited policy and rule evidence, restricted by policy authorization.
+- The four supported endorsement types reach a draft when eligible; blocked cases show reasons.
+- Mock eKYC gates the workflow; document verification is always visibly marked `BYPASSED_MOCK` and audited.
+- A draft can be submitted for human approval, then approved or rejected by a different signed-in staff member.
+- Quotes are deterministic, all actions are auditable, and **no draft or approval modifies or binds any live policy**.
+- Evaluation thresholds in Section 6 are met.
 
-## 5. Scope
-
-### In scope — MVP
-
-- Natural-language intake of one endorsement request at a time.
-- Classification of a supported change type and extraction of request fields.
-- Retrieval of applicable synthetic, versioned endorsement rules.
-- Validation of required inputs and eligibility against those rules.
-- Clarification prompts for missing or ambiguous information.
-- Calls to `quote_endorsement` **only after** required data and rule checks pass.
-- Calculation/display of premium difference from a deterministic **mock** rating service.
-- Calls to `create_endorsement_draft` to produce a **non-binding** review artifact.
-- User-visible summary with rationale, rule citations, quote assumptions, and review status.
-- Audit logging and offline evaluation using synthetic cases.
-- A policyholder-facing policy list and policy detail flow for synthetic life insurance policies, including beneficiary display and a route into endorsement intake for active policies. Its backend may use a local synthetic database; it must not connect to live insurer or policy systems.
-
-Example MVP endorsement types: `add_driver`, `change_address`, `replace_vehicle`, and `change_coverage_limit`. Rules and rating behavior for these examples are invented for the prototype and must not be represented as real insurer rules.
-
-### Out of scope
-
-- Connecting to real insurers, policy administration systems, or production databases.
-- Binding, issuing, activating, canceling, or modifying live coverage.
-- Real payments, billing adjustments, document issuance, or customer notifications.
-- A real actuarial pricing model or production underwriting decisions.
-- Identity verification against external systems or legally effective approvals.
-- Multi-policy changes, endorsements requiring negotiation, or complex referral workflows.
-
-## 6. End-to-end user workflow
-
-1. **Understand the request.** Read the user's message and identify the endorsement intent, referenced synthetic policy, effective date, and requested changes. If unsupported or ambiguous, ask for clarification or refer to a human.
-2. **Retrieve endorsement rules.** Find the applicable rule by change type, policy attributes, and effective date; expose rule ID and version to the user.
-3. **Validate required inputs.** Check presence, format, business constraints, eligibility, and caller authorization. Stop or ask questions if information is insufficient.
-4. **Call mock rating tool.** Submit a validated, structured quote request to `quote_endorsement`; display the estimate and assumptions from its response without modifying any values.
-5. **Draft approval request.** If eligible and authorized, call `create_endorsement_draft` to generate a review-only record. Show draft ID, proposed change, premium difference, rationale, and `PENDING_REVIEW` status.
-
-Possible states: `INTAKE` -> `NEEDS_INFORMATION` / `UNSUPPORTED` / `INELIGIBLE` / `READY_TO_QUOTE` -> `QUOTED` -> `DRAFTED_PENDING_REVIEW`. Errors should yield `REQUIRES_HUMAN_REVIEW`, not silent approval.
-
-## 7. Data and knowledge requirements
-
-Maintain a synthetic dataset with:
-
-- **Policies:** policy ID, line of business, status, term dates, base premium, coverage options, risk attributes, and authorized mock user roles.
-- For the policyholder policy list/detail flow: policy number, policyholder name, product name, status (`ACTIVE` or `EXPIRED`), sum assured, annual premium, effective and expiry dates, and current beneficiaries (ID, full name, relationship, and allocation percentage).
-- **Endorsement rules:** rule ID/version, supported change type, eligibility conditions, required inputs, effective dates, exclusions, and referral conditions.
-- **Rating tables:** rule/table version, factor keys, allowed ranges, calculation method, and currency.
-- **Requests:** request text, desired effective date, policy ID, proposed changes, and expected outcomes for testing.
-
-### RAG decision
-
-**RAG is useful but not a prerequisite for the MVP.** Start with deterministic structured lookup over a small, versioned synthetic rules catalog. Add semantic search / RAG only if rule text becomes sufficiently long or varied that keyword/field-based lookup misses relevant passages. Even when RAG is used, the **rule engine must validate eligibility deterministically** against structured rules; retrieved text alone must not authorize a change or calculate a premium.
-
-Rule retrieval must include metadata filtering (effective date, product, change type, version), source IDs in responses, and a safe fallback when sources conflict or none match.
-
-## 8. Mock tool contracts
-
-### `quote_endorsement`
-
-**Purpose:** Estimate mock premium impact; no persistent policy updates.
-
-**Example request**
-
-```json
-{
-  "request_id": "REQ-001",
-  "policy_id": "SYN-POL-1001",
-  "endorsement_type": "add_driver",
-  "effective_date": "2026-12-01",
-  "proposed_changes": { "driver_age": 32, "years_licensed": 10 },
-  "rule_version": "ADD-DRIVER-v1"
-}
-```
-
-**Example response (illustrative, not real pricing)**
-
-```json
-{
-  "quote_id": "QUOTE-001",
-  "currency": "USD",
-  "previous_premium": 1200.00,
-  "proposed_premium": 1284.00,
-  "premium_delta": 84.00,
-  "rating_table_version": "MOCK-RATE-v1",
-  "assumptions": ["Synthetic annualized premium", "No taxes or fees"],
-  "binding": false
-}
-```
-
-### `create_endorsement_draft`
-
-**Purpose:** Persist a mock review artifact, never apply the change to coverage.
-
-**Required input:** request ID, synthetic policy ID, proposed changes, validated eligibility decision, cited rule IDs/versions, quote ID, premium delta, requestor role, and audit metadata.
-
-**Required output:** draft ID, immutable summary, creation timestamp, and status `PENDING_REVIEW`. The mock endpoint must reject missing quote/rule evidence, ineligible requests, or unauthorized roles.
-
-Both tools should return structured errors and support idempotency using `request_id` or an explicit idempotency key.
-
-## 9. Security, safety, and non-functional requirements
-
-- **Hard boundary:** No live policy write connector; no bind/issue/activate APIs exposed to the agent. UI text or user instructions must not override this restriction.
-- **Role checks:** Enforce authorization on the tool/server side, not only in the agent prompt. Model approval as a separate human action outside the agent's privileges.
-- **Trust boundaries:** Treat customer messages and retrieved policy/rule text as untrusted input; reject prompt-injection attempts to bypass rules or tools.
-- **Privacy:** Use synthetic data only; avoid unnecessary personal data in logs and exports.
-- **Reliability:** Fail closed on missing evidence, invalid tool responses, system errors, or uncertain eligibility; avoid duplicate drafts.
-- **Observability:** Log structured traces with redaction, stable correlation IDs, timestamps, decisions, and rule/tool versions.
-- **Performance goal:** For the demo environment, target <= 10 seconds end-to-end at p95 excluding human clarification; measure actual latency during evaluation.
-- **Reproducibility:** Seed datasets and mock calculation rules; freeze evaluation fixtures for comparable runs.
-
-## 10. Key screens / outputs
-
-A minimal chat or form interface should show: request interpretation; missing-data prompts; eligibility result with rule citations; an itemized mock premium comparison; and a downloadable or viewable approval draft with an explicit **NOT BOUND — PENDING HUMAN REVIEW** indicator. A reviewer/evaluator view should expose the audit trace and rule/tool versions.
-
-The policyholder entry flow also includes `/policies` and `/policies/:policyId`. The detail view shows policy data and beneficiaries, and offers a Request Endorsement action only for `ACTIVE` policies. The endorsement intake route is `/policies/:policyId/endorsements/new`; opening it does not create or bind an endorsement.
-
-## 11. Assumptions, dependencies, and open decisions
-
-**Assumptions:** This is a teaching/demo prototype; all policies and premiums are synthetic; a single currency and one insurance product line may be selected for MVP; approval is human-only and outside scope. Proposed targets, example endorsement types, latency, and mock API fields remain open.
-
-**Dependencies:** Synthetic data generation, agreed rule logic, mock rating formula, accessible development environment, and representative labeled evaluation cases.
-
-**Open decisions:**
-
-1. The policyholder list/detail slice uses synthetic life policies; which line of business and endorsement types are mandatory for the service-representative assistant flow?
-2. What are the mock user roles and precise criteria for draft authorization?
-3. Which fields and rating logic must appear in the demonstration?
-4. Does the evaluator require true vector RAG, or is a cited structured-rule lookup acceptable?
+**Principle:** *RAG retrieves evidence; backend validates and quotes; the agent prepares a draft; a different staff member decides; live policy changes remain outside the MVP.*
