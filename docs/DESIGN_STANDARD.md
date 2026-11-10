@@ -17,6 +17,8 @@ For UI work, `bmad-ux` reads the ticket requirements first, then this standard a
 
 Sofia (`bmad-agent-po`) adds the UX documents and page paths to the ticket. `bmad-build` reads those references before implementing the UI in `apps/web/` and verifies the ticket's UI states and accessibility behavior. API and end-to-end coverage can be added after the feature works; a human walkthrough can be used for acceptance.
 
+The UX/UI process ends with a pull request for the completed handoff. After validating the UX documents and browser-viewable mockups, commit only the handoff files on a task branch, push it, and open a PR against the intended base. Include the ticket and delivered design paths in the PR. The implementation remains a separate `bmad-build` step.
+
 ## Component references
 
 Reference reusable fragments from pages with an include marker, for example:

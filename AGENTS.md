@@ -26,7 +26,7 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 - BMad setup or render failures on Windows: use `bmad-render-repair`.
 - Module design: use Matt Pocock `codebase-design`; domain terminology: `domain-modeling`; hard bugs: `diagnosing-bugs`; test-first changes: `tdd`; branch or PR review: `code-review`.
 - When a task uses both, keep the GitHub Issue as the requirements source and use the Matt Pocock skill for its focused engineering method.
-- For UI work, run `bmad-ux` from the ticket requirements before `bmad-build`. UX delivers `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable `design/page/<pagename>.html` mockups linked from `design/page/index.html`; Sofia links these in the ticket. The build follows the UX documents and mockups, then verifies UI behavior and accessibility. See [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md) for the handoff.
+- For UI work, run `bmad-ux` from the ticket requirements before `bmad-build`. UX delivers `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable `design/page/<pagename>.html` mockups linked from `design/page/index.html`; Sofia links these in the ticket. Finish the UX/UI process by committing the handoff on a task branch and creating a PR. The build follows the UX documents and mockups, then verifies UI behavior and accessibility. See [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md) for the handoff.
 
 ## Documentation maintenance
 

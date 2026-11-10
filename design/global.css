@@ -76,3 +76,23 @@ a:focus-visible, button:focus-visible { outline: 3px solid #bd7b25; outline-offs
 @media(max-width:700px) { .shell { padding:32px 18px 58px; } .site-header { padding:0 18px; } .grid { grid-template-columns:1fr; } .facts { grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 18px; } .page-heading { align-items:start; flex-direction:column; gap:10px; } }
 @media(max-width:440px) { .facts { grid-template-columns:1fr; } .record-heading { align-items:start; flex-direction:column; } .beneficiary { align-items:start; flex-direction:column; gap:8px; } .metadata { gap:13px; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; } }
+
+/* FR-14 staff sign-in preview */
+.auth-shell { max-width:520px; margin:0 auto; padding:66px 24px 80px; }
+.auth-kicker { margin:0 0 12px; color:var(--accent); font:700 11px/1.4 Arial,sans-serif; text-transform:uppercase; letter-spacing:.14em; }
+.auth-title { margin:0; font:400 clamp(34px,5vw,44px)/1.12 Georgia,serif; letter-spacing:-.035em; }
+.auth-intro { margin:12px 0 30px; color:#53615d; font:15px/1.6 Arial,sans-serif; }
+.auth-panel { padding:30px; border:1px solid var(--line); background:var(--paper); }
+.auth-field { margin-bottom:20px; }
+.auth-field label { display:block; margin-bottom:8px; font:700 13px/1.4 Arial,sans-serif; }
+.auth-field input { width:100%; min-height:46px; padding:10px 12px; border:1px solid #8c9791; border-radius:2px; background:white; color:var(--ink); font:15px/1.4 Arial,sans-serif; }
+.auth-field input:focus-visible { outline:3px solid #bd7b25; outline-offset:2px; }
+.auth-submit { width:100%; cursor:pointer; }
+.auth-submit:disabled { opacity:.7; cursor:wait; }
+.auth-message { margin:0 0 20px; padding:13px 15px; border-left:3px solid #9b3e2f; background:#fbf0ed; color:#713329; font:14px/1.5 Arial,sans-serif; }
+.auth-message.info { border-color:var(--accent); background:var(--accent-soft); color:#235a50; }
+.auth-footer { margin:20px 0 0; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font:12px/1.5 Arial,sans-serif; }
+.auth-preview { display:flex; flex-wrap:wrap; gap:8px; max-width:520px; margin:0 auto 50px; padding:0 24px; }
+.auth-preview button { padding:8px 11px; border:1px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer; font:12px/1.3 Arial,sans-serif; }
+.auth-preview button:hover { border-color:var(--accent); }
+@media(max-width:520px) { .auth-shell { padding:40px 18px 24px; } .auth-panel { padding:23px 20px; } .auth-preview { padding:0 18px; } }
