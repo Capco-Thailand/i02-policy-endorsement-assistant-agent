@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff sign in — Policy Endorsement Assistant</title>
+  <link rel="stylesheet" href="../global.css">
+  <script src="sign-in.js" defer></script>
+</head>
+<body>
+  <header class="site-header"><span class="brand-mark">PE</span><span>Policy Endorsement Assistant<small>Staff workspace · synthetic demo</small></span></header>
+  <main class="auth-shell">
+    <p class="auth-kicker">Staff workspace</p>
+    <h1 class="auth-title">Staff sign in</h1>
+    <p class="auth-intro">Use your individual demo account to work with assigned synthetic policies.</p>
+    <section class="auth-panel" aria-label="Sign-in form">
+      <p id="auth-message" class="auth-message" role="alert" hidden></p>
+      <form id="auth-form">
+        <div class="auth-field"><label for="account-id">Account ID</label><input id="account-id" name="account-id" autocomplete="username" required></div>
+        <div class="auth-field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+        <button class="button auth-submit" type="submit">Sign in</button>
+      </form>
+      <p class="auth-footer">Synthetic demo accounts only. This preview does not authenticate or access policy data.</p>
+    </section>
+  </main>
+  <nav class="auth-preview" aria-label="Preview states">
+    <button type="button" data-state="initial">Initial</button>
+    <button type="button" data-state="invalid">Invalid credentials</button>
+    <button type="button" data-state="expired">Session expired</button>
+    <button type="button" data-state="signed-out">Signed out</button>
+  </nav>
+</body>
+</html>
