@@ -1,0 +1,7 @@
+[tickets]
+store = "github"
+repo = ""
+
+[tickets.types]
+story = "type:story"
+bug = "type:bug"

@@ -1,0 +1,86 @@
+name: Story
+description: Define a user or system outcome and its acceptance criteria.
+title: "[Story] "
+labels: ["type:story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Apply at least one relevant `role:product`, `role:design`, `role:qa`, or `role:dev` label after creation. Use `needs:human-review` only while a human decision or review is pending; remove it when resolved. Before implementation, read dependencies and repository context. Work to the acceptance criteria, record test results, and update Progress & Handover before stopping. Implementation does not count as human approval.
+  - type: input
+    id: objective
+    attributes:
+      label: Summary and objective
+      placeholder: What outcome should this story deliver?
+    validations:
+      required: true
+  - type: textarea
+    id: requirement
+    attributes:
+      label: User story or requirement
+      description: Describe the need and who benefits; use a system requirement when no user story fits.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Business or technical context
+      description: Link relevant decisions, designs, or documentation. Use N/A if none.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] Observable result and conditions"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and out of scope
+      value: |
+        In scope:
+        -
+
+        Out of scope:
+        -
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Link prerequisite Issues or decisions; use None if there are none.
+  - type: textarea
+    id: subtasks
+    attributes:
+      label: Related subtasks
+      description: Link subtask Issues here and add them as native sub-issues where available. The form does not create sub-issues.
+  - type: checkboxes
+    id: done
+    attributes:
+      label: Definition of Done
+      description: Check only applicable items as work is completed.
+      options:
+        - label: Acceptance criteria satisfied
+        - label: Applicable tests completed
+        - label: Relevant documentation updated
+        - label: Code review completed, if applicable
+        - label: CI checks passed, if applicable
+        - label: Related Issues and PRs linked
+        - label: Progress and handover updated
+        - label: No unresolved blockers
+  - type: textarea
+    id: handover
+    attributes:
+      label: Progress & Handover
+      description: Edit this section in the Issue body before stopping or transferring work. Use Status values Not Started, In Progress, Blocked, In Review, or Done. Link evidence and record the update date; use N/A where a field does not apply.
+      value: |
+        - **Status:** Not Started
+        - **Completed:** N/A
+        - **Remaining:** N/A
+        - **Branch:** N/A
+        - **PR:** N/A
+        - **Latest Test/CI Result:** N/A
+        - **Blockers:** N/A
+        - **Dependencies:** N/A
+        - **Next Action:** N/A
+        - **Context Links:** N/A
+        - **Last Updated:** N/A

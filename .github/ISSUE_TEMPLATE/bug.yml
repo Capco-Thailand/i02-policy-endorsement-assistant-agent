@@ -1,0 +1,98 @@
+name: Bug
+description: Report a reproducible defect and how to verify its fix.
+title: "[Bug] "
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Apply at least one relevant `role:product`, `role:design`, `role:qa`, or `role:dev` label after creation. Use `needs:human-review` only while a human decision or review is pending; remove it when resolved. Before implementation, read dependencies and repository context. Work to the verification criteria, record test results, and update Progress & Handover before stopping. Implementation does not count as human approval.
+  - type: input
+    id: summary
+    attributes:
+      label: Bug summary
+      placeholder: What fails, and where?
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include inputs and prerequisites, or explain why reproduction is unavailable.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected vs. actual behavior
+      value: |
+        Expected:
+
+        Actual:
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include relevant version, platform, or configuration; use N/A if unknown.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and logs
+      description: Link or attach screenshots, logs, and test output. Redact secrets and personal data.
+  - type: textarea
+    id: related
+    attributes:
+      label: Related Issues or PRs
+      description: Link related work; use N/A if none.
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification criteria
+      description: State how to confirm the defect is fixed, including relevant regression checks.
+    validations:
+      required: true
+  - type: checkboxes
+    id: done
+    attributes:
+      label: Definition of Done
+      description: Check only applicable items as work is completed.
+      options:
+        - label: Acceptance criteria satisfied
+        - label: Applicable tests completed
+        - label: Relevant documentation updated
+        - label: Code review completed, if applicable
+        - label: CI checks passed, if applicable
+        - label: Related Issues and PRs linked
+        - label: Progress and handover updated
+        - label: No unresolved blockers
+  - type: textarea
+    id: handover
+    attributes:
+      label: Progress & Handover
+      description: Edit this section in the Issue body before stopping or transferring work. Use Status values Not Started, In Progress, Blocked, In Review, or Done. Link evidence and record the update date; use N/A where a field does not apply.
+      value: |
+        - **Status:** Not Started
+        - **Completed:** N/A
+        - **Remaining:** N/A
+        - **Branch:** N/A
+        - **PR:** N/A
+        - **Latest Test/CI Result:** N/A
+        - **Blockers:** N/A
+        - **Dependencies:** N/A
+        - **Next Action:** N/A
+        - **Context Links:** N/A
+        - **Last Updated:** N/A

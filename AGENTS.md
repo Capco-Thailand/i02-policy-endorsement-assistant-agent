@@ -7,7 +7,7 @@ This is a prototype for synthetic insurance policy endorsements. Read `docs/PRD.
 
 Use the root npm workspace for `apps/api`, `apps/web`, and `apps/ai`; install from the repository root and keep the root lockfile. See [README.md](README.md) for development commands.
 
-For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STANDARDS.md). For tests or security checks, read [TESTING_STANDARD.md](docs/TESTING_STANDARD.md). For UX design files, read [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md).
+For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STANDARDS.md). For tests or security checks, read [TESTING_STANDARD.md](docs/TESTING_STANDARD.md). For UX design files, read [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md) and [VISUAL_UX_CONSTRAINTS.md](docs/VISUAL_UX_CONSTRAINTS.md).
 
 ## Policy
 
@@ -15,17 +15,18 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 
 ## Where things are
 
-- PO/UX: `docs/tickets/` for local tickets, `docs/backlog/` for candidate scopes awaiting refinement, `docs/` for other product documents, `design/` for HTML/CSS/JS design output, and GitHub issues for published tickets.
+- PO/UX: `docs/` for product documents, `.github/ISSUE_TEMPLATE/` for ticket structure, `design/` for HTML/CSS/JS design output, and GitHub Issues for tickets.
 - QA/Sec: work across affected components. Keep component tests beside their code; put shared test plans and security guidance in `docs/`.
 - BE/Infra: `apps/api/` uses Fastify with Swagger/OpenAPI documentation; own repository infrastructure such as Docker or scripts when added.
 - FE/Data/RAG: `apps/web/` uses React, TanStack, and shadcn/ui; `apps/ai/` holds data and RAG work when needed. Coordinate shared API and rule contracts with BE/Infra.
 
 ## Skill routing
 
-- Requirements and GitHub tickets: use BMad `bmad-agent-po`; local tickets based on `docs/tickets/TICKET-TEMPLATE.md`: use `ticket-from-template`; UX decisions: `bmad-ux`; delivery from a ticket: `bmad-build`. Use `bmad` when the next BMad step is unclear.
+- Requirements and GitHub Issues: use BMad `bmad-agent-po` and the matching form in `.github/ISSUE_TEMPLATE/` when creating or refining tickets; UX decisions: `bmad-ux`; delivery from a GitHub Issue: `bmad-build`. Use `bmad` when the next BMad step is unclear.
 - BMad setup or render failures on Windows: use `bmad-render-repair`.
 - Module design: use Matt Pocock `codebase-design`; domain terminology: `domain-modeling`; hard bugs: `diagnosing-bugs`; test-first changes: `tdd`; branch or PR review: `code-review`.
-- When a task uses both, keep the BMad ticket as the requirements source and use the Matt Pocock skill for its focused engineering method.
+- When a task uses both, keep the GitHub Issue as the requirements source and use the Matt Pocock skill for its focused engineering method.
+- For UI work, run `bmad-ux` from the ticket requirements before `bmad-build`. UX delivers `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable `design/page/<pagename>.html` mockups linked from `design/page/index.html`; Sofia links these in the ticket. The build follows the UX documents and mockups, then verifies UI behavior and accessibility. See [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md) for the handoff.
 
 ## Documentation maintenance
 
