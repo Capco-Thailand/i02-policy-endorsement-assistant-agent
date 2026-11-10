@@ -1,6 +1,6 @@
 # PRD — I02 Life Insurance Policy Endorsement Assistant
 
-**Version:** 1.0 | **Date:** 2026-11-10 | **Status:** MVP
+**Version:** 1.2 | **Date:** 2026-11-10 | **Status:** MVP
 
 ## 1. Product goal and scope
 
@@ -35,9 +35,9 @@ Build an AI-assisted life insurance endorsement workflow. Staff select a policy,
 ```text
 Browser
    |
-[Frontend container — React / Next.js]
+[Frontend container — React / Next.js / shadcn/ui]
    | REST
-[Backend container — FastAPI]
+[Backend container — TypeScript / Fastify (typed API contracts)]
    |-- Authentication, session validation, agent orchestration, and access control
    |-- Mock eKYC; document-check bypass
    |-- Deterministic eligibility, mock quote, draft/review, audit
@@ -49,7 +49,7 @@ Browser
    |-- Synthetic policy/rule data, embeddings, requests, drafts, audit
 ```
 
-Use separate `frontend`, `backend`, and `rag` Dockerfiles plus a root `compose.yaml`. Storage runs in its own container. Seed demo data; provide health checks and environment configuration. The backend controls all writes and calls RAG over an internal interface. The browser must not directly access RAG or the database.
+Use separate `frontend`, `backend`, and `rag` Dockerfiles plus a root `compose.yaml`. Storage runs in its own container. Build the frontend with the Next.js App Router and shadcn/ui components. Fastify owns the REST API; validate requests and responses with schemas that also drive OpenAPI and TypeScript client types. Seed demo data; provide health checks and environment configuration. The backend controls all writes and calls RAG over an internal interface. The browser must not directly access RAG or the database.
 
 ## 4. RAG and verification rules
 
@@ -100,6 +100,10 @@ This is a **high-level feature list in implementation order**. IDs are stable re
 | Quotes agree with mock rating output | 100% |
 | Unauthorized approvals, live-policy writes, or coverage binding | **0** |
 | Unauthenticated protected actions or cross-account policy/draft access | **0** |
+
+Use a versioned synthetic evaluation set fixed before each run. Cover all four change types with at least 20 cases each for intent classification, policy retrieval, rule retrieval, and eligibility (at least 80 cases per measure). Include eligible, ineligible, expired-policy, missing-rule, conflicting-rule, and unauthorized cases. Cover each mock eKYC outcome (`VERIFIED`, `FAILED`, `REVIEW_REQUIRED`) with at least 20 cases (at least 60 total). Evaluate document bypass, draft completeness, and quote agreement on every applicable case. Include sign-in, sign-out, session expiry, cross-account access, self-approval, duplicate submission, and attempted binding in the safety set; every unauthorized action and binding attempt must be blocked.
+
+For each measure, report the fixture version, denominator, passing count, percentage, and failed case IDs. Record a baseline on the first run; no baseline is claimed in this PRD. Also report false referrals of eligible requests, incorrect successful drafts, and retrieval failures by change type as counter-metrics, with counts and denominators. Investigate any increase from the baseline before declaring the MVP ready. A percentage alone, or a result below the minimum sample size, does not satisfy a release target.
 
 Test sign-in, sign-out, expired/invalid sessions, cross-account policy access, blocked self-approval, approval by a different staff account, active/expired policies, successful/failed mock eKYC, document bypass, unavailable/conflicting RAG evidence, premium changes and zero-delta quotes, duplicate submissions, and tool failure handling.
 

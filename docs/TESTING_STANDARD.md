@@ -6,7 +6,7 @@ QA/Sec works across the API, web app, and data/RAG code. Use synthetic policies,
 
 - Test deterministic rule selection, required fields, eligibility, authorization, quote inputs, and draft gates at the unit or component level.
 - Test Fastify endpoints and their Swagger/OpenAPI contracts for valid input, rejected input, authorization failures, and mock-tool errors.
-- Test web screens for missing-data prompts, rule citations, unchanged mock quote amounts, and the visible non-binding `PENDING_REVIEW` status.
+- Test web screens for missing-data prompts, rule citations, unchanged mock quote amounts, and the visible non-binding `PENDING_APPROVAL` status.
 - Test the full request-to-draft flow with mock services. Ineligible, unsupported, or unauthorized requests must not call `quote_endorsement` or `create_endorsement_draft`, except a referral-only draft explicitly allowed by a test policy.
 - Include adversarial cases: prompt injection in requests or rules, conflicting rules, ambiguous dates, contradictory policy data, repeated submission, quote failures, and attempts to bind coverage.
 
