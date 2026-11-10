@@ -13,6 +13,8 @@ All records are synthetic. The API stores accounts, session hashes, and policy a
 
 Set `DEMO_ALICE_PASSWORD` and `DEMO_BOB_PASSWORD` on the API process to replace the defaults. `WEB_ORIGIN` defaults to `http://localhost:3001`; `NEXT_PUBLIC_API_URL` defaults to `http://localhost:3000`. Both should use the same hostname in a local browser. Cookies are Secure when `NODE_ENV=production`; production deployments require HTTPS. Password reset, production identity, and persistent sessions are outside this story.
 
+The API binds to `127.0.0.1` by default. Set `API_HOST` to expose it on another interface; both demo password environment variables are then required. Sign-in allows ten attempts per client IP per minute and returns 429 after that. Sessions are pruned on subsequent sign-in; the in-memory audit retains the latest 10,000 events.
+
 ## Session and authorization contract
 
 `POST /auth/sign-in` accepts `{ "accountId": "...", "password": "..." }`. Valid credentials return `{ "actor": { "id": "...", "displayName": "..." }, "expiresInSeconds": 1800 }` and an HttpOnly, SameSite=Lax `pea_session` cookie. Invalid credentials return the same `401 { "error": "Invalid credentials" }` for known and unknown accounts. Sessions expire after 30 minutes and are revoked by `POST /auth/sign-out`, which returns 204 and clears the cookie even when the session is already invalid. Session tokens are random and only their SHA-256 hashes are retained by the server. Passwords and session secrets are absent from audit events.

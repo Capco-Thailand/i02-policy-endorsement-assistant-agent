@@ -20,6 +20,7 @@ export async function buildApp(options: AppOptions = {}) {
     { id: 'demo-bob', displayName: 'Bob Chen', password: process.env.DEMO_BOB_PASSWORD ?? 'bob-demo-password' }
   ]);
   const secureCookies = options.secureCookies ?? process.env.NODE_ENV === 'production';
+  const signInAttempts = new Map<string, { count: number; resetAt: number }>();
   const cookieFlags = `Path=/; HttpOnly; SameSite=Lax${secureCookies ? '; Secure' : ''}`;
   function sessionCookie(header: string | undefined): string | undefined {
     return header?.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${SESSION_COOKIE}=`))?.slice(SESSION_COOKIE.length + 1);
@@ -41,11 +42,19 @@ export async function buildApp(options: AppOptions = {}) {
       body: SignInBody,
       response: {
         200: Type.Object({ actor: Staff, expiresInSeconds: Type.Integer() }),
+        400: ErrorResponse,
+        429: ErrorResponse,
         401: ErrorResponse
       }
     }
   }, async (request, reply) => {
-    const result = auth.signIn(request.body.accountId, request.body.password);
+    const now = Date.now();
+    for (const [ip, attempt] of signInAttempts) if (attempt.resetAt <= now) signInAttempts.delete(ip);
+    const attempt = signInAttempts.get(request.ip) ?? { count: 0, resetAt: now + 60_000 };
+    if (attempt.count >= 10) return reply.code(429).send({ error: 'Sign-in temporarily unavailable' });
+    attempt.count += 1;
+    signInAttempts.set(request.ip, attempt);
+    const result = await auth.signIn(request.body.accountId, request.body.password);
     if (!result) return reply.code(401).send({ error: 'Invalid credentials' });
     reply.header('Set-Cookie', `${SESSION_COOKIE}=${result.token}; Max-Age=${SESSION_LIFETIME_MS / 1000}; ${cookieFlags}`);
     return { actor: result.actor, expiresInSeconds: SESSION_LIFETIME_MS / 1000 };
@@ -94,10 +103,10 @@ export async function buildApp(options: AppOptions = {}) {
       if (!actor) return reply.code(401).send({ error: 'Authentication required' });
       const policy = assignedPolicy(actor, request.params.id);
       if (!policy) {
-        auth.record(actor.id, 'policy_unavailable');
+        auth.record(actor.id, 'policy_unavailable', request.params.id);
         return reply.code(404).send({ error: 'Policy unavailable' });
       }
-      auth.record(actor.id, 'view_policy');
+      auth.record(actor.id, 'view_policy', request.params.id);
       return policy;
     });
   });

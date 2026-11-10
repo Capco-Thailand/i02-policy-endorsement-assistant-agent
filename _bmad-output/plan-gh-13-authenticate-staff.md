@@ -147,3 +147,19 @@ deferred: []
 - Residual risk: sessions are process-local and reset on API restart; browser interactions are not covered by automated UI tests.
 - Preexisting work stash: `ef708a8766d444c42440e8438f1f75fe3bc13c5a`; restore with `git stash apply ef708a8766d444c42440e8438f1f75fe3bc13c5a`.
 - PO handoff: GitHub Issue #13 Progress & Handover updated to **In Review** with branch, implementation commit, verification, and remaining PR/browser acceptance work. The issue remains open.
+
+## Code Review
+
+### 2026-11-10 — API group
+2 decisions resolved; 10 patches applied; 0 deferred; 0 rejected. Remaining review groups: web UI and documentation/dependencies.
+- [x] [Review][Patch] Require explicit demo passwords when listening beyond localhost [apps/api/src/server.ts:4]
+- [x] [Review][Patch] Use asynchronous sign-in hashing and limit attempts [apps/api/src/auth.ts:31; apps/api/src/app.ts:49]
+- [x] [Review][Patch] Bound session and audit memory [apps/api/src/auth.ts:13]
+- [x] [Review][Patch] Include policy ID in access audit [apps/api/src/app.ts:97]
+- [x] [Review][Patch] Assert successful current-session identity [apps/api/src/app.test.ts:30]
+- [x] [Review][Patch] Assert policy list statuses [apps/api/src/app.test.ts:39]
+- [x] [Review][Patch] Assert policy detail body [apps/api/src/app.test.ts:85]
+- [x] [Review][Patch] Assert sign-out cookie expiration [apps/api/src/app.test.ts:70]
+- [x] [Review][Patch] Document sign-in 400 response [apps/api/src/app.ts:42]
+- [x] [Review][Patch] Record expired sign-out sessions accurately [apps/api/src/auth.ts:56]
+Rejected: none.
