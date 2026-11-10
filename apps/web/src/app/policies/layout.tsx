@@ -14,6 +14,8 @@ export default function PoliciesLayout({ children }: Readonly<{ children: React.
   const router = useRouter();
   const [actor, setActor] = useState<StaffDto | null>(null);
   const [checking, setChecking] = useState(true);
+  const [sessionCheckFailed, setSessionCheckFailed] = useState(false);
+  const [checkAttempt, setCheckAttempt] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutFailed, setSignOutFailed] = useState(false);
 
@@ -22,11 +24,17 @@ export default function PoliciesLayout({ children }: Readonly<{ children: React.
     async function check() {
       try {
         const response = await currentActor();
-        if (active) setActor(response.actor);
+        if (active) {
+          setActor(response.actor);
+          setSessionCheckFailed(false);
+        }
       } catch (error) {
         if (active && error instanceof ApiError && error.status === 401) {
           setActor(null);
           redirectForExpiredSession(router);
+        } else if (active) {
+          setActor(null);
+          setSessionCheckFailed(true);
         }
       } finally {
         if (active) setChecking(false);
@@ -35,7 +43,14 @@ export default function PoliciesLayout({ children }: Readonly<{ children: React.
     void check();
     const timer = window.setInterval(check, 30_000);
     return () => { active = false; window.clearInterval(timer); };
-  }, [router]);
+  }, [router, checkAttempt]);
+
+  function retrySessionCheck() {
+    setActor(null);
+    setSessionCheckFailed(false);
+    setChecking(true);
+    setCheckAttempt((attempt) => attempt + 1);
+  }
 
   async function leave() {
     if (signingOut) return;
@@ -60,6 +75,7 @@ export default function PoliciesLayout({ children }: Readonly<{ children: React.
   if (signingOut || signOutFailed) return <main className="page-shell">
     {signOutFailed ? <><p role="alert">Sign-out is unavailable. Try again.</p><button type="button" onClick={leave}>Retry sign out</button></> : <p>Signing out…</p>}
   </main>;
+  if (sessionCheckFailed) return <main className="page-shell"><p role="alert">Session check is unavailable. Try again.</p><button type="button" onClick={retrySessionCheck}>Retry session check</button></main>;
   if (checking || !actor) return <main className="page-shell"><p>Checking session…</p></main>;
   return <><header className="site-header"><span className="brand-mark">PE</span><span>Policy Endorsement Assistant<small>Staff workspace · synthetic demo</small></span><div className="account-control"><span>{actor.displayName}</span><button type="button" className="text-button" onClick={leave}>Sign out</button></div></header><main className="page-shell" key={actor.id}>{children}</main></>;
 }

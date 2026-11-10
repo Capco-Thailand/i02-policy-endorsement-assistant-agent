@@ -11,13 +11,18 @@ risk: high
 review: quick
 review_source: pinned
 lenses_ran: [quick]
-review_loop_iteration: 0
-followup_review_recommended: true
+review_loop_iteration: 2
+followup_review_recommended: false
 context:
   - _bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-14-authenticate-staff/DESIGN.md
   - _bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-14-authenticate-staff/EXPERIENCE.md
   - docs/CODING_STANDARDS.md
   - docs/TESTING_STANDARD.md
+  - docs/PRD.md
+  - docs/ADR.md
+  - docs/DESIGN_STANDARD.md
+  - docs/VISUAL_UX_CONSTRAINTS.md
+  - docs/API_DEVELOPMENT.md
 warnings: []
 deferred: []
 ---
@@ -64,6 +69,8 @@ deferred: []
 - [ ] `package-lock.json`, `README.md`, `docs/API_DEVELOPMENT.md` — install from root and document credentials, session lifetime, commands, and API behavior.
 
 **Acceptance Criteria:**
+- Given a transient API failure while loading the policy list or detail, when the error appears, then the user can retry the request without reloading the browser.
+- Given the API is unavailable during the initial protected-route session check, when the check fails, then no protected content appears and the user sees an error with a retry action.
 - Given two seeded staff assigned to one policy, when each signs in, then each receives their own expiring session and assigned policies.
 - Given invalid, expired, or signed-out credentials, when a protected API is called, then it returns 401 and no protected data.
 - Given an unassigned or unknown policy ID, when detail is requested, then both yield the same non-disclosing 404.
@@ -72,6 +79,8 @@ deferred: []
 
 ## Implementation Notes
 
+- Follow-up review: protected layout now exposes an error and retry for non-401 session-check failures while hiding protected content. Policy list and detail requests now offer retry actions and ignore late responses. Heading focus runs on page entry or successful policy navigation, not every render.
+
 - Created the Fastify and Next.js workspaces required by the previously empty app foundation. The API keeps synthetic accounts, hashed session tokens, assignments, and audit events in memory.
 - Added cookie-backed sign-in, sign-out, session lookup, assigned-policy list/detail, and reusable no-self-review guard. Web pages display only backend-authorized policy IDs and statuses.
 - Review fixes remount protected pages when the authenticated actor changes, retain a retryable state when sign-out fails, hydrate session notices safely, and use local shadcn/ui form primitives.
@@ -79,7 +88,32 @@ deferred: []
 
 ## Plan Change Log
 
+### 2026-11-10 - Policy request retry
+- Post-fix review found that policy list and detail pages say "Try again" after request failure but provide no retry action.
+- Require a visible retry control in `apps/web/src/app/policies/page.tsx` and `apps/web/src/app/policies/[id]/page.tsx` that repeats the failed request without showing stale policy data.
+- KEEP the existing 401 redirect, generic 404 response, and actor-change remount behavior.
+
+### 2026-11-10 - Session-check error recovery
+- Follow-up review found that a non-401 failure of the initial `/auth/me` check leaves the protected layout on a loading message indefinitely.
+- Require an actionable error and retry in `apps/web/src/app/policies/layout.tsx` while keeping protected content hidden. This avoids a stalled route when the API is unavailable.
+- KEEP server-side session checks, the 401 redirect, account-switch remount, and sign-out retry behavior.
+
 ## Review Triage Log
+
+### 2026-11-10 - Retry and focus review pass
+- verdicts: 1 finding - high 0, medium 1, low 0, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` Inline heading refs stole keyboard focus after policy request errors and retry clicks - replaced render-time focus with one-time page-entry focus and focus on successful policy navigation.
+
+### 2026-11-10 - Post-fix review pass
+- verdicts: 1 finding - high 0, medium 1, low 0, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[bad_plan]` Policy list and detail error messages promise a retry but lack an action - their fetch effects run only on mount. Added explicit retry acceptance and task guidance.
+
+### 2026-11-10 - Follow-up review pass
+- verdicts: 1 finding - high 0, medium 1, low 0, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[bad_plan]` Initial session check can stall on a non-401 error - `currentActor()` throws, the catch handles only 401, and `checking` becomes false while `actor` remains null. Added explicit error-and-retry acceptance.
 
 ### 2026-11-10 — Review pass
 - verdicts: 4 findings — high 2, medium 2, low 0, false 0, maybe-false 0
@@ -97,6 +131,13 @@ deferred: []
 - `npm run build` — API and web compile.
 
 ## Auto Run Result
+
+### Follow-up review result - 2026-11-10
+- Status: built. Session-check, policy-list, and policy-detail API failures now have actionable retry states without exposing protected data; keyboard focus stays on the user's action during retries.
+- Files changed: `apps/web/src/app/policies/layout.tsx` adds session-check error and retry; `apps/web/src/app/policies/page.tsx` and `apps/web/src/app/policies/[id]/page.tsx` add request retry and focused heading behavior; this plan records the review.
+- Review: two medium findings required plan-level corrections, then one medium finding was patched. No findings were deferred or rejected. Follow-up review recommended: false (zero high patches in this follow-up pass).
+- Verification: six API tests passed during implementation; the API and web production builds passed after the final focus correction; `git diff --check` passed. Browser interaction checks remain pending.
+- Residual risk: no automated browser test covers retry, sign-out failure, or cross-tab account switching. The implementation PR and CI remain pending.
 
 - Status: built. FR-14 authentication, session revocation, assignment enforcement, review authorization guard, and sign-in UI are implemented.
 - Files: `apps/api/` contains Fastify routes, stores, schemas, and six API tests; `apps/web/` contains sign-in and protected pages; `README.md`, `docs/API_DEVELOPMENT.md`, `docs/ADR.md`, and the root lockfile document and support the new workspaces.
