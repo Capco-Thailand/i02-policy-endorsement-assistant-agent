@@ -10,7 +10,7 @@ updated: 2026-11-09
 
 ## Foundation
 
-Responsive web for desktop and mobile equally. React, TanStack, and shadcn/ui are the repo's UI stack. [DESIGN.md](DESIGN.md) owns the visual treatment; this document owns behavior. The mock policyholder context and all displayed records are synthetic. A policy detail or intake route does not create, approve, or bind an endorsement.
+Responsive web for desktop and mobile equally. React with Next.js App Router, TanStack where needed, and shadcn/ui are the repo's UI stack. [DESIGN.md](DESIGN.md) owns the visual treatment; this document owns behavior. The mock policyholder context and all displayed records are synthetic. A policy detail or intake route does not create, approve, or bind an endorsement.
 
 ## Information Architecture
 
