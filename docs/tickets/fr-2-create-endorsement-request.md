@@ -2,7 +2,7 @@
 
 **Title:** [Story] Create an endorsement request for an assigned policy
 **Labels:** `type:story`, `role:fe-data-rag`, `role:be-infra`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/24
 **Feature ID:** FR-02
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a request against an unassigned policy could disclose data or start an unauthorized workflow.
