@@ -12,6 +12,7 @@ Make local Markdown tickets the build specification while GitHub tracks linked I
 - PR activity updates only an automated Issue section. Human handover and acceptance stay human-owned.
 - A build preflight identifies existing implementation work before another build starts.
 - Documentation and agent instructions explain which record owns each field and how changes are updated together.
+- GitHub Issues display the complete local ticket content, refreshed after merged ticket changes, while retaining human handover and discussion.
 
 ## Acceptance criteria
 - [ ] Merging a ticket/UX PR creates or reuses one Issue and links it to the merged ticket; a protected default branch produces a link PR instead of silently losing the link.
@@ -19,6 +20,7 @@ Make local Markdown tickets the build specification while GitHub tracks linked I
 - [ ] Issue activity reflects related PR open and merge states without overwriting human text or closing the Issue.
 - [ ] Preflight blocks a duplicate build when implementation is already open or merged.
 - [ ] Scheduled drift checks report stale automation data, and documentation describes the review and rollout gates.
+- [ ] A created or reused Issue shows the full ticket Markdown, and later syncs refresh that content without overwriting human handover.
 
 ## Dependencies and readiness
 - GitHub CLI authentication for local commands; GitHub Actions permissions for workflow jobs.
@@ -28,3 +30,4 @@ Make local Markdown tickets the build specification while GitHub tracks linked I
 - The Markdown ticket owns build context. GitHub Issues own delivery discussion and human handover.
 - Merging a PR does not approve or complete its Issue.
 - 2026-11-11: New ticket/UX PRs merge before their GitHub Issues are created. The merge workflow creates or reuses one Issue and links it back to the ticket. Existing linked tickets retain their Issue numbers.
+- 2026-11-11: Show the full ticket in each generated Issue; keep the local file authoritative and refresh the marked Issue copy after ticket changes merge.
