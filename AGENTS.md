@@ -18,7 +18,7 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 - PO/UX: `docs/` for product documents, `.github/ISSUE_TEMPLATE/` for ticket structure, `design/` for HTML/CSS/JS design output, and GitHub Issues for tickets.
 - QA/Sec: work across affected components. Keep component tests beside their code; put shared test plans and security guidance in `docs/`.
 - BE/Infra: `apps/api/` uses Fastify with Swagger/OpenAPI documentation; own repository infrastructure such as Docker or scripts when added.
-- FE/Data/RAG: `apps/web/` uses React with Next.js App Router, TanStack where needed, and shadcn/ui; `apps/ai/` holds data and RAG work when needed. Coordinate typed API and rule contracts with BE/Infra.
+- FE/Data/RAG: `apps/web/` uses React with Next.js App Router, TanStack Query for client-side server state, and shadcn/ui; `apps/ai/` holds data and RAG work when needed. Coordinate typed API and rule contracts with BE/Infra.
 
 ## Skill routing
 
