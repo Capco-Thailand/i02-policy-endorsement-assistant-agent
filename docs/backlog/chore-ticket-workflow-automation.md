@@ -1,7 +1,7 @@
 # [Chore] Automate ticket, Issue, and PR tracking
 
 **Product context:** [PRD](../PRD.md)  
-**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/19
+**GitHub Issue:** Not filed
 
 ## Summary and objective
 Make local Markdown tickets the build specification while GitHub tracks linked Issues, PRs, delivery activity, and human handover.

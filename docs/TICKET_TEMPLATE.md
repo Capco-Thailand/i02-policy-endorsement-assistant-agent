@@ -2,15 +2,19 @@
 
 Use this file to draft one requirement in `docs/backlog/` or `docs/tickets/`, following [TICKETING.md](TICKETING.md). The local file is the detailed requirements source. Keep the PRD at the business level; put feature IDs, ticket-specific behavior, business rules, data contracts, edge cases, and acceptance criteria here. Link the PRD for product context and any relevant UX or architecture documents.
 
-Start implementation filenames with `fr-` and number them by build order, for example `docs/tickets/fr-1-authenticate-staff.md`. The ticket's feature ID and GitHub Issue number are separate identifiers and may differ from the local number. A backlog draft may use its feature ID until it is selected and numbered. Link the Issue and local file in both directions; automation displays the complete ticket Markdown in the Issue and refreshes it after ticket changes merge. GitHub tracks status, ownership, discussion, Definition of Done, and Progress & Handover. Use native sub-issues and blocking dependencies where available; see `.agents/skills/setup-matt-pocock-skills/issue-tracker-github.md`.
+Name backlog and implementation files by feature ID, for example `docs/backlog/fr-01-authenticate-staff.md` and `docs/tickets/fr-01-authenticate-staff.md`. Keep the FR ID when moving a draft; the build order in [backlog/README.md](backlog/README.md) and GitHub Issue number are separate. Link the Issue and local file in both directions; automation displays the complete ticket Markdown in the Issue and refreshes it after ticket changes merge. GitHub tracks status, ownership, discussion, Definition of Done, and Progress & Handover. Use native sub-issues and blocking dependencies where available; see `.agents/skills/setup-matt-pocock-skills/issue-tracker-github.md`.
 
-Choose **one** body below for the local file. Replace prompts and remove unused optional detail. After moving it into `docs/tickets/`, commit it in a ticket/UX PR with the Issue pending. Merge automation creates the Issue and adds the link. Add the matching type label and at least one relevant role label after creation. Apply `needs:human-review` only while a human decision is pending. Record accepted scope decisions in this file before a build.
+Choose **one** body below for the local file. Use `##` headings in the ticket; the examples use `###` only to nest them here. Keep draft criteria and unresolved decisions explicit until refinement. Replace prompts and remove unused optional detail. After moving it into `docs/tickets/`, commit it in a ticket/UX PR with the Issue pending. Merge automation creates the Issue and adds the link. Add the matching type label and at least one relevant role label after creation. Apply `needs:human-review` only while a human decision is pending. Record accepted scope decisions in this file before a build.
 
 ## Story body (`story.yml`)
 
 **Title:** `[Story] [short outcome-focused title]`
 **Labels:** `type:story`, `[role:...]`
 **GitHub Issue:** Pending ticket/UX PR merge
+**Feature ID:** FR-[number]
+**Product context:** [PRD](../PRD.md)
+**Risk:** [Low / Medium / High — reason]
+**State:** Backlog draft
 
 ### Summary and objective
 
@@ -53,6 +57,10 @@ Out of scope:
 ### Accepted decisions and readiness
 
 [Dated decisions from Issue discussion that change the build; N/A if none. State whether dependencies and UX handoff are ready.]
+
+### UX handoff references
+
+[DESIGN.md, EXPERIENCE.md, and browser-viewable mockup paths for UI work; N/A otherwise.]
 
 ### Definition of Done
 

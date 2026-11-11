@@ -2,13 +2,13 @@
 
 The [PRD](PRD.md) records the business goal, scope, cross-feature safety boundaries, and success measures. The [ADR](ADR.md) records architecture choices. Feature IDs, detailed requirements, and acceptance criteria live in one Markdown file per ticket:
 
-- `docs/backlog/fr-<number>-<slug>.md` is a draft for upcoming work. Refine it with the Product Owner before implementation; a feature entry alone is not ready to build.
-- `docs/tickets/fr-<implementation-order>-<slug>.md` is the detailed requirement for a selected ticket. Local numbers are consecutive across the current and upcoming files in the [backlog order](backlog/README.md); already closed Issues predate this numbering. Feature IDs and GitHub Issue numbers are separate identifiers. Keep the file's requirements and acceptance criteria current as scope changes.
+- `docs/backlog/fr-<feature-id>-<slug>.md` is a draft for upcoming work. Refine it with the Product Owner before implementation; a feature entry alone is not ready to build.
+- `docs/tickets/fr-<feature-id>-<slug>.md` is the detailed requirement for a selected ticket. Keep the FR ID when moving it from backlog. [Backlog order](backlog/README.md) records build sequence separately; historical GitHub Issue numbers are separate identifiers. Keep the file's requirements and acceptance criteria current as scope changes.
 - Repository workflow work that is not a product feature uses `docs/tickets/chore-<slug>.md` so it does not consume an FR implementation number.
 
 The local Markdown ticket is the single source of truth for build requirements, acceptance criteria, dependencies, accepted decisions, and build readiness. The GitHub Issue displays a synchronized copy of its full Markdown content for review. GitHub Issues also track ownership, labels, discussion, delivery status, and human handover. The Issue automation block derives delivery state from merged PRs; only a human marks acceptance and Done. Do not copy transient delivery status into the ticket. Issue discussion changes the spec only after the accepted decision is written into the local ticket. The Issue and ticket link to each other. Record native sub-issues and blocking dependencies in GitHub where available.
 
-When work is selected, refine its backlog file into testable requirements, assign its implementation-order number, and move the file to `docs/tickets/fr-<implementation-order>-<slug>.md`. Put `**GitHub Issue:** Pending ticket/UX PR merge` in the ticket. Before implementation, the ticket must identify dependencies, applicable UX/architecture references, acceptance criteria, and the synthetic-data and human-review boundaries it touches.
+When work is selected, refine its backlog file into testable requirements and move it to `docs/tickets/fr-<feature-id>-<slug>.md` without changing its FR ID. Put `**GitHub Issue:** Pending ticket/UX PR merge` in the ticket. Before implementation, the ticket must identify dependencies, applicable UX/architecture references, acceptance criteria, and the synthetic-data and human-review boundaries it touches.
 
 ## Automation and document updates
 
@@ -27,4 +27,4 @@ In the same PR as a behavior change, update the local ticket for ticket-level sc
 
 Implementation starts after the reviewed ticket and UX handoff are ready, the Issue exists, and the reciprocal link is on the default branch; `bmad-build` follows those approved requirements as a separate delivery flow.
 
-All requirements are currently in [backlog](backlog/), including the former FR-14, FR-02, and workflow automation tickets. Their linked Issues #13, #24, and #19 are closed for the workflow test; the links remain as history. FR-01 and FR-03 already have closed GitHub Issues. Move and review a backlog draft through the ticket/UX PR flow before starting implementation.
+All requirements are currently in [backlog](backlog/), including FR-01 authentication, FR-02 request capture, FR-03 policy access, and the workflow automation chore. Historical Issues #13, #24, #3, and #19 are closed; the new backlog drafts require review before new Issues are filed. Historical Issue #1 covered policy list/detail before the current FR numbering. Move and review a backlog draft through the ticket/UX PR flow before starting implementation.

@@ -1,20 +1,24 @@
-# Ticket 1 — FR-14: Authenticate Staff
+# FR-01 — Authenticate Staff
 
-**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/13
-**Feature ID:** FR-14
+**Title:** [Story] Authenticate staff with synthetic demo accounts
+**Labels:** `type:story`, `role:be-infra`, `role:fe-data-rag`
+**GitHub Issue:** Not filed
+**Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
-**Requirements owner:** This file; GitHub Issue #13 tracks discussion, status, and handover.
+**Risk:** High — an authentication failure could expose another account's policy or allow unauthorized review.
+**State:** Backlog draft
+**Requirements owner:** This file; historical [Issue #13](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/13) is closed.
 
 ## Summary and objective
-Deliver FR-14 so each synthetic demo staff member can sign in, use only their assigned policies, and sign out; the API rejects expired or invalid sessions and prevents a draft creator from reviewing their own draft.
+Deliver FR-01 so each synthetic demo staff member can sign in, use only their assigned policies, and sign out; the API rejects expired or invalid sessions and prevents a draft creator from reviewing their own draft.
 
 ## User story or requirement
 As a policy-service staff member, I can sign in with my own demo account and work only on assigned synthetic policies, so policy details and endorsement actions are attributable to the correct person.
 
 ## Business or technical context
-- Product context: `docs/PRD.md`, Authentication and access, staff journey, evaluation, and definition of done. This ticket owns the FR-14 detail.
+- Product context: `docs/PRD.md`, Authentication and access, staff journey, evaluation, and definition of done. This ticket owns the FR-01 detail.
 - Architecture: `docs/ADR.md` puts authentication, access control, and writes in Fastify; the browser uses the API.
-- Existing `docs/API_DEVELOPMENT.md` describes a deterministic token-to-user fixture as a prior API plan and explicitly says it is not authentication. FR-14 replaces that proposed identity mechanism.
+- Existing `docs/API_DEVELOPMENT.md` describes a deterministic token-to-user fixture as a prior API plan and explicitly says it is not authentication. FR-01 replaces that proposed identity mechanism.
 - UX handoff: see the linked `DESIGN.md`, `EXPERIENCE.md`, and sign-in mockup below.
 - Risk: high. A failure could expose another account's policy or allow unauthorized review. Verify the rejection paths against every protected route as those routes are added.
 
@@ -50,7 +54,18 @@ N/A
 - UX PR #14 merged. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Do not start a duplicate build without reviewing the revert.
 
 ## UX handoff references
-- Visual contract: `_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-14-authenticate-staff/DESIGN.md`
-- Behavior contract: `_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-14-authenticate-staff/EXPERIENCE.md`
+- Visual contract: `_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-authenticate-staff/DESIGN.md`
+- Behavior contract: `_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-authenticate-staff/EXPERIENCE.md`
 - Browser-viewable mockup: `design/page/sign-in.html` (linked from `design/page/index.html`)
 - Open UX wording question: confirm account display names when demo fixtures are seeded.
+
+## Definition of Done
+
+- [ ] Acceptance criteria satisfied
+- [ ] Applicable tests completed
+- [ ] Relevant documentation updated
+- [ ] Code review completed, if applicable
+- [ ] CI checks passed, if applicable
+- [ ] Related Issues and PRs linked
+- [ ] Progress and handover updated
+- [ ] No unresolved blockers

@@ -1,11 +1,12 @@
-# Ticket 2 — FR-02: Create Endorsement Request
+# FR-02 — Create Endorsement Request
 
 **Title:** [Story] Create an endorsement request for an assigned policy
 **Labels:** `type:story`, `role:fe-data-rag`, `role:be-infra`
-**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/24
+**GitHub Issue:** Not filed
 **Feature ID:** FR-02
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a request against an unassigned policy could disclose data or start an unauthorized workflow.
+**State:** Backlog draft
 
 ## Summary and objective
 
@@ -19,7 +20,7 @@ As policy-service staff, I can submit a change request for a policy assigned to 
 
 - The [PRD](../PRD.md) defines the four supported changes, assigned-policy access, synthetic-data boundary, and non-binding workflow.
 - [ADR](../ADR.md) places authorization and writes in Fastify, with schema-defined API contracts. The browser uses that API.
-- FR-14 [ticket 1](fr-1-authenticate-staff.md) owns session identity and assigned-policy authorization. FR-01 policy list/detail and FR-03 policy access predate this ticket.
+- FR-01 [authentication ticket](fr-01-authenticate-staff.md) owns session identity and assigned-policy authorization. Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covers policy list/detail; [FR-03](fr-03-check-policy-access.md) covers policy access.
 - The request is an input to FR-04 through FR-10. Saving it is not an eligibility decision, quote, draft, approval, or policy update.
 
 ## Request rules and data
@@ -50,8 +51,8 @@ Out of scope:
 
 ## Dependencies
 
-- FR-14 ticket 1 session and assigned-policy authorization must be usable before implementation.
-- FR-01 policy list/detail and FR-03 policy access provide the policy selection flow and data boundary; verify their current code state before building.
+- FR-01 authentication and assigned-policy authorization must be usable before implementation.
+- Historical Issue #1 policy list/detail and FR-03 policy access provide the policy selection flow and data boundary; verify their current code state before building.
 - UI handoff for this ticket is drafted below; resolve its open questions before implementation.
 
 ## Related subtasks
@@ -62,6 +63,7 @@ None.
 
 - 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #24 was closed. Reconfirm scope and UX through a new ticket/UX handoff before implementation.
 - 2026-11-11: FR-02 was selected as implementation-order ticket 2. Request capture is separate from downstream eligibility, quote, and draft work.
+- 2026-11-11: The cleaned backlog retains FR-02 as its feature ID and places FR-03 policy access before implementation of this ticket.
 - Open question: Confirm the precise synthetic field schema and permitted values for each change type before implementation.
 - Open question: Confirm whether an `EXPIRED` policy request should be recorded for audit or blocked at submission. The proposed behavior above records it and blocks advancement.
 - Status: Requirements and UX handoff drafted; dependency verification pending. Do not start implementation until the open questions are settled.
@@ -82,17 +84,3 @@ None.
 - [ ] Related Issues and PRs linked
 - [ ] Progress and handover updated
 - [ ] No unresolved blockers
-
-## Progress & Handover
-
-- **Status:** Not Started
-- **Completed:** Requirements draft
-- **Remaining:** Settle open questions, finalize UX handoff, implement
-- **Branch:** N/A
-- **PR:** N/A
-- **Latest Test/CI Result:** N/A
-- **Blockers:** Open request-schema and expired-policy decisions; UX review
-- **Dependencies:** FR-14, FR-01, FR-03
-- **Next Action:** Finalize product decisions and UX handoff
-- **Context Links:** PRD, ADR, ticket 1
-- **Last Updated:** 2026-11-11

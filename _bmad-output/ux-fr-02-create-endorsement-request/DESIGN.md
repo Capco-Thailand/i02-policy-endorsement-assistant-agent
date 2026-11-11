@@ -32,7 +32,7 @@ components:
 
 ## Brand & Style
 
-Extend the established staff interface in [FR-14 DESIGN.md](../initiative-pea-001-policy-list-and-detail/ux-fr-14-authenticate-staff/DESIGN.md). The request screen is a work form for synthetic policies. Keep policy identity and non-binding status visible.
+Extend the established staff interface in [FR-01 DESIGN.md](../initiative-pea-001-policy-list-and-detail/ux-fr-01-authenticate-staff/DESIGN.md). The request screen is a work form for synthetic policies. Keep policy identity and non-binding status visible.
 
 ## Colors
 

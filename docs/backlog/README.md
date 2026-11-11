@@ -1,20 +1,21 @@
 # Requirement order
 
-This is the requirement order for the [product scope in the PRD](../PRD.md). All requirements are currently in the backlog for a workflow test. A draft becomes ready for implementation after its requirements, acceptance criteria, dependencies, and UX handoff are reviewed in a merged PR and its GitHub tracking Issue is created. Local `fr-` numbers are consecutive across the current and upcoming ticket files; feature IDs and GitHub Issue numbers are separate.
+This is the implementation order for the [product scope in the PRD](../PRD.md). All requirements are currently in the backlog for a workflow test. A draft becomes ready for implementation after its requirements, acceptance criteria, dependencies, and UX handoff are reviewed in a merged PR and its GitHub tracking Issue is created. Backlog filenames use feature IDs; the order below records dependencies and may differ from the ID sequence. GitHub Issue numbers are separate.
 
 | Order | Feature ID and outcome | Requirement record | State |
 |---:|---|---|---|
-| 1 | FR-14 Authenticate Staff | [Draft](fr-1-authenticate-staff.md) | Backlog; historical GitHub #13 closed |
-| 2 | FR-02 Create Endorsement Request | [Draft](fr-2-create-endorsement-request.md) | Backlog; historical GitHub #24 closed |
-| 3 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
-| 4 | FR-05 Retrieve Endorsement Rules with RAG | [Draft](fr-05-retrieve-endorsement-rules-with-rag.md) | Backlog |
-| 5 | FR-06 Verify Customer Identity | [Draft](fr-06-verify-customer-identity-mock-ekyc.md) | Backlog |
-| 6 | FR-07 Bypass Document Verification | [Draft](fr-07-bypass-document-verification-mock.md) | Backlog |
-| 7 | FR-08 Check Endorsement Eligibility | [Draft](fr-08-check-endorsement-eligibility.md) | Backlog |
-| 8 | FR-09 Calculate Premium Impact | [Draft](fr-09-calculate-premium-impact-mock-quote.md) | Backlog |
-| 9 | FR-10 Create Draft Endorsement | [Draft](fr-10-create-draft-endorsement-for-human-approval.md) | Backlog |
-| 10 | FR-11 Review Endorsement Draft | [Draft](fr-11-review-approve-reject-endorsement-draft.md) | Backlog |
-| 11 | FR-12 Record Activity & Audit History | [Draft](fr-12-record-activity-audit-history.md) | Backlog |
-| 12 | FR-13 Run with Docker Compose | [Draft](fr-13-run-the-system-with-docker-compose.md) | Backlog |
+| 1 | FR-01 Authenticate Staff | [Draft](fr-01-authenticate-staff.md) | Backlog; historical GitHub #13 closed |
+| 2 | FR-03 Check Policy Access | [Draft](fr-03-check-policy-access.md) | Backlog; historical GitHub #3 closed |
+| 3 | FR-02 Create Endorsement Request | [Draft](fr-02-create-endorsement-request.md) | Backlog; historical GitHub #24 closed |
+| 4 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
+| 5 | FR-05 Retrieve Endorsement Rules with RAG | [Draft](fr-05-retrieve-endorsement-rules-with-rag.md) | Backlog |
+| 6 | FR-06 Verify Customer Identity | [Draft](fr-06-verify-customer-identity-mock-ekyc.md) | Backlog |
+| 7 | FR-07 Bypass Document Verification | [Draft](fr-07-bypass-document-verification-mock.md) | Backlog |
+| 8 | FR-08 Check Endorsement Eligibility | [Draft](fr-08-check-endorsement-eligibility.md) | Backlog |
+| 9 | FR-09 Calculate Premium Impact | [Draft](fr-09-calculate-premium-impact-mock-quote.md) | Backlog |
+| 10 | FR-10 Create Draft Endorsement | [Draft](fr-10-create-draft-endorsement-for-human-approval.md) | Backlog |
+| 11 | FR-11 Review Endorsement Draft | [Draft](fr-11-review-approve-reject-endorsement-draft.md) | Backlog |
+| 12 | FR-12 Record Activity & Audit History | [Draft](fr-12-record-activity-audit-history.md) | Backlog |
+| 13 | FR-13 Run with Docker Compose | [Draft](fr-13-run-the-system-with-docker-compose.md) | Backlog |
 
-Completed prerequisites predate this local numbering: [FR-03 policy access, GitHub #3](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/3) and [FR-01 policy list and detail, GitHub #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1).
+Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covered policy list and detail before the current FR numbering. Its work is a prerequisite for FR-02 and FR-03, not a second FR-01 ticket.
