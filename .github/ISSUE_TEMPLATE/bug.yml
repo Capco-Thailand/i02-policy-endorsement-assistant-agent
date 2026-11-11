@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        The local Markdown ticket owns reproduction and verification. Prefer `npm run ticket:create -- docs/tickets/<file>.md` to create and link both records. Use this form only when the command is unavailable.
+        The local Markdown ticket owns reproduction and verification. The ticket/UX PR merges before automation creates this Issue. Use this form only after merge when automation is unavailable.
   - type: input
     id: summary
     attributes:

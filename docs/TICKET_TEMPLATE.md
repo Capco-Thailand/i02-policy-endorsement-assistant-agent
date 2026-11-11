@@ -4,13 +4,13 @@ Use this file to draft one requirement in `docs/backlog/` or `docs/tickets/`, fo
 
 Start implementation filenames with `fr-` and number them by build order, for example `docs/tickets/fr-1-authenticate-staff.md`. The ticket's feature ID and GitHub Issue number are separate identifiers and may differ from the local number. A backlog draft may use its feature ID until it is selected and numbered. Link the Issue and local file in both directions. GitHub tracks status, ownership, discussion, Definition of Done, and Progress & Handover. Use native sub-issues and blocking dependencies where available; see `.agents/skills/setup-matt-pocock-skills/issue-tracker-github.md`.
 
-Choose **one** body below for the local file. Replace prompts and remove unused optional detail. After moving it into `docs/tickets/`, run `npm run ticket:create -- docs/tickets/<file>.md`; review and commit the Issue link it adds. Add the matching type label and at least one relevant role label. Apply `needs:human-review` only while a human decision is pending. Record accepted scope decisions in this file before a build.
+Choose **one** body below for the local file. Replace prompts and remove unused optional detail. After moving it into `docs/tickets/`, commit it in a ticket/UX PR with the Issue pending. Merge automation creates the Issue and adds the link. Add the matching type label and at least one relevant role label after creation. Apply `needs:human-review` only while a human decision is pending. Record accepted scope decisions in this file before a build.
 
 ## Story body (`story.yml`)
 
 **Title:** `[Story] [short outcome-focused title]`
 **Labels:** `type:story`, `[role:...]`
-**GitHub Issue:** [added by `ticket:create`]
+**GitHub Issue:** Pending ticket/UX PR merge
 
 ### Summary and objective
 

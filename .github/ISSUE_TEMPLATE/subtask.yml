@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        The local Markdown ticket owns detailed scope and acceptance criteria. Prefer `npm run ticket:create -- docs/tickets/<file>.md` to create the linked Issue, then add it as a native sub-issue of its parent.
+        The local Markdown ticket owns detailed scope and acceptance criteria. Merge its ticket/UX PR before creating the Issue, then add it as a native sub-issue of its parent.
   - type: input
     id: parent
     attributes:

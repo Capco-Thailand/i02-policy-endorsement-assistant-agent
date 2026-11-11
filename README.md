@@ -12,4 +12,4 @@ Once the workspaces are implemented, install dependencies from the repository ro
 
 ## Ticket workflow
 
-The local Markdown ticket is the build specification. With `gh` authenticated, run `npm run ticket:create -- docs/tickets/<file>.md` to create or reconnect its GitHub Issue. Before building, run `npm run ticket:preflight -- docs/tickets/<file>.md`; use `npm run ticket:sync -- docs/tickets/<file>.md` to refresh an Issue's automated PR list. See [ticket workflow](docs/TICKETING.md) for PR fields, documentation updates, and human review gates.
+The local Markdown ticket is the build specification. Commit and merge a ticket/UX PR first; automation creates its GitHub Issue after merge. Before building, run `npm run ticket:preflight -- docs/tickets/<file>.md`; use `npm run ticket:sync -- docs/tickets/<file>.md` to refresh an Issue's automated PR list. See [ticket workflow](docs/TICKETING.md) for PR fields, documentation updates, and human review gates.
