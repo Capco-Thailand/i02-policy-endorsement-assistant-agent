@@ -81,6 +81,7 @@ Use `{rounded.sm}` for controls and `{rounded.md}` for record panels. Keep badge
 | Beneficiary list | Repeated rows with name, relationship, and allocation percentage; use separators between rows. |
 | Action button | White-on-violet primary action for Request Endorsement on eligible policies; neutral disabled state for expired policies, with nearby explanatory text. |
 | Feedback panel | Restrained bordered panel for errors and unavailable access; clear title, brief explanation, and recovery action where applicable. |
+| Preview index card | White bordered link with a feature ID, screen name, state summary, and clear action; use the same typography and focus treatment as policy cards. |
 
 ## Do's and Don'ts
 

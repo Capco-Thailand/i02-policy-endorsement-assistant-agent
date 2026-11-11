@@ -56,7 +56,7 @@ The page heading uses the bold `{typography.display.fontFamily}` role. Labels, i
 
 ## Layout & Spacing
 
-A single column presents the app name, sign-in heading, short context sentence, credentials form, and synthetic-demo notice. Keep the form comfortably narrow on desktop and full width with page gutters on phones. The error appears beside the form action in reading order. The [sign-in mockup](../../../design/page/sign-in.html) demonstrates the layout; this document wins if it differs.
+On desktop, a two-column layout places the app identity, sign-in heading, and synthetic-environment boundary beside a compact form panel. On phones, these regions stack in the same reading order and the form fills the available width within page gutters. The form itself remains one column. The error appears beside the form action in reading order. The [sign-in mockup](../../../design/page/sign-in.html) demonstrates the layout; this document wins if it differs.
 
 ## Elevation & Depth
 
@@ -71,6 +71,7 @@ Use `{rounded.sm}` for inputs and buttons and `{rounded.md}` for the form panel.
 | Component | Visual contract |
 |---|---|
 | Credential fields | Persistent label, plain border, visible focus outline, and enough width for account identifiers. |
+| Form heading | Small account-access label and concise heading above the fields; it must not replace the page's Staff sign in heading. |
 | Primary action | One white-on-violet Sign in button. Disabled or busy states retain readable text. |
 | Authentication error | Text-first message directly above the action, with a contrasting border or icon; no secrets or account-specific hints. |
 | Session notice | Compact bordered message above the form, using the same form width and explicit words. |
