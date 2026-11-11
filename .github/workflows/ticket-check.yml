@@ -19,4 +19,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: node scripts/ticket-workflow.mjs check
+        run: |
+          if [ ! -f scripts/ticket-workflow.mjs ]; then
+            echo "Bootstrap PR: ticket check starts after this workflow reaches the default branch."
+            exit 0
+          fi
+          node scripts/ticket-workflow.mjs check
