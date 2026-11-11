@@ -155,6 +155,13 @@ function reconcile() {
   if (drift) fail(`${drift} Issue(s) need reconciliation.`);
   console.log('Ticket Issue activity is current.');
 }
+function syncAll() {
+  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body'));
+  for (const issue of issues) {
+    const path = issue.body?.match(/<!-- ticket-path: (docs\/tickets\/[a-z0-9-]+\.md) -->/)?.[1];
+    if (path) syncIssue(path, issue.number);
+  }
+}
 function preflight(path) {
   const number = issueNumber(readTicket(path));
   if (!number) fail('Ticket has no linked GitHub Issue.');
@@ -171,7 +178,8 @@ try {
   else if (command === 'check') check();
   else if (command === 'sync') sync();
   else if (command === 'sync-issue') syncIssue(ticketPath(arg));
+  else if (command === 'sync-all') syncAll();
   else if (command === 'reconcile') reconcile();
   else if (command === 'preflight') preflight(ticketPath(arg));
-  else fail('Usage: node scripts/ticket-workflow.mjs create <path> | preflight <path> | sync-issue <path> | check | sync | reconcile');
+  else fail('Usage: node scripts/ticket-workflow.mjs create <path> | preflight <path> | sync-issue <path> | sync-all | check | sync | reconcile');
 } catch (error) { console.error(error.message); process.exitCode = 1; }
