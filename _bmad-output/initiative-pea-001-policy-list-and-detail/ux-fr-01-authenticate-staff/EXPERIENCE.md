@@ -6,7 +6,7 @@ sources:
 updated: 2026-11-10
 ---
 
-# FR-14 Staff Authentication Experience
+# FR-01 Staff Authentication Experience
 
 ## Foundation
 

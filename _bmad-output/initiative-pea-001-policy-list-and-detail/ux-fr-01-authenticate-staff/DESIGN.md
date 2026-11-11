@@ -1,6 +1,6 @@
 ---
 name: Policy Endorsement Assistant
-description: Visual contract for FR-14 staff sign-in and session feedback.
+description: Visual contract for FR-01 staff sign-in and session feedback.
 status: final
 sources:
   - https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/13
