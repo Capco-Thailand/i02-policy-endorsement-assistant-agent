@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { posix, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const [command, arg] = process.argv.slice(2);
@@ -42,10 +42,27 @@ function prTicket(path, sha) {
   if (file.type !== 'file' || file.encoding !== 'base64') fail(`Cannot read ${path} from PR`);
   return Buffer.from(file.content, 'base64').toString('utf8');
 }
+function issueTicket(path, ticket) {
+  const rendered = ticket.trim().replace(/(\[[^\]]+\]\()([^\s)]+)(\))/g, (match, open, target, close) => {
+    if (/^(?:[a-z]+:|\/|#)/i.test(target)) return match;
+    return `${open}https://github.com/${repo}/blob/main/${posix.normalize(posix.join(posix.dirname(path), target))}${close}`;
+  });
+  return `<!-- ticket-requirements:start -->\n${rendered}\n<!-- ticket-requirements:end -->`;
+}
 function issueBody(path, ticket) {
-  const heading = ticket.match(/^# (.+)$/m)?.[1] ?? path;
-  const summary = ticket.match(/## Summary and objective\s+([^\n]+)/)?.[1] ?? heading;
-  return `${marker(path)}\n\n## Summary\n${summary}\n\n**Detailed requirements:** [${path}](https://github.com/${repo}/blob/main/${path})\n**Product context:** [PRD](https://github.com/${repo}/blob/main/docs/PRD.md)\n\n## Progress & Handover\n- **Status:** Not Started\n- **Next Action:** Review the local ticket.\n\n${sectionStart}\nNo related PRs yet.\n${sectionEnd}\n`;
+  return `${marker(path)}\n\n${issueTicket(path, ticket)}\n\n## Progress & Handover\n- **Status:** Not Started\n- **Next Action:** Review the ticket requirements above.\n\n${sectionStart}\nNo related PRs yet.\n${sectionEnd}\n`;
+}
+function replaceTicket(body, path, ticket) {
+  const block = issueTicket(path, ticket);
+  if (body.includes('<!-- ticket-requirements:start -->') && body.includes('<!-- ticket-requirements:end -->')) {
+    return body.replace(/<!-- ticket-requirements:start -->[\s\S]*?<!-- ticket-requirements:end -->/, block);
+  }
+  const summary = ticket.match(/## Summary and objective\s+([^\n]+)/)?.[1];
+  let updated = body;
+  if (summary) updated = updated.replace(`## Summary\n${summary}\n\n`, '');
+  updated = updated.replace(new RegExp(`^\\*\\*Detailed requirements:\\*\\* \\[${path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]\\([^\\n]+\\)\\n`, 'm'), '');
+  updated = updated.replace(/^\*\*Product context:\*\* \[PRD\]\([^\n]+\)\n/m, '');
+  return updated.replace(marker(path), `${marker(path)}\n\n${block}`);
 }
 function replaceAutomation(body, content) {
   const block = `${sectionStart}\n${content}\n${sectionEnd}`;
@@ -114,6 +131,7 @@ async function create(path) {
   if (!linked) {
     writeFileSync(resolve(path), withIssueLink(ticket, issue.number));
   }
+  syncIssue(path, issue.number);
   console.log(`Linked ${path} to #${issue.number}`);
 }
 
@@ -188,15 +206,14 @@ async function publishMerged() {
       console.log(`Direct ticket update was blocked; opened a link PR from ${branch}`);
     }
   }
-  syncIssue(filePath, number);
 }
 function syncIssue(path, number = issueNumber(readTicket(path))) {
   if (!number) fail('Ticket has no linked GitHub Issue.');
   const issue = api(`repos/${repo}/issues/${number}`);
   if (!sameIssue(issue.body ?? '', path)) fail('Issue and ticket paths disagree.');
-  const body = replaceAutomation(issue.body ?? '', activity(number, path));
+  const body = replaceAutomation(replaceTicket(issue.body ?? '', path, readTicket(path)), activity(number, path));
   if (body !== issue.body) api(`repos/${repo}/issues/${number}`, 'PATCH', [['body', body]]);
-  console.log(`Updated Issue #${number} automation section`);
+  console.log(`Updated Issue #${number} requirements and automation section`);
 }
 function reconcile() {
   const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body'));
@@ -204,7 +221,7 @@ function reconcile() {
   for (const issue of issues) {
     const path = issue.body?.match(/<!-- ticket-path: (docs\/tickets\/[a-z0-9-]+\.md) -->/)?.[1];
     if (!path) continue;
-    const expected = replaceAutomation(issue.body, activity(issue.number, path));
+    const expected = replaceAutomation(replaceTicket(issue.body, path, readTicket(path)), activity(issue.number, path));
     if (expected !== issue.body) { console.error(`Issue #${issue.number} activity is stale`); drift++; }
   }
   if (drift) fail(`${drift} Issue(s) need reconciliation.`);
@@ -226,10 +243,11 @@ function preflight(path) {
   console.log(`Issue #${number}: ${issue.state}; PRs: ${prs.map((pr) => `#${pr.number} ${pr.mergedAt ? 'merged' : pr.state.toLowerCase()}`).join(', ') || 'none'}`);
   if (!prs.some((pr) => prType(pr) === 'ticket/UX' && pr.mergedAt)) fail('Ticket/UX PR has not merged.');
   if (issue.state === 'closed' || prs.some((pr) => prType(pr) === 'implementation' && (pr.state === 'OPEN' || pr.mergedAt))) fail('Implementation is open or has merged; review existing work before another build.');
-  if (/\*\*Status:\*\*\s*(Blocked|In Review|Done)/i.test(issue.body ?? '')) fail('Issue handover does not show a ticket ready for a new build.');
+  const handover = (issue.body ?? '').replace(/<!-- ticket-requirements:start -->[\s\S]*?<!-- ticket-requirements:end -->/, '');
+  if (/\*\*Status:\*\*\s*(Blocked|In Review|Done)/i.test(handover)) fail('Issue handover does not show a ticket ready for a new build.');
 }
 
-export { issueNumber, parsePr, sameIssue, withIssueLink };
+export { issueBody, issueNumber, issueTicket, parsePr, replaceTicket, sameIssue, withIssueLink };
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) try {
   if (!repo) fail('GITHUB_REPOSITORY is required.');
   if (command === 'create') await create(ticketPath(arg));

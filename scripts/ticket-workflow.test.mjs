@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 process.env.GITHUB_REPOSITORY = 'example/tickets';
-const { parsePr, issueNumber, sameIssue, withIssueLink } = await import('./ticket-workflow.mjs');
+const { issueBody, parsePr, issueNumber, replaceTicket, sameIssue, withIssueLink } = await import('./ticket-workflow.mjs');
 
 test('new handoff PR may have an Issue pending', () => {
   assert.deepEqual(parsePr('Ticket: docs/tickets/fr-2-request.md\nIssue: Pending\nType: ticket/UX\nDocumentation: docs/tickets/fr-2-request.md'), {
@@ -29,4 +29,34 @@ test('post-merge link replaces the pending marker once', () => {
   const linked = withIssueLink(ticket, 42);
   assert.equal(linked.match(/\*\*GitHub Issue:\*\*/g)?.length, 1);
   assert.equal(issueNumber(linked), 42);
+});
+
+test('Issue displays the full ticket with working repository links', () => {
+  const path = 'docs/tickets/fr-2-request.md';
+  const ticket = '# Ticket 2\n\n## Summary and objective\nRequest capture.\n\n## Acceptance criteria\n- [ ] Record request\n\n[PRD](../PRD.md)';
+  const body = issueBody(path, ticket);
+  assert.match(body, /## Acceptance criteria\n- \[ \] Record request/);
+  assert.match(body, /\[PRD\]\(https:\/\/github.com\/example\/tickets\/blob\/main\/docs\/PRD.md\)/);
+  assert.doesNotMatch(body, /\*\*Detailed requirements:\*\*/);
+});
+
+test('requirements sync replaces the ticket while preserving human handover', () => {
+  const path = 'docs/tickets/fr-2-request.md';
+  const oldTicket = '# Ticket 2\n\n## Summary and objective\nOld summary.';
+  const current = issueBody(path, oldTicket).replace('**Status:** Not Started', '**Status:** In Review');
+  const updated = replaceTicket(current, path, '# Ticket 2\n\n## Acceptance criteria\n- [ ] New behavior');
+  assert.match(updated, /New behavior/);
+  assert.doesNotMatch(updated, /Old summary/);
+  assert.match(updated, /\*\*Status:\*\* In Review/);
+});
+
+test('legacy Issue gains ticket content and drops its generated link', () => {
+  const path = 'docs/tickets/fr-2-request.md';
+  const ticket = '# Ticket 2\n\n## Summary and objective\nRequest capture.\n\n## Acceptance criteria\n- [ ] Complete';
+  const legacy = `<!-- ticket-path: ${path} -->\n\n## Summary\nRequest capture.\n\n**Detailed requirements:** [${path}](https://github.com/example/tickets/blob/main/${path})\n**Product context:** [PRD](https://github.com/example/tickets/blob/main/docs/PRD.md)\n\n## Progress & Handover\n- **Status:** In Review\n`;
+  const updated = replaceTicket(legacy, path, ticket);
+  assert.match(updated, /## Acceptance criteria/);
+  assert.doesNotMatch(updated, /\*\*Detailed requirements:\*\*/);
+  assert.match(updated, /\*\*Status:\*\* In Review/);
+  assert.equal(replaceTicket(updated, path, ticket), updated);
 });

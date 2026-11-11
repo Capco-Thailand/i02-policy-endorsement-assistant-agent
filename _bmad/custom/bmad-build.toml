@@ -1,5 +1,5 @@
 [workflow]
 persistent_facts = [
-  "For a GitHub Issue build, read the linked docs/tickets/fr-<implementation-order>-<slug>.md requirement file before planning. The local number expresses build order, not the PRD FR ID or GitHub Issue number. Use docs/TICKETING.md for the source-of-truth split between local requirements and GitHub delivery tracking.",
+  "For a GitHub Issue build, read the linked docs/tickets/fr-<implementation-order>-<slug>.md requirement file before planning. The Issue displays a synchronized copy of the full ticket; the local file owns requirement changes and the Issue owns delivery tracking. The local number expresses build order, not the PRD FR ID or GitHub Issue number. Use docs/TICKETING.md for the workflow.",
   "For UI work, read the ticket's UX DESIGN.md and EXPERIENCE.md companions and linked design/page/<pagename>.html mockups before planning the implementation. Follow the spines when a mockup conflicts with them. Include the relevant UI states and accessibility behavior in acceptance and verification.",
 ]
