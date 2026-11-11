@@ -2,7 +2,17 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 process.env.GITHUB_REPOSITORY = 'example/tickets';
-const { issueBody, parsePr, issueNumber, replaceTicket, sameIssue, withIssueLink } = await import('./ticket-workflow.mjs');
+const { isHandoffFile, issueBody, parsePr, issueNumber, replaceTicket, sameIssue, withIssueLink } = await import('./ticket-workflow.mjs');
+
+test('ticket handoff cannot carry application or workflow code', () => {
+  const ticket = 'docs/tickets/fr-2-request.md';
+  assert.equal(isHandoffFile(ticket, ticket), true);
+  assert.equal(isHandoffFile('design/page/request.html', ticket), true);
+  assert.equal(isHandoffFile('docs/PRD.md', ticket), true);
+  assert.equal(isHandoffFile('apps/api/src/app.ts', ticket), false);
+  assert.equal(isHandoffFile('.github/workflows/ticket-check.yml', ticket), false);
+  assert.equal(isHandoffFile('docs/tickets/fr-3-other.md', ticket), false);
+});
 
 test('new handoff PR may have an Issue pending', () => {
   assert.deepEqual(parsePr('Ticket: docs/tickets/fr-2-request.md\nIssue: Pending\nType: ticket/UX\nDocumentation: docs/tickets/fr-2-request.md'), {

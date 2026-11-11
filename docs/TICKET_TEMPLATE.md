@@ -65,20 +65,6 @@ Out of scope:
 - [ ] Progress and handover updated
 - [ ] No unresolved blockers
 
-### Progress & Handover
-
-- **Status:** Not Started
-- **Completed:** N/A
-- **Remaining:** N/A
-- **Branch:** N/A
-- **PR:** N/A
-- **Latest Test/CI Result:** N/A
-- **Blockers:** N/A
-- **Dependencies:** N/A
-- **Next Action:** N/A
-- **Context Links:** N/A
-- **Last Updated:** N/A
-
 ## Bug body (`bug.yml`)
 
 **Title:** `[Bug] [short failure summary]`
@@ -122,7 +108,7 @@ Actual: [Observed behavior.]
 - [ ] [How to confirm the fix.]
 - [ ] [Relevant regression and safety checks.]
 
-[Copy the Definition of Done and Progress & Handover sections from the story body.]
+[Copy the Definition of Done section from the story body.]
 
 ## Subtask body (`subtask.yml`)
 
@@ -158,6 +144,6 @@ Actual: [Observed behavior.]
 
 [Applicable checks and expected evidence; N/A if none.]
 
-[Copy the Definition of Done and Progress & Handover sections from the story body.]
+[Copy the Definition of Done section from the story body.]
 
 Update **Progress & Handover** in the Issue before stopping or transferring work. Use `Not Started`, `In Progress`, `Blocked`, `In Review`, or `Done`; link evidence and date the update. Completing implementation does not itself record human approval.
