@@ -1,11 +1,11 @@
 # Requirement order
 
-This is the requirement order for the [product scope in the PRD](../PRD.md). A draft becomes ready for implementation only after its requirements, acceptance criteria, dependencies, and GitHub tracking Issue are refined. Local `fr-` numbers are consecutive across the current and upcoming ticket files; feature IDs and GitHub Issue numbers are separate.
+This is the requirement order for the [product scope in the PRD](../PRD.md). A draft becomes ready for implementation after its requirements, acceptance criteria, dependencies, and UX handoff are reviewed in a merged PR and its GitHub tracking Issue is created. Local `fr-` numbers are consecutive across the current and upcoming ticket files; feature IDs and GitHub Issue numbers are separate.
 
 | Order | Feature ID and outcome | Requirement record | State |
 |---:|---|---|---|
 | 1 | FR-14 Authenticate Staff | [fr-1-authenticate-staff.md](../tickets/fr-1-authenticate-staff.md) | Current; GitHub #13 |
-| 2 | FR-02 Create Endorsement Request | [Draft](fr-02-create-endorsement-request.md) | Backlog |
+| 2 | FR-02 Create Endorsement Request | [Ticket 2](../tickets/fr-2-create-endorsement-request.md) | Current; ticket/UX PR pending |
 | 3 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
 | 4 | FR-05 Retrieve Endorsement Rules with RAG | [Draft](fr-05-retrieve-endorsement-rules-with-rag.md) | Backlog |
 | 5 | FR-06 Verify Customer Identity | [Draft](fr-06-verify-customer-identity-mock-ekyc.md) | Backlog |
