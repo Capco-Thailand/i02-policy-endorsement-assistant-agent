@@ -4,43 +4,55 @@ description: Visual contract for FR-14 staff sign-in and session feedback.
 status: final
 sources:
   - https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/13
-updated: 2026-11-10
+updated: 2026-11-11
 colors:
-  canvas: '#f5f4ef'
-  paper: '#fffefa'
-  ink: '#242b2a'
-  muted: '#66716e'
-  line: '#d9ddd6'
-  accent: '#176b60'
-  focus: '#bd7b25'
-  error: '#9b3e2f'
+  canvas: '#f6f9fc'
+  paper: '#ffffff'
+  ink: '#0a2540'
+  muted: '#425466'
+  line: '#dce6ef'
+  accent: '#635bff'
+  accent-ink: '#5148d9'
+  accent-soft: '#f0efff'
+  focus: '#5148d9'
+  error: '#a22d37'
 typography:
   display:
-    fontFamily: 'Georgia, Times New Roman, serif'
+    fontFamily: 'Inter, system-ui, Arial, sans-serif'
+    fontWeight: 700
+    lineHeight: 1.12
+    letterSpacing: '-0.04em'
   interface:
-    fontFamily: 'Arial, sans-serif'
-rounded: {}
-spacing: {}
+    fontFamily: 'Inter, system-ui, Arial, sans-serif'
+    lineHeight: 1.5
+rounded:
+  sm: '6px'
+  md: '10px'
+spacing:
+  gutter: '24px'
+  section: '32px'
 components:
   sign-in-panel:
     background: '{colors.paper}'
     border: '{colors.line}'
+    radius: '{rounded.md}'
   primary-action:
     background: '{colors.accent}'
-    foreground: '#ffffff'
+    foreground: '{colors.paper}'
+    radius: '{rounded.sm}'
 ---
 
 ## Brand & Style
 
-Extend the established policy-record language from [PEA-001 DESIGN.md](../ux-pea-001-policy-list-and-detail/DESIGN.md): warm paper, fine rules, evergreen action cues, serif headings, and compact sans-serif controls. Sign-in is a work entry point for synthetic policy servicing. It should feel like a secure form, with no marketing imagery or ornamental dashboard furniture. shadcn/ui supplies accessible form primitives; this document supplies the local visual treatment.
+Extend the app-wide Stripe-inspired identity in [PEA-001 DESIGN.md](../ux-pea-001-policy-list-and-detail/DESIGN.md): deep ink, cool canvas, white surfaces, violet primary action, generous spacing, and a bold sans-serif heading. Sign-in is a secure work entry point for synthetic policy servicing. Keep it focused on the form, with no marketing imagery or ornamental dashboard furniture. shadcn/ui supplies accessible form primitives; this document supplies the local visual treatment.
 
 ## Colors
 
-Use `{colors.canvas}` for the page and `{colors.paper}` for the form. `{colors.accent}` identifies the primary action and links. `{colors.error}` is reserved for authentication and field error text, paired with an icon or explicit words. `{colors.focus}` is the visible keyboard focus outline. Meet WCAG 2.2 AA contrast for every text and control state.
+Use `{colors.canvas}` for the page and `{colors.paper}` for the form. `{colors.accent}` fills the primary action; `{colors.accent-ink}` colors text links. `{colors.error}` is reserved for authentication and field error text, paired with explicit words. `{colors.focus}` is the visible keyboard focus outline. Meet WCAG 2.2 AA contrast for every text and control state.
 
 ## Typography
 
-The page heading uses `{typography.display.fontFamily}`. Labels, instructions, errors, buttons, and session notice use `{typography.interface.fontFamily}`. Keep field labels outside inputs so they stay visible while typing.
+The page heading uses the bold `{typography.display.fontFamily}` role. Labels, instructions, errors, buttons, and session notice use `{typography.interface.fontFamily}`. Keep field labels outside inputs so they stay visible while typing.
 
 ## Layout & Spacing
 
@@ -48,18 +60,18 @@ A single column presents the app name, sign-in heading, short context sentence, 
 
 ## Elevation & Depth
 
-Flat surfaces and borders carry hierarchy. Do not add card shadows, glow, or blur.
+The white form panel and quiet border carry hierarchy. Do not add layered card shadows, glow, or blur.
 
 ## Shapes
 
-Use restrained square or small-radius controls in line with the existing policy pages. Avoid oversized rounded panels.
+Use `{rounded.sm}` for inputs and buttons and `{rounded.md}` for the form panel. Avoid oversized rounded panels.
 
 ## Components
 
 | Component | Visual contract |
 |---|---|
 | Credential fields | Persistent label, plain border, visible focus outline, and enough width for account identifiers. |
-| Primary action | One evergreen Sign in button. Disabled or busy states retain readable text. |
+| Primary action | One white-on-violet Sign in button. Disabled or busy states retain readable text. |
 | Authentication error | Text-first message directly above the action, with a contrasting border or icon; no secrets or account-specific hints. |
 | Session notice | Compact bordered message above the form, using the same form width and explicit words. |
 | Signed-in account control | Staff display name and Sign out action in the application header; no policy data in the control. |
@@ -71,4 +83,4 @@ Use restrained square or small-radius controls in line with the existing policy 
 | Say “Synthetic demo” near the form | Imply production account access or real policy servicing |
 | Keep labels and errors visible while typing | Use placeholders as labels |
 | Show session expiry as a page-level state | Reveal whether an account identifier exists |
-| Preserve policy-page visual continuity | Introduce a new palette for sign-in |
+| Preserve the shared app identity | Copy Stripe's logo or introduce a separate sign-in palette |
