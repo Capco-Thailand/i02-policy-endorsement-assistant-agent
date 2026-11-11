@@ -12,7 +12,7 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 
 ## Decision
 
-- Build `apps/web` with React, Next.js App Router, and shadcn/ui. Use TanStack packages only where a flow needs them.
+- Build `apps/web` with React, Next.js App Router, and shadcn/ui. Use `@tanstack/react-query` for client-side server state and API reads or mutations; use Next.js Server Components for appropriate server-rendered data fetching.
 - Build `apps/api` with TypeScript and Fastify. Fastify owns the REST API, authentication, policy access, workflow decisions, and writes.
 - Define request and response schemas at Fastify route boundaries. Derive OpenAPI documentation and frontend client types from those schemas so runtime validation and TypeScript contracts stay aligned.
 - Keep RAG retrieval behind the API. Authorize policy access before retrieval; verify decision fields against structured records. The browser does not access RAG or storage directly.
