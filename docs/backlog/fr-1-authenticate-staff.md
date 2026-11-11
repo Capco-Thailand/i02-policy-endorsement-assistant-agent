@@ -45,6 +45,7 @@ Out of scope:
 N/A
 
 ## Accepted decisions and readiness
+- 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #13 was closed. Reconfirm readiness through a new ticket/UX handoff before implementation.
 - No scope decision has superseded the acceptance criteria above.
 - UX PR #14 merged. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Do not start a duplicate build without reviewing the revert.
 

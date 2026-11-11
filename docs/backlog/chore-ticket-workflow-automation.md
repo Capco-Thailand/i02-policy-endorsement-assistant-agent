@@ -30,6 +30,7 @@ Make local Markdown tickets the build specification while GitHub tracks linked I
 - The workflow check can become required after this ticket's PR merges and the first check has run.
 
 ## Accepted decisions
+- 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #19 was closed. Review this requirement before selecting it again.
 - The Markdown ticket owns build context. GitHub Issues own delivery discussion and human handover.
 - Merging a PR does not approve or complete its Issue.
 - Delivery state is derived from merged PRs; the ticket remains authoritative for requirements and accepted decisions.

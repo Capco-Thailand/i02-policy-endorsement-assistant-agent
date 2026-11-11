@@ -27,4 +27,4 @@ In the same PR as a behavior change, update the local ticket for ticket-level sc
 
 Implementation starts after the reviewed ticket and UX handoff are ready, the Issue exists, and the reciprocal link is on the default branch; `bmad-build` follows those approved requirements as a separate delivery flow.
 
-The existing [ticket 1](tickets/fr-1-authenticate-staff.md) holds the detailed FR-14 requirements and links to GitHub Issue #13. FR-01 and FR-03 already have closed GitHub Issues; the other FR drafts are in [backlog](backlog/).
+All requirements are currently in [backlog](backlog/), including the former FR-14, FR-02, and workflow automation tickets. Their linked Issues #13, #24, and #19 are closed for the workflow test; the links remain as history. FR-01 and FR-03 already have closed GitHub Issues. Move and review a backlog draft through the ticket/UX PR flow before starting implementation.
