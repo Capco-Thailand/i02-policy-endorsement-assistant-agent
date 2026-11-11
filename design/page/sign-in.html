@@ -8,12 +8,22 @@
   <script src="sign-in.js" defer></script>
 </head>
 <body>
-  <header class="site-header"><span class="brand-mark">PE</span><span>Policy Endorsement Assistant<small>Staff workspace · synthetic demo</small></span></header>
+  <header class="site-header">
+    <span class="brand-mark" aria-hidden="true">PE</span>
+    <span>Policy Endorsement Assistant<small>Staff workspace · synthetic demo</small></span>
+  </header>
   <main class="auth-shell">
-    <p class="auth-kicker">Staff workspace</p>
-    <h1 class="auth-title">Staff sign in</h1>
-    <p class="auth-intro">Use your individual demo account to work with assigned synthetic policies.</p>
+    <div class="auth-copy">
+      <p class="auth-kicker">Staff workspace <span aria-hidden="true">/</span> 01</p>
+      <h1 class="auth-title">Staff sign in</h1>
+      <p class="auth-intro">Use your individual demo account to work with assigned synthetic policies.</p>
+      <p class="auth-boundary"><strong>Synthetic environment</strong><span>No live insurer data or coverage changes.</span></p>
+    </div>
     <section class="auth-panel" aria-label="Sign-in form">
+      <div class="auth-panel-heading">
+        <p class="auth-panel-kicker">Account access</p>
+        <h2>Continue to your workspace</h2>
+      </div>
       <p id="auth-message" class="auth-message" role="alert" hidden></p>
       <form id="auth-form">
         <div class="auth-field"><label for="account-id">Account ID</label><input id="account-id" name="account-id" autocomplete="username" required></div>
