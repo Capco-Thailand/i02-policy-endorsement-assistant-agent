@@ -22,7 +22,7 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 
 ## Skill routing
 
-- Requirements and GitHub Issues: use BMad `bmad-agent-po`, [TICKET_TEMPLATE.md](docs/TICKET_TEMPLATE.md), and the matching form in `.github/ISSUE_TEMPLATE/` when creating or refining tickets; UX decisions: `bmad-ux`; delivery from a GitHub Issue and its linked local ticket: `bmad-build`. Use `bmad` when the next BMad step is unclear.
+- Requirements and GitHub Issues: use BMad `bmad-agent-po` and [TICKET_TEMPLATE.md](docs/TICKET_TEMPLATE.md). The local Markdown ticket owns build requirements and accepted decisions; create or reconnect its Issue with `npm run ticket:create -- docs/tickets/<file>.md`. Before delivery, run `npm run ticket:preflight -- docs/tickets/<file>.md`, then use `bmad-build` with the local ticket. UX decisions: `bmad-ux`. Use `bmad` when the next BMad step is unclear.
 - BMad setup or render failures on Windows: use `bmad-render-repair`.
 - Module design: use Matt Pocock `codebase-design`; domain terminology: `domain-modeling`; hard bugs: `diagnosing-bugs`; test-first changes: `tdd`; branch or PR review: `code-review`.
 - When a task uses both, keep the local ticket file as the detailed requirements source, the GitHub Issue as the delivery tracker, and use the Matt Pocock skill for its focused engineering method.

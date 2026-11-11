@@ -44,6 +44,10 @@ Out of scope:
 ## Related subtasks
 N/A
 
+## Accepted decisions and readiness
+- No scope decision has superseded the acceptance criteria above.
+- UX PR #14 merged. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Do not start a duplicate build without reviewing the revert.
+
 ## UX handoff references
 - Visual contract: `_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-14-authenticate-staff/DESIGN.md`
 - Behavior contract: `_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-14-authenticate-staff/EXPERIENCE.md`

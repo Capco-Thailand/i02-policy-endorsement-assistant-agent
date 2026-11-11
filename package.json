@@ -6,6 +6,9 @@
     "dev:api": "npm run dev --workspace @pea/api",
     "dev:web": "npm run dev --workspace @pea/web",
     "build": "npm run build --workspaces --if-present",
-    "test:api": "npm run test --workspace @pea/api"
+    "test:api": "npm run test --workspace @pea/api",
+    "ticket:create": "node scripts/ticket-workflow.mjs create",
+    "ticket:preflight": "node scripts/ticket-workflow.mjs preflight",
+    "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue"
   }
 }
