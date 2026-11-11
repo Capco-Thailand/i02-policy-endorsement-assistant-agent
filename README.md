@@ -9,3 +9,7 @@ Prototype monorepo for synthetic insurance policy endorsements. Policy flows are
 - `apps/ai` — planned synthetic data and RAG retrieval code.
 
 Once the workspaces are implemented, install dependencies from the repository root and run the API and web development scripts there. The target stack and container layout are in [the PRD](docs/PRD.md). See [API development](docs/API_DEVELOPMENT.md) for the planned API contract.
+
+## Ticket workflow
+
+The local Markdown ticket is the build specification. With `gh` authenticated, run `npm run ticket:create -- docs/tickets/<file>.md` to create or reconnect its GitHub Issue. Before building, run `npm run ticket:preflight -- docs/tickets/<file>.md`; use `npm run ticket:sync -- docs/tickets/<file>.md` to refresh an Issue's automated PR list. See [ticket workflow](docs/TICKETING.md) for PR fields, documentation updates, and human review gates.
