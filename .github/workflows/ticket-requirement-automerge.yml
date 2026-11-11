@@ -1,0 +1,23 @@
+name: Merge validated ticket handoff
+on:
+  workflow_run:
+    workflows: [Ticket links]
+    types: [completed]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  enable-auto-merge:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Enable auto-merge for validated ticket and UX PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: node scripts/ticket-workflow.mjs auto-merge
