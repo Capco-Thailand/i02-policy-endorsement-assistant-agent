@@ -16,7 +16,7 @@ Build an AI-assisted life insurance endorsement workflow. Staff select a policy,
 
 ### Authentication and access
 
-Staff use individual synthetic demo accounts. Access to policy information and endorsement actions is limited to assigned staff, and a draft creator cannot review their own work. Mock eKYC checks a synthetic customer scenario; it does not authenticate staff. The detailed authentication, session, authorization, and audit requirements are in [ticket 1](tickets/fr-1-authenticate-staff.md).
+Staff use individual synthetic demo accounts. Access to policy information and endorsement actions is limited to assigned staff, and a draft creator cannot review their own work. Mock eKYC checks a synthetic customer scenario; it does not authenticate staff. The detailed authentication, session, authorization, and audit requirements are in the [FR-14 backlog draft](backlog/fr-1-authenticate-staff.md).
 
 ## 2. Staff journey
 

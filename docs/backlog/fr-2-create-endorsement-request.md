@@ -60,7 +60,8 @@ None.
 
 ## Accepted decisions and readiness
 
-- 2026-11-11: FR-02 is selected as implementation-order ticket 2. Request capture is separate from downstream eligibility, quote, and draft work.
+- 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #24 was closed. Reconfirm scope and UX through a new ticket/UX handoff before implementation.
+- 2026-11-11: FR-02 was selected as implementation-order ticket 2. Request capture is separate from downstream eligibility, quote, and draft work.
 - Open question: Confirm the precise synthetic field schema and permitted values for each change type before implementation.
 - Open question: Confirm whether an `EXPIRED` policy request should be recorded for audit or blocked at submission. The proposed behavior above records it and blocks advancement.
 - Status: Requirements and UX handoff drafted; dependency verification pending. Do not start implementation until the open questions are settled.
