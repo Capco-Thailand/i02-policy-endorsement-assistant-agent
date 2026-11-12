@@ -8,7 +8,8 @@ permissions:
   pull-requests: write
 jobs:
   enable-auto-merge:
-    if: github.event.workflow_run.conclusion == 'success'
+    # Do not auto-merge while ticket validation is paused.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

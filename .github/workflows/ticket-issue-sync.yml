@@ -1,7 +1,7 @@
 name: Ticket Issue activity
 on:
   pull_request_target:
-    types: [opened, edited, synchronize, reopened, closed, ready_for_review, converted_to_draft]
+    types: [closed]
   push:
     branches: [main]
 permissions:
@@ -24,16 +24,16 @@ jobs:
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: node scripts/ticket-workflow.mjs publish-merged
       - name: Update Issue automation section
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: node scripts/ticket-workflow.mjs sync
-      - name: Reconcile Issue activity after merge
+      - name: Sync Issue activity after merge
         if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: node scripts/ticket-workflow.mjs audit-push
+        run: node scripts/ticket-workflow.mjs sync-all
