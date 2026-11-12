@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff sign in · Policy Endorsement Assistant</title>
+  <link rel="stylesheet" href="../global.css">
+  <link rel="stylesheet" href="sign-in.css">
+  <script src="sign-in.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <span class="brand-mark" aria-hidden="true">PEA</span>
+    <span>Policy Endorsement Assistant<small>Synthetic staff workspace</small></span>
+  </header>
+  <main class="auth-shell">
+    <section class="auth-copy" aria-labelledby="page-title">
+      <p class="auth-kicker">Staff access <span>·</span> Synthetic demo</p>
+      <h1 class="auth-title" id="page-title">Staff sign in</h1>
+      <p class="auth-intro">Use your individual demo account to work with policies assigned to you.</p>
+      <p class="auth-boundary"><strong>Synthetic demo accounts only</strong><span>This prototype does not connect to live insurer systems or change coverage.</span></p>
+    </section>
+    <section class="auth-panel" aria-labelledby="form-title">
+      <div class="auth-panel-heading">
+        <p class="auth-panel-kicker">Account access</p>
+        <h2 id="form-title">Enter your credentials</h2>
+      </div>
+      <p class="auth-message info" id="session-notice" role="status" hidden></p>
+      <form id="sign-in-form">
+        <div class="auth-field">
+          <label for="account-id">Account ID</label>
+          <input id="account-id" name="account-id" autocomplete="username" required>
+        </div>
+        <div class="auth-field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <p class="auth-message" id="form-error" role="alert" tabindex="-1" hidden></p>
+        <button class="button auth-submit" id="submit" type="submit">Sign in</button>
+      </form>
+      <p class="auth-footer">Access is limited to assigned synthetic policies. Drafts remain pending human review.</p>
+    </section>
+  </main>
+  <nav class="auth-preview" aria-label="Design preview states">
+    <button type="button" data-state="initial" aria-pressed="true">Default</button>
+    <button type="button" data-state="invalid" aria-pressed="false">Invalid credentials</button>
+    <button type="button" data-state="expired" aria-pressed="false">Session expired</button>
+    <button type="button" data-state="signed-out" aria-pressed="false">Signed out</button>
+  </nav>
+</body>
+</html>

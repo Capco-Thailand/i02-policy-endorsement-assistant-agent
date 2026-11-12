@@ -2,11 +2,11 @@
 
 **Title:** [Story] Authenticate staff with synthetic demo accounts
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Not filed; [historical #30](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/30) is retired.
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an authentication failure could expose another account's policy or allow unauthorized review.
-**State:** Backlog draft
+**State:** Selected for ticket handoff
 **Requirements owner:** This file; historical [Issue #13](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/13) is closed.
 
 ## Summary and objective
@@ -19,7 +19,7 @@ As a policy-service staff member, I can sign in with my own demo account and wor
 - Product context: `docs/PRD.md`, Authentication and access, staff journey, evaluation, and definition of done. This ticket owns the FR-01 detail.
 - Architecture: `docs/ADR.md` puts authentication, access control, and writes in Fastify; the browser uses the API.
 - Existing `docs/API_DEVELOPMENT.md` describes a deterministic token-to-user fixture as a prior API plan and explicitly says it is not authentication. FR-01 replaces that proposed identity mechanism.
-- UX handoff: reset; the previous design artifacts were removed. A new handoff is required before implementation.
+- UX handoff: the new visual and behavior contracts and sign-in mockup are linked below.
 - Risk: high. A failure could expose another account's policy or allow unauthorized review. Verify the rejection paths against every protected route as those routes are added.
 
 ## Acceptance criteria
@@ -41,8 +41,7 @@ Out of scope:
 - Building policy, RAG, endorsement, or draft workflows beyond the authorization integration they require.
 
 ## Dependencies
-- `#4` established the intended monorepo foundation, but the current checkout has no application source; reconcile this before implementation.
-- `#9` tracks the frontend foundation. The sign-in page needs a runnable web app.
+- A runnable Fastify API and Next.js web foundation is required. Historical Issues #4 and #9 are retired and do not prove that the current checkout has those applications. Establish the minimum foundation in the FR-01 implementation or merge it first.
 - FR-11 provides the draft review endpoint; its implementation must call the no-self-review guard established here.
 
 ## Related subtasks
@@ -50,12 +49,14 @@ N/A
 
 ## Accepted decisions and readiness
 - 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #13 was closed.
-- 2026-11-12: Retain FR-01 in backlog and replace the previous design handoff. Issues #13 and #30 and PR #29 are retired history; create a fresh tracking Issue through the ticket handoff workflow.
+- 2026-11-12: Selected FR-01 from backlog for a new ticket and UX handoff. Labeled historical Issues and PRs are retired evidence; this handoff awaits a new tracking Issue after merge.
 - No scope decision has superseded the acceptance criteria above.
 - Historical UX PR #14 merged, but its design artifacts were removed during the reset. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Review the revert before a new build.
 
 ## UX handoff references
-- None. Create a new visual and behavior handoff from this backlog requirement before implementation. Preserve `design/global.css` as the shared style starting point.
+- Visual contract: [DESIGN.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-authenticate-staff/DESIGN.md)
+- Behavior contract: [EXPERIENCE.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-authenticate-staff/EXPERIENCE.md)
+- Browser-viewable mockup: [sign-in.html](../../design/page/sign-in.html), linked from [design index](../../design/page/index.html). Shared styles: [global.css](../../design/global.css).
 - Open UX wording question: confirm account display names when demo fixtures are seeded.
 
 ## Definition of Done
