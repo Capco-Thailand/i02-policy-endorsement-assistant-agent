@@ -22,6 +22,7 @@ function issueNumber(text) {
   const match = text.match(/\*\*GitHub Issue:\*\*\s*(?:https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/issues\/)?#?(\d+)/);
   return match ? Number(match[1]) : null;
 }
+function featureId(text) { return text.match(/^\*\*Feature ID:\*\*\s*(FR-\d+)\s*$/mi)?.[1]?.toUpperCase() ?? null; }
 function withIssueLink(ticket, number) {
   const line = `**GitHub Issue:** https://github.com/${repo}/issues/${number}`;
   const pending = /\*\*GitHub Issue:\*\* (?:Pending ticket\/UX PR merge|\[added by `ticket:create`\])/;
@@ -132,9 +133,11 @@ async function create(path) {
   const mergedHandoff = JSON.parse(gh('pr', 'list', '--repo', repo, '--state', 'merged', '--limit', '500', '--json', 'number,body,mergedAt,labels'))
     .some((pr) => { if (isLegacy(pr)) return false; try { const fields = parsePr(pr.body ?? ''); return fields.type === 'ticket/UX' && fields.path === path && pr.mergedAt; } catch { return false; } });
   if (!mergedHandoff) fail('Create the Issue only after a ticket/UX PR for this ticket merges.');
-  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body,labels'));
-  const matches = issues.filter((item) => !isLegacy(item) && sameIssue(item.body ?? '', path));
-  if (matches.length > 1) fail(`Multiple Issues refer to ${path}: ${matches.map((i) => i.number).join(', ')}`);
+  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,title,body,state,labels'));
+  const id = featureId(ticket);
+  const matches = issues.filter((item) => !isLegacy(item) && (sameIssue(item.body ?? '', path)
+    || (id && item.state === 'OPEN' && (featureId(item.body ?? '') === id || new RegExp(`\\b${id}\\b`, 'i').test(item.title ?? '')))));
+  if (matches.length > 1) fail(`Multiple Issues match ${path}: ${matches.map((i) => i.number).join(', ')}`);
   if (linked && matches.length && linked !== matches[0].number) fail(`Ticket links #${linked}, but #${matches[0].number} names its path.`);
   const number = linked ?? matches[0]?.number;
   let issue;
