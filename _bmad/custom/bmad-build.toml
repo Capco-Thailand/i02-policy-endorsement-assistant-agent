@@ -6,6 +6,7 @@ persistent_facts = [
   "On the exact branch test/create-ticket, the ticket/UX PR merge requirement is waived for build testing. Run ticket:preflight and proceed when its remaining checks pass; use the local ticket and existing UX DESIGN.md, EXPERIENCE.md, and page mockup. On every other branch, require the merged ticket/UX handoff before building.",
   "For code changes, include docs/CODING_STANDARDS.md in the plan context. If Prettier is absent, plan its root dev dependency, configuration, ignore rules, and format scripts before coding. Include npm run format:check in Verification and treat failure as unfinished work. For UI changes, record which page sections are components and why; do not create trivial wrapper components.",
   "For behavior-changing code, include docs/TESTING_STANDARD.md in the plan context. In the plan, name the public test seams and what each proves, order test tasks before their implementation tasks, and include red/green evidence in Verification. The plan approval confirms the seams before tests are written. Documentation-only and formatting-only changes do not require red tests.",
+  "If implementation changes a requirement for a ticket with an active GitHub Issue, update its local docs/tickets file and refresh that same Issue with npm run ticket:sync -- docs/tickets/<file>.md while automation is disabled. Never create another Issue merely because code or requirements were pushed.",
 ]
 
 implementation_handoff = """

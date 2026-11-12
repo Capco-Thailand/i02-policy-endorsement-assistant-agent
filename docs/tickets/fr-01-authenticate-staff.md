@@ -51,6 +51,7 @@ N/A
 - 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #13 was closed.
 - 2026-11-12: Selected FR-01 from backlog for a new ticket and UX handoff. Labeled historical Issues and PRs are retired evidence. New Issue #33 tracks this selected ticket; the handoff still needs review before implementation.
 - 2026-11-12: Corrected the primary actor from policy-service staff to the customer. Customers request changes to their own synthetic policies, review the proposed updated-policy view, and record their own decisions. Approval adds a record to the customer's history page without a later review or issuance step. This supersedes the previous staff sign-in and separate-reviewer model.
+- 2026-11-12: PR #32 is the current handoff; duplicate PR #34 is retired. Keep active Issue #33 and refresh its requirements copy when this ticket changes.
 - The customer-facing criteria above are the current FR-01 scope; the proposal review and history screens belong to later tickets.
 - Historical UX PR #14 merged, but its design artifacts were removed during the reset. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Review the revert before a new build.
 

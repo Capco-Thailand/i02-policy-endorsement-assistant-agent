@@ -4,7 +4,7 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 
 | Order | Feature ID and outcome | Requirement record | State |
 |---:|---|---|---|
-| 1 | FR-01 Authenticate Customers | [Ticket](../tickets/fr-01-authenticate-staff.md) | Ticket/UX handoff pending; [active Issue #33](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/33) |
+| 1 | FR-01 Authenticate Customers | [Ticket](../tickets/fr-01-authenticate-staff.md) | [PR #32](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/32) handoff pending; [active Issue #33](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/33) |
 | 2 | FR-03 Check Policy Access | [Draft](fr-03-check-policy-access.md) | Backlog; historical GitHub #3 closed |
 | 3 | FR-02 Create Endorsement Request | [Draft](fr-02-create-endorsement-request.md) | Backlog; historical GitHub #24 closed |
 | 4 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
