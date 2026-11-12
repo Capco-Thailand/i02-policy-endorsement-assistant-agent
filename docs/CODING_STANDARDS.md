@@ -4,6 +4,14 @@ Apply these rules to code and infrastructure changes. [PRD.md](PRD.md) defines p
 
 The repository uses npm workspaces for `apps/api`, `apps/web`, and `apps/ai`. Install dependencies from the root with `npm ci` and keep one root `package-lock.json`. Add dependencies to the workspace that uses them. The AI workspace has no runtime until a concrete retrieval or data need exists.
 
+## Implementation order
+For a feature or bug fix that changes behavior, use test-driven development as defined in [TESTING_STANDARD.md](TESTING_STANDARD.md). Agree on the observable test seams during planning, then work one vertical slice at a time: write a focused failing test, confirm it fails for the intended reason, add only enough code to pass, and repeat. Leave broader refactoring for review after the behavior is green. Documentation-only, formatting-only, and other changes without observable behavior do not need a failing test.
+
+## Formatting
+- Use Prettier for application source and configuration. When implementing the first application code, add Prettier as a root dev dependency, commit its version in the root lockfile, and add root `format` and `format:check` scripts plus project configuration and ignore rules. Exclude the root lockfile, generated files, build output, and documents; do not reformat unrelated files.
+- Run `npm run format` on code in scope after the red-to-green cycles and `npm run format:check` before review. A failed or missing format check leaves a code change unfinished.
+- Keep JSX and CSS readable after formatting: give meaningful sections and conditional states clear structure. Formatting does not replace the component responsibility rules below.
+
 ## Start with the smallest useful slice
 
 - Implement one supported endorsement flow end to end before generalizing it to other change types.

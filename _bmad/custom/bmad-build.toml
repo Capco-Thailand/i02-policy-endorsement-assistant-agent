@@ -4,4 +4,20 @@ persistent_facts = [
   "For UI work, read the ticket's UX DESIGN.md and EXPERIENCE.md companions and linked design/page/<pagename>.html mockups before planning the implementation. Follow the spines when a mockup conflicts with them. Include the relevant UI states and accessibility behavior in acceptance and verification.",
   "Treat GitHub Issues and PRs labeled LEGACY or LAGECY as retired history. They do not prove current implementation, review, or readiness. Follow the current local ticket and active Issue/PR; inspect a retired item only when the ticket names it as historical evidence.",
   "On the exact branch test/create-ticket, the ticket/UX PR merge requirement is waived for build testing. Run ticket:preflight and proceed when its remaining checks pass; use the local ticket and existing UX DESIGN.md, EXPERIENCE.md, and page mockup. On every other branch, require the merged ticket/UX handoff before building.",
+  "For code changes, include docs/CODING_STANDARDS.md in the plan context. If Prettier is absent, plan its root dev dependency, configuration, ignore rules, and format scripts before coding. Include npm run format:check in Verification and treat failure as unfinished work. For UI changes, record which page sections are components and why; do not create trivial wrapper components.",
+  "For behavior-changing code, include docs/TESTING_STANDARD.md in the plan context. In the plan, name the public test seams and what each proves, order test tasks before their implementation tasks, and include red/green evidence in Verification. The plan approval confirms the seams before tests are written. Documentation-only and formatting-only changes do not require red tests.",
 ]
+
+implementation_handoff = """
+Launch a subagent with no prior conversation context, with this prompt:
+
+> Read {plan_file} fully and implement it — the plan is the sole source of truth. Load every file listed in its frontmatter `context:` before you start, especially docs/CODING_STANDARDS.md for code changes.
+>
+> For behavior-changing code, follow docs/TESTING_STANDARD.md and the approved plan's test seams. Work one vertical slice at a time: write a test through the public interface, run it and confirm the expected failure, implement only enough to pass, and run it green. Repeat for the next slice. Do not write the entire suite before implementation; save broader refactoring for review. Report the red and green evidence. Skip the red step for changes without observable behavior.
+>
+> For UI work, use focused components where a section owns behavior or makes the page clearer. Keep page markup readable without extracting trivial wrappers.
+>
+> For code changes, ensure the plan's root Prettier setup exists. After the red-to-green cycles, format only code in scope and run npm run format:check before reporting completion; a missing or failing check is unfinished work.
+>
+> When done, report what you changed, how you verified it, and anything left incomplete or risky.
+"""
