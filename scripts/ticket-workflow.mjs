@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 const [command, arg] = process.argv.slice(2);
 const repo = process.env.GITHUB_REPOSITORY || execFileSync('gh', ['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner'], { encoding: 'utf8' }).trim();
+const contentRef = process.env.TICKET_CONTENT_REF || 'main';
 const marker = (path) => `<!-- ticket-path: ${path} -->`;
 const sectionStart = '<!-- ticket-automation:start -->';
 const sectionEnd = '<!-- ticket-automation:end -->';
@@ -46,7 +47,7 @@ function prTicket(path, sha) {
 function issueTicket(path, ticket) {
   const rendered = ticket.trim().replace(/(\[[^\]]+\]\()([^\s)]+)(\))/g, (match, open, target, close) => {
     if (/^(?:[a-z]+:|\/|#)/i.test(target)) return match;
-    return `${open}https://github.com/${repo}/blob/main/${posix.normalize(posix.join(posix.dirname(path), target))}${close}`;
+    return `${open}https://github.com/${repo}/blob/${contentRef}/${posix.normalize(posix.join(posix.dirname(path), target))}${close}`;
   });
   return `<!-- ticket-requirements:start -->\n${rendered}\n<!-- ticket-requirements:end -->`;
 }
@@ -261,11 +262,11 @@ async function publishMerged() {
   await create(metadata.path);
   const number = issueNumber(readTicket(metadata.path));
   const filePath = ticketPath(metadata.path);
-  const project = api(`repos/${repo}`);
-  const current = api(`repos/${repo}/contents/${filePath}?ref=${project.default_branch}`);
+  const baseRef = event.pull_request.base.ref;
+  const current = api(`repos/${repo}/contents/${filePath}?ref=${encodeURIComponent(baseRef)}`);
   const content = Buffer.from(readTicket(filePath)).toString('base64');
   if (Buffer.from(current.content, 'base64').toString('utf8') !== readTicket(filePath)) {
-    const update = { message: `Link ${filePath} to Issue #${number}`, content, sha: current.sha };
+    const update = { message: `Link ${filePath} to Issue #${number}`, content, sha: current.sha, branch: baseRef };
     try {
       ghWithInput(JSON.stringify(update), 'api', `repos/${repo}/contents/${filePath}`, '--method', 'PUT', '--input', '-');
     } catch {
@@ -274,16 +275,16 @@ async function publishMerged() {
       let ref;
       try { ref = api(refPath); }
       catch {
-        const base = api(`repos/${repo}/git/ref/heads/${project.default_branch}`);
+        const base = api(`repos/${repo}/git/ref/heads/${baseRef}`);
         ref = JSON.parse(ghWithInput(JSON.stringify({ ref: `refs/heads/${branch}`, sha: base.object.sha }), 'api', `repos/${repo}/git/refs`, '--method', 'POST', '--input', '-'));
       }
       const branchFile = api(`repos/${repo}/contents/${filePath}?ref=${branch}`);
       if (Buffer.from(branchFile.content, 'base64').toString('utf8') !== readTicket(filePath)) {
         ghWithInput(JSON.stringify({ ...update, sha: branchFile.sha, branch }), 'api', `repos/${repo}/contents/${filePath}`, '--method', 'PUT', '--input', '-');
       }
-      const pulls = api(`repos/${repo}/pulls?head=${repo.split('/')[0]}:${encodeURIComponent(branch)}&base=${project.default_branch}&state=open`);
+      const pulls = api(`repos/${repo}/pulls?head=${repo.split('/')[0]}:${encodeURIComponent(branch)}&base=${encodeURIComponent(baseRef)}&state=open`);
       if (!pulls.length) {
-        ghWithInput(JSON.stringify({ title: `Link ${filePath} to Issue #${number}`, head: branch, base: project.default_branch,
+        ghWithInput(JSON.stringify({ title: `Link ${filePath} to Issue #${number}`, head: branch, base: baseRef,
           body: `Ticket: ${filePath}\nIssue: #${number}\nType: ticket/UX\nDocumentation: ${filePath}\n\nAutomated reciprocal link after the ticket/UX handoff merged.` }),
           'api', `repos/${repo}/pulls`, '--method', 'POST', '--input', '-');
       }
