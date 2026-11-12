@@ -1,14 +1,24 @@
 {
   "name": "policy-endorsement-assistant",
   "private": true,
-  "workspaces": ["apps/api", "apps/web", "apps/ai"],
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "apps/ai"
+  ],
   "scripts": {
     "dev:api": "npm run dev --workspace @pea/api",
     "dev:web": "npm run dev --workspace @pea/web",
     "build": "npm run build --workspaces --if-present",
     "test:api": "npm run test --workspace @pea/api",
+    "test:web": "npm run test --workspace @pea/web",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,mts,js,jsx,json,css}\" \"*.json\"",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,mts,js,jsx,json,css}\" \"*.json\"",
     "ticket:create": "node scripts/ticket-workflow.mjs create",
     "ticket:preflight": "node scripts/ticket-workflow.mjs preflight",
     "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
   }
 }
