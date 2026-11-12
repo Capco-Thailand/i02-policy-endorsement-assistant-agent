@@ -10,7 +10,7 @@ Prototype monorepo for synthetic insurance policy endorsements. FR-01 provides c
 
 ## Run locally
 
-Use Node.js 20 or newer. From the repository root, install the single npm workspace lockfile:
+Use Node.js 20.9 or newer. From the repository root, install the single npm workspace lockfile:
 
 ```sh
 npm ci
@@ -23,7 +23,7 @@ npm run dev:api
 npm run dev:web
 ```
 
-The API listens on `http://localhost:3000`; Next.js listens on `http://localhost:3001`. Browse to `http://localhost:3001/sign-in`. API and web tests run with `npm run test:api` and `npm run test:web`; `npm run build` builds both apps.
+The API listens on `http://localhost:3000`; Next.js listens on `http://localhost:3001`. Browse to `http://localhost:3001/sign-in`. API and web tests run with `npm run test:api` and `npm run test:web`; `npm run build` builds both apps, and `npm run format:check` checks application formatting.
 
 ## Demo accounts
 

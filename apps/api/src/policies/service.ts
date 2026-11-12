@@ -21,13 +21,19 @@ export function assignedPolicy(customer: Customer, id: string): Policy | null {
   return policy ? { id: policy.id, status: policy.status } : null;
 }
 
-export function canDecideProposal(
+export type ProposalRecord = { id: string; ownerId: string; policyId: string };
+export type LoadProposal = (id: string) => Promise<ProposalRecord | null>;
+
+export async function authorizeProposalDecision(
   customer: Customer,
-  policyId: string,
-  proposalOwnerId: string,
-): boolean {
+  proposalId: string,
+  loadProposal: LoadProposal,
+): Promise<boolean> {
+  const proposal = await loadProposal(proposalId);
   return (
-    customer.id === proposalOwnerId &&
-    assignedPolicy(customer, policyId) !== null
+    proposal !== null &&
+    proposal.id === proposalId &&
+    proposal.ownerId === customer.id &&
+    assignedPolicy(customer, proposal.policyId) !== null
   );
 }

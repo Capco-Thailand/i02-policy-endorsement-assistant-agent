@@ -1,39 +1,58 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSignOut } from '@/hooks/useSignOut';
+import {
+  ROUTES,
+  SESSION_REASONS,
+  signInRoute,
+  type NavigationTarget,
+} from '@/lib/routes';
 
-const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+type SignOutButtonProps = {
+  navigate?: (destination: NavigationTarget) => void;
+};
 
-type SignOutButtonProps = { navigate?: (destination: string) => void };
-
-export function SignOutButton({
-  navigate = (destination) => window.location.assign(destination),
-}: SignOutButtonProps) {
+export function SignOutButton({ navigate }: SignOutButtonProps) {
+  const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [error, setError] = useState(false);
+  const signOut = useSignOut();
 
   async function handleSignOut() {
     if (isSigningOut) return;
     setIsSigningOut(true);
+    setError(false);
     try {
-      await fetch(`${apiOrigin}/auth/sign-out`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const response = await signOut.mutateAsync();
+      if (!response.ok && response.status !== 401)
+        throw new Error('Sign-out failed');
+      (navigate ?? router.push)(
+        signInRoute(ROUTES.signIn, SESSION_REASONS.signedOut),
+      );
     } catch {
-      // The page transition still clears protected UI; the API remains authority.
+      setError(true);
     } finally {
-      navigate('/sign-in?reason=signed-out');
+      setIsSigningOut(false);
     }
   }
 
   return (
-    <button
-      className="sign-out-button"
-      disabled={isSigningOut}
-      onClick={handleSignOut}
-      type="button"
-    >
-      Sign out
-    </button>
+    <div>
+      <button
+        className="sign-out-button"
+        disabled={isSigningOut}
+        onClick={handleSignOut}
+        type="button"
+      >
+        Sign out
+      </button>
+      {error ? (
+        <p className="sign-out-error" role="alert">
+          Sign-out is unavailable. Try again.
+        </p>
+      ) : null}
+    </div>
   );
 }

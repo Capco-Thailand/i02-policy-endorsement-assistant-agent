@@ -3,3 +3,4 @@ package-lock.json
 .next
 dist
 coverage
+apps/web/next-env.d.ts

@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { SESSION_REASONS, type SessionReason } from '@/lib/routes';
 
-type SessionNoticeProps = { reason: 'expired' | 'signed-out' };
+type SessionNoticeProps = { reason: SessionReason };
 
 export function SessionNotice({ reason }: SessionNoticeProps) {
   const noticeRef = useRef<HTMLParagraphElement>(null);
   const text =
-    reason === 'expired'
+    reason === SESSION_REASONS.expired
       ? 'Your session ended. Sign in again to continue.'
       : 'You signed out.';
 

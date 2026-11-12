@@ -15,10 +15,10 @@ describe('FR-01 AC1/AC2: customer sign-in and server session', () => {
     return header?.split(';')[0] ?? '';
   }
 
-  it('allows credentialed sign-in from both documented localhost origins', async () => {
+  it('allows credentialed sign-in only from the browser API host', async () => {
     app = await buildApp();
 
-    for (const origin of ['http://localhost:3001', 'http://127.0.0.1:3001']) {
+    for (const origin of ['http://localhost:3001']) {
       const preflight = await app.inject({
         method: 'OPTIONS',
         url: '/auth/sign-in',
@@ -35,6 +35,15 @@ describe('FR-01 AC1/AC2: customer sign-in and server session', () => {
         'true',
       );
     }
+    const alternate = await app.inject({
+      method: 'OPTIONS',
+      url: '/auth/sign-in',
+      headers: {
+        origin: 'http://127.0.0.1:3001',
+        'access-control-request-method': 'POST',
+      },
+    });
+    expect(alternate.headers['access-control-allow-origin']).toBeUndefined();
   });
 
   it('accepts a seeded customer and validates the returned session on /auth/me', async () => {
@@ -173,11 +182,63 @@ describe('FR-01 AC1/AC2: customer sign-in and server session', () => {
     expect(document.paths['/health'].get.responses['200']).toBeDefined();
     expect(document.paths['/auth/sign-in'].post.responses['401']).toBeDefined();
     expect(
+      document.paths['/auth/sign-in'].post.responses['429'],
+    ).toBeUndefined();
+    expect(
       document.paths['/auth/sign-out'].post.responses['204'],
     ).toBeDefined();
     expect(document.paths['/auth/me'].get.security).toEqual([
       { customerSession: [] },
     ]);
     expect(document.paths['/policies/{id}'].get.responses['404']).toBeDefined();
+  });
+
+  it('FR-01 AC6: logs requests without session or authorization secrets', async () => {
+    const entries: string[] = [];
+    app = await buildApp({
+      logStream: { write: (entry) => entries.push(entry) },
+    });
+    app.get('/log-redaction-probe', async (request) => {
+      request.log.info({ headers: request.headers }, 'redaction probe');
+      return { ok: true };
+    });
+    app.get('/log-error-probe', async () => {
+      throw new Error('test failure');
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/auth/me',
+      headers: {
+        cookie: 'pea_session=secret-cookie',
+        authorization: 'Bearer secret-token',
+      },
+    });
+
+    expect(response.statusCode).toBe(401);
+    await app.inject({
+      method: 'GET',
+      url: '/log-redaction-probe',
+      headers: {
+        cookie: 'pea_session=secret-cookie',
+        authorization: 'Bearer secret-token',
+      },
+    });
+    const failure = await app.inject({
+      method: 'GET',
+      url: '/log-error-probe',
+      headers: {
+        cookie: 'pea_session=secret-cookie',
+        authorization: 'Bearer secret-token',
+      },
+    });
+    expect(failure.statusCode).toBe(500);
+    const log = entries.join('');
+    expect(log).toContain('incoming request');
+    expect(log).toContain('request completed');
+    expect(log).not.toContain('secret-cookie');
+    expect(log).not.toContain('secret-token');
+    expect(log).toContain('[Redacted]');
+    expect(log).toContain('test failure');
   });
 });

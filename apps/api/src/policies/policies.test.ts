@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../app.js';
-import { canDecideProposal } from './service.js';
+import { authorizeProposalDecision } from './service.js';
 
 describe('FR-01 AC1/AC4: policy ownership is derived from the session', () => {
   let app: Awaited<ReturnType<typeof buildApp>> | undefined;
@@ -74,12 +74,39 @@ describe('FR-01 AC1/AC4: policy ownership is derived from the session', () => {
     expect(detail.body).not.toContain('demo-alice');
   });
 
-  it('FR-01 AC5: allows a customer to decide only their own proposal on a linked policy', () => {
+  it('FR-01 AC5: loads a proposal on the server before allowing its owner to decide', async () => {
     const alice = { id: 'demo-alice', displayName: 'Alice Morgan' };
-    expect(canDecideProposal(alice, 'SYN-POL-1001', 'demo-alice')).toBe(true);
-    expect(canDecideProposal(alice, 'SYN-POL-1001', 'demo-bob')).toBe(false);
-    expect(canDecideProposal(alice, 'SYN-POL-2001', 'demo-alice')).toBe(false);
-    expect(canDecideProposal(alice, 'UNKNOWN', 'demo-alice')).toBe(false);
+    const proposals = new Map([
+      [
+        'new-proposal',
+        { id: 'new-proposal', ownerId: 'demo-alice', policyId: 'SYN-POL-1001' },
+      ],
+      [
+        'other-proposal',
+        { id: 'other-proposal', ownerId: 'demo-bob', policyId: 'SYN-POL-2001' },
+      ],
+      [
+        'unlinked-proposal',
+        {
+          id: 'unlinked-proposal',
+          ownerId: 'demo-alice',
+          policyId: 'SYN-POL-2001',
+        },
+      ],
+    ]);
+    const loadProposal = async (id: string) => proposals.get(id) ?? null;
+    expect(
+      await authorizeProposalDecision(alice, 'new-proposal', loadProposal),
+    ).toBe(true);
+    expect(
+      await authorizeProposalDecision(alice, 'other-proposal', loadProposal),
+    ).toBe(false);
+    expect(
+      await authorizeProposalDecision(alice, 'unlinked-proposal', loadProposal),
+    ).toBe(false);
+    expect(
+      await authorizeProposalDecision(alice, 'missing', loadProposal),
+    ).toBe(false);
   });
 
   it('FR-01 AC1: gives the second seeded customer only their linked policy', async () => {

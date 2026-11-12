@@ -1,25 +1,22 @@
 'use client';
 
 import React, { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSignIn } from '@/hooks/useSignIn';
+import { ROUTES, type AppRoute, type NavigationTarget } from '@/lib/routes';
 
 type SignInFormProps = {
-  returnTo: string;
-  navigate?: (destination: string) => void;
+  returnTo: AppRoute;
+  navigate?: (destination: NavigationTarget) => void;
 };
 
-type SignInErrorResponse = { error?: string };
-
-const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
-
-export function SignInForm({
-  returnTo,
-  navigate = (destination) => window.location.assign(destination),
-}: SignInFormProps) {
+export function SignInForm({ returnTo, navigate }: SignInFormProps) {
+  const router = useRouter();
   const [accountId, setAccountId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
+  const signIn = useSignIn();
 
   useEffect(() => {
     if (error) errorRef.current?.focus();
@@ -27,18 +24,12 @@ export function SignInForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isSubmitting) return;
+    if (signIn.isPending) return;
     setError(null);
-    setIsSubmitting(true);
     try {
-      const response = await fetch(`${apiOrigin}/auth/sign-in`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accountId, password }),
-      });
+      const response = await signIn.mutateAsync({ accountId, password });
       if (response.ok) {
-        navigate(returnTo);
+        (navigate ?? router.push)(returnTo || ROUTES.policies);
         return;
       }
       const message =
@@ -50,13 +41,11 @@ export function SignInForm({
     } catch {
       setPassword('');
       setError('Sign-in is unavailable. Try again.');
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
   return (
-    <form className="credential-form" onSubmit={handleSubmit}>
+    <form className="credential-form" method="post" onSubmit={handleSubmit}>
       <div className="auth-field">
         <label htmlFor="account-id">Account ID</label>
         <input
@@ -98,10 +87,10 @@ export function SignInForm({
       ) : null}
       <button
         className="button auth-submit"
-        disabled={isSubmitting}
+        disabled={signIn.isPending}
         type="submit"
       >
-        {isSubmitting ? 'Signing in…' : 'Sign in'}
+        {signIn.isPending ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
   );

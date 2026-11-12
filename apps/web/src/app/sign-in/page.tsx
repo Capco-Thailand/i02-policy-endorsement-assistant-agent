@@ -1,6 +1,7 @@
 import { SignInForm } from './SignInForm';
 import { safeDestination } from '@/lib/navigation';
 import { SessionNotice } from '@/components/SessionNotice';
+import { SESSION_REASONS } from '@/lib/routes';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -16,7 +17,9 @@ export default async function SignInPage({
   const params = await searchParams;
   const reason = firstValue(params.reason);
   const noticeReason =
-    reason === 'expired' || reason === 'signed-out' ? reason : null;
+    reason === SESSION_REASONS.expired || reason === SESSION_REASONS.signedOut
+      ? reason
+      : null;
   const returnTo = safeDestination(firstValue(params.returnTo));
 
   return (

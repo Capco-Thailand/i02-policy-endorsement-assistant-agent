@@ -2,19 +2,19 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ProtectedHeader } from '@/components/ProtectedHeader';
-import { getCurrentCustomer, getPolicies } from '@/lib/api';
-
-function signInPath(returnTo: string, expired: boolean): string {
-  const params = new URLSearchParams({ returnTo });
-  if (expired) params.set('reason', 'expired');
-  return `/sign-in?${params.toString()}`;
-}
+import { FocusHeading } from '@/components/FocusHeading';
+import {
+  getCurrentCustomer,
+  getPolicies,
+  SESSION_COOKIE_NAME,
+} from '@/lib/api';
+import { ROUTES, SESSION_REASONS, signInRoute } from '@/lib/routes';
 
 export default async function PoliciesPage() {
   const cookieJar = await cookies();
-  const token = cookieJar.get('pea_session')?.value;
-  if (!token) redirect(signInPath('/policies', false));
-  const cookieHeader = `pea_session=${token}`;
+  const token = cookieJar.get(SESSION_COOKIE_NAME)?.value;
+  if (!token) redirect(signInRoute(ROUTES.policies));
+  const cookieHeader = `${SESSION_COOKIE_NAME}=${token}`;
   const [customerResult, policiesResult] = await Promise.all([
     getCurrentCustomer(cookieHeader),
     getPolicies(cookieHeader),
@@ -24,7 +24,7 @@ export default async function PoliciesPage() {
     customerResult.kind === 'unauthorized' ||
     policiesResult.kind === 'unauthorized'
   ) {
-    redirect(signInPath('/policies', true));
+    redirect(signInRoute(ROUTES.policies, SESSION_REASONS.expired));
   }
   if (customerResult.kind !== 'ok' || policiesResult.kind !== 'ok') {
     return (
@@ -43,7 +43,7 @@ export default async function PoliciesPage() {
     <>
       <ProtectedHeader customer={customerResult.customer} />
       <main className="shell">
-        <h1 className="page-title">Your policies</h1>
+        <FocusHeading>Your policies</FocusHeading>
         <p className="intro">
           Only synthetic policies linked to your account appear here.
         </p>
@@ -55,7 +55,7 @@ export default async function PoliciesPage() {
               <li key={policy.id}>
                 <Link
                   className="policy-card"
-                  href={`/policies/${encodeURIComponent(policy.id)}`}
+                  href={ROUTES.policyDetail(policy.id)}
                 >
                   <h2>{policy.id}</h2>
                   <span

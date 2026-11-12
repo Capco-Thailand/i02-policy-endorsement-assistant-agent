@@ -24,6 +24,7 @@ export type AppOptions = {
   now?: () => number;
   webOrigin?: string;
   secureCookies?: boolean;
+  logStream?: { write(entry: string): void };
 };
 
 function sessionToken(cookieHeader: string | undefined): string | undefined {
@@ -36,7 +37,20 @@ function sessionToken(cookieHeader: string | undefined): string | undefined {
 
 export async function buildApp(options: AppOptions = {}) {
   const now = options.now ?? Date.now;
-  const app = Fastify({ logger: false });
+  const app = Fastify({
+    logger: {
+      redact: {
+        paths: [
+          'req.headers.cookie',
+          'req.headers.authorization',
+          'headers.cookie',
+          'headers.authorization',
+        ],
+        censor: '[Redacted]',
+      },
+      stream: options.logStream,
+    },
+  });
   const auth = options.auth ?? new AuthStore(now);
   const secureCookies =
     options.secureCookies ?? process.env.NODE_ENV === 'production';
@@ -44,7 +58,7 @@ export async function buildApp(options: AppOptions = {}) {
   const configuredOrigins = options.webOrigin ?? process.env.WEB_ORIGIN;
   const allowedOrigins = configuredOrigins
     ? configuredOrigins.split(',').map((origin) => origin.trim())
-    : ['http://localhost:3001', 'http://127.0.0.1:3001'];
+    : ['http://localhost:3001'];
 
   await app.register(cors, {
     origin: allowedOrigins,
@@ -94,7 +108,6 @@ export async function buildApp(options: AppOptions = {}) {
           200: SignInResponseSchema,
           400: ErrorResponseSchema,
           401: ErrorResponseSchema,
-          429: ErrorResponseSchema,
         },
       },
     },

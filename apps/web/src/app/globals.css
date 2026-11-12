@@ -97,6 +97,13 @@ button:focus-visible {
   cursor: pointer;
 }
 
+.sign-out-error {
+  max-width: 200px;
+  margin: 6px 0 0;
+  color: var(--error);
+  font-size: 12px;
+}
+
 .shell {
   max-width: 1040px;
   margin: 0 auto;
@@ -353,6 +360,17 @@ button:focus-visible {
 }
 
 @media (max-width: 520px) {
+  .site-header {
+    flex-wrap: wrap;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .account-control {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .auth-shell {
     padding: 40px 18px 24px;
   }

@@ -60,7 +60,9 @@ export class AuthStore {
     const account = customers.find((entry) => entry.id === id);
     const salt = account?.salt ?? Buffer.alloc(16);
     const expected = account?.passwordHash ?? Buffer.alloc(64);
-    const actual = (await scryptAsync(password, salt, 64)) as Buffer;
+    const actual = await scryptAsync(password, salt, 64);
+    if (!Buffer.isBuffer(actual))
+      throw new Error('Password verification failed');
     if (!account || !timingSafeEqual(expected, actual)) {
       this.record(null, 'sign_in_failed');
       return null;

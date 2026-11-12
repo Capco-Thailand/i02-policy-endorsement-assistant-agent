@@ -1,6 +1,6 @@
 # API development
 
-The API is a TypeScript Fastify workspace. TypeBox request and response schemas validate each route and produce the OpenAPI document. The web workspace imports response types derived from those schemas in `apps/api/src/contracts.ts`.
+The API is a TypeScript Fastify workspace. TypeBox request and response schemas validate each route and produce the OpenAPI document. The web workspace imports response schemas and derived types from `apps/api/src/contracts.ts`, and validates policy responses before rendering them.
 
 ## Local runtime
 
@@ -12,7 +12,7 @@ Configuration:
 | --------------------- | ----------------------- | ------------------------------------------ |
 | `API_PORT`            | `3000`                  | Fastify listen port                        |
 | `API_HOST`            | `0.0.0.0`               | Fastify listen host                        |
-| `WEB_ORIGIN`          | `http://localhost:3001,http://127.0.0.1:3001` | Comma-separated credentialed CORS origins |
+| `WEB_ORIGIN`          | `http://localhost:3001` | Comma-separated credentialed CORS origins |
 | `API_INTERNAL_URL`    | `http://localhost:3000` | API origin used by Next.js server requests |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:3000` | API origin used by browser requests        |
 
@@ -37,3 +37,5 @@ The seeded local demo accounts are `demo-alice` / `alice-demo-password` (Alice M
 `GET /policies` and `GET /policies/:id` derive the customer from the session cookie. Client-supplied identity headers or fields do not change ownership. An unlinked or unknown ID returns the same `404 { "error": "Policy unavailable" }`. Policy evidence, endorsement drafts, decisions, history, and live insurer access are outside FR-01 and are not implemented here.
 
 Use synthetic data only. No route creates or binds an endorsement.
+
+The proposal decision guard accepts a proposal ID and an asynchronous loader supplied by the server-side proposal repository. It checks that the loaded proposal ID and owner match the request and that the owner is linked to its policy. FR-11 must call this guard after loading a proposal and add endpoint-level authorization tests.

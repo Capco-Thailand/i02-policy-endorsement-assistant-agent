@@ -2,15 +2,11 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ProtectedHeader } from '@/components/ProtectedHeader';
-import { getCurrentCustomer, getPolicy } from '@/lib/api';
+import { FocusHeading } from '@/components/FocusHeading';
+import { getCurrentCustomer, getPolicy, SESSION_COOKIE_NAME } from '@/lib/api';
+import { ROUTES, SESSION_REASONS, signInRoute } from '@/lib/routes';
 
 type RouteParams = Promise<{ id: string }>;
-
-function signInPath(returnTo: string, expired: boolean): string {
-  const params = new URLSearchParams({ returnTo });
-  if (expired) params.set('reason', 'expired');
-  return `/sign-in?${params.toString()}`;
-}
 
 export default async function PolicyDetailPage({
   params,
@@ -18,11 +14,11 @@ export default async function PolicyDetailPage({
   params: RouteParams;
 }) {
   const { id } = await params;
-  const returnTo = `/policies/${encodeURIComponent(id)}`;
+  const returnTo = ROUTES.policyDetail(id);
   const cookieJar = await cookies();
-  const token = cookieJar.get('pea_session')?.value;
-  if (!token) redirect(signInPath(returnTo, false));
-  const cookieHeader = `pea_session=${token}`;
+  const token = cookieJar.get(SESSION_COOKIE_NAME)?.value;
+  if (!token) redirect(signInRoute(returnTo));
+  const cookieHeader = `${SESSION_COOKIE_NAME}=${token}`;
   const [customerResult, policyResult] = await Promise.all([
     getCurrentCustomer(cookieHeader),
     getPolicy(cookieHeader, id),
@@ -32,7 +28,7 @@ export default async function PolicyDetailPage({
     customerResult.kind === 'unauthorized' ||
     policyResult.kind === 'unauthorized'
   ) {
-    redirect(signInPath(returnTo, true));
+    redirect(signInRoute(returnTo, SESSION_REASONS.expired));
   }
   if (customerResult.kind !== 'ok') {
     return (
@@ -53,7 +49,7 @@ export default async function PolicyDetailPage({
           <p className="notice" role="status">
             This policy is unavailable.
           </p>
-          <Link className="back-link" href="/policies">
+          <Link className="back-link" href={ROUTES.policies}>
             Back to policies
           </Link>
         </main>
@@ -75,10 +71,10 @@ export default async function PolicyDetailPage({
     <>
       <ProtectedHeader customer={customerResult.customer} />
       <main className="shell">
-        <Link className="back-link" href="/policies">
+        <Link className="back-link" href={ROUTES.policies}>
           Back to policies
         </Link>
-        <h1 className="page-title">{policyResult.policy.id}</h1>
+        <FocusHeading>{policyResult.policy.id}</FocusHeading>
         <p className="intro">Synthetic policy details</p>
         <section
           aria-labelledby="policy-status-heading"
