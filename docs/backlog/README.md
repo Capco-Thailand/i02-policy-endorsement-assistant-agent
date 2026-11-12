@@ -1,10 +1,10 @@
 # Requirement order
 
-This is the implementation order for the [product scope in the PRD](../PRD.md). All requirements are currently in the backlog for a workflow test. A draft becomes ready for implementation after its requirements, acceptance criteria, dependencies, and UX handoff are reviewed in a merged PR and its GitHub tracking Issue is created. Backlog filenames use feature IDs; the order below records dependencies and may differ from the ID sequence. GitHub Issue numbers are separate.
+This is the implementation order for the [product scope in the PRD](../PRD.md). FR-01 has been selected for ticket handoff; remaining requirements are backlog drafts. A ticket becomes ready for implementation after its requirements, acceptance criteria, dependencies, and UX handoff are reviewed in a merged PR and its GitHub tracking Issue is created. Feature IDs remain stable; the order below records dependencies and may differ from the ID sequence. GitHub Issue numbers are separate.
 
 | Order | Feature ID and outcome | Requirement record | State |
 |---:|---|---|---|
-| 1 | FR-01 Authenticate Staff | [Draft](fr-01-authenticate-staff.md) | Backlog; historical GitHub #13 closed |
+| 1 | FR-01 Authenticate Staff | [Ticket](../tickets/fr-01-authenticate-staff.md) | Ticket handoff pending; historical GitHub #13 closed |
 | 2 | FR-03 Check Policy Access | [Draft](fr-03-check-policy-access.md) | Backlog; historical GitHub #3 closed |
 | 3 | FR-02 Create Endorsement Request | [Draft](fr-02-create-endorsement-request.md) | Backlog; historical GitHub #24 closed |
 | 4 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
