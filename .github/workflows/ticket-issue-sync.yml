@@ -11,8 +11,6 @@ permissions:
   pull-requests: write
 jobs:
   sync:
-    # Ticket automation is paused while all ticket checks are disabled.
-    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
