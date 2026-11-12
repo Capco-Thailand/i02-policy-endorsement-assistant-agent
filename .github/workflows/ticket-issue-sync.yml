@@ -10,6 +10,8 @@ permissions:
   pull-requests: write
 jobs:
   sync:
+    # Pause Issue activity checks and writes until ticket automation resumes.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
