@@ -83,6 +83,13 @@ function parsePr(body) {
   if (type === 'implementation' && !number) fail('Implementation PR needs a linked Issue number.');
   return { path, number, type, docs };
 }
+function optionalPrMetadata(body) {
+  try { return parsePr(body); }
+  catch (error) {
+    if (error.message === 'PR body needs Ticket, Issue, Type, and Documentation lines from the PR template.') return null;
+    throw error;
+  }
+}
 function sameIssue(body, path) { return body.includes(marker(path)) || body.includes(`docs/tickets/${path.split('/').pop()}`); }
 function prType(item) {
   try { return parsePr(item.body ?? '').type; }
@@ -155,7 +162,8 @@ function check() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
   const pr = event.pull_request;
   if (isLegacy(pr)) return;
-  const metadata = parsePr(pr.body ?? '');
+  const metadata = optionalPrMetadata(pr.body ?? '');
+  if (!metadata) { console.log('No ticket metadata; skipping ticket link check.'); return; }
   const ticket = prTicket(metadata.path, pr.head.sha);
   if (metadata.type === 'ticket/UX' && !metadata.number) {
     if (issueNumber(ticket)) fail('A pre-merge ticket/UX PR must not claim an Issue that has not been created by the merge workflow.');
@@ -240,13 +248,15 @@ function sync() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
   const pr = event.pull_request;
   if (isLegacy(pr)) return;
-  const metadata = parsePr(pr.body ?? '');
+  const metadata = optionalPrMetadata(pr.body ?? '');
+  if (!metadata) return;
   if (metadata.number) syncIssue(metadata.path, metadata.number);
 }
 async function publishMerged() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
   if (!event.pull_request?.merged || isLegacy(event.pull_request)) return;
-  const metadata = parsePr(event.pull_request.body ?? '');
+  const metadata = optionalPrMetadata(event.pull_request.body ?? '');
+  if (!metadata) return;
   if (metadata.type !== 'ticket/UX') return;
   await create(metadata.path);
   const number = issueNumber(readTicket(metadata.path));
