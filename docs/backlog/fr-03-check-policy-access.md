@@ -5,16 +5,16 @@
 **GitHub Issue:** Not filed
 **Feature ID:** FR-03
 **Product context:** [PRD](../PRD.md)
-**Risk:** Proposed High — incorrect access could expose another staff account's policy.
+**Risk:** Proposed High — incorrect access could expose another customer's policy.
 **State:** Backlog draft
 
 ## Summary and objective
 
-Allow staff to view and act on only the synthetic policies assigned to them.
+Allow customers to view and request changes only for synthetic policies linked to their accounts.
 
 ## User story or requirement
 
-System requirement: Allow staff to view and act on only the synthetic policies assigned to them.
+System requirement: Allow customers to view and request changes only for synthetic policies linked to their accounts.
 
 ## Business or technical context
 
@@ -25,7 +25,7 @@ System requirement: Allow staff to view and act on only the synthetic policies a
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
 - [ ] Enforce policy access on the backend for every policy read and endorsement action; client-supplied ownership claims do not grant access.
-- [ ] Return only assigned policies in list results. Reject unknown or unassigned policy IDs without disclosing policy or beneficiary details.
+- [ ] Return only the customer's policies in list results. Reject unknown policy IDs or IDs linked to another customer without disclosing policy or beneficiary details.
 - [ ] Check authorization before retrieving policy evidence or creating a request, quote, or draft. Rejected actions do not change policy state or bind coverage.
 - [ ] Use synthetic policy and assignment data only.
 
@@ -40,7 +40,7 @@ Out of scope:
 
 ## Dependencies
 
-- FR-01 supplies authenticated staff identity; historical Issue #1 supplies policy list and detail entry points. Confirm their current implementation state when refining this draft.
+- FR-01 supplies authenticated customer identity; historical Issue #1 supplies policy list and detail entry points. Confirm their current implementation state when refining this draft.
 - Open question: Compare historical Issue #3 with current code and identify any policy-access gaps before handoff.
 
 ## Related subtasks
@@ -49,6 +49,7 @@ None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
 
+- 2026-11-12: Customer account ownership replaces staff assignment as the policy-access boundary.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.
 

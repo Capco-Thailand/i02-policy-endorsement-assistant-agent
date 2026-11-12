@@ -1,6 +1,6 @@
 ---
 name: Policy Endorsement Assistant
-description: Visual contract for synthetic staff sign-in.
+description: Visual contract for synthetic customer sign-in.
 status: final
 sources:
   - docs/tickets/fr-01-authenticate-staff.md
@@ -43,7 +43,7 @@ components:
 
 ## Brand & Style
 
-The sign-in screen is a focused work entry for staff using synthetic policies. Inherit the shared palette and type from `design/global.css`. Keep a plain form, a clear synthetic-data notice, and no production insurer branding.
+The sign-in screen is a focused entry for customers requesting changes to their synthetic policies. Inherit the shared palette and type from `design/global.css`. Keep a plain form, a clear synthetic-data notice, and no production insurer branding.
 
 ## Colors
 
@@ -72,7 +72,7 @@ Inputs and actions use `{rounded.sm}`. The form surface uses `{rounded.md}`.
 | Credential field | Persistent label, full width, 46px minimum height, visible focus outline. |
 | Primary action | Full-width white-on-violet button with readable busy state. |
 | Error or session notice | Text-first message above the form action; color is a secondary cue. |
-| Signed-in account control | Staff display name and Sign out action in the protected header. |
+| Signed-in account control | Customer display name and Sign out action in the protected header. |
 
 ## Do's and Don'ts
 

@@ -25,7 +25,7 @@ System requirement: Simulate identity checks with synthetic pass/fail/review out
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
 - [ ] Use synthetic fixtures to simulate identity match, ID expiry, and liveness.
-- [ ] Return `VERIFIED`, `FAILED`, or `REVIEW_REQUIRED` with reasons. This check does not sign in staff or grant access.
+- [ ] Return `VERIFIED`, `FAILED`, or `REVIEW_REQUIRED` with reasons. This check does not establish a customer session or grant policy access.
 
 ## Scope and out of scope
 

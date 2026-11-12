@@ -11,7 +11,7 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 
 ## Policy
 
-- Use synthetic policy data only. Never connect to live insurer or policy systems, bind coverage, or treat a draft as approval; drafts remain non-binding and pending human review.
+- Use synthetic policy data only. Never connect to live insurer or policy systems or bind coverage. Customers review and approve proposed changes to their own policies in the prototype; approval creates a non-binding history record and does not update the underlying policy.
 
 ## Where things are
 

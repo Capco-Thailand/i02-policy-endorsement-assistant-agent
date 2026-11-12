@@ -102,7 +102,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline
 @media(max-width:440px) { .facts { grid-template-columns:1fr; } .record-heading { align-items:start; flex-direction:column; } .beneficiary { align-items:start; flex-direction:column; gap:8px; } .metadata { gap:13px; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; } }
 
-/* FR-01 staff sign-in preview */
+/* FR-01 customer sign-in preview */
 .auth-shell { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,440px); align-items:start; gap:clamp(40px,7vw,100px); max-width:1040px; margin:0 auto; padding:104px 24px 44px; }
 .auth-copy { padding-top:34px; }
 .auth-kicker { margin:0 0 12px; color:var(--accent-ink); font:750 11px/1.4 Inter,system-ui,Arial,sans-serif; text-transform:uppercase; letter-spacing:.12em; }

@@ -1,37 +1,37 @@
 # PRD — I02 Life Insurance Policy Endorsement Assistant
 
-**Version:** 1.3 | **Date:** 2026-11-11 | **Status:** MVP
+**Version:** 1.4 | **Date:** 2026-11-12 | **Status:** MVP
 
 This PRD states the business outcome, product scope, cross-feature rules, and success measures. Detailed behavior and acceptance criteria live in [implementation tickets](tickets/) and [backlog tickets](backlog/). GitHub Issues track discussion and delivery status; [ticket workflow](TICKETING.md) explains how the records connect. Architecture decisions live in [ADR.md](ADR.md).
 
 ## 1. Product goal and scope
 
-Build an AI-assisted life insurance endorsement workflow. Staff select a policy, describe a requested change, and receive RAG-grounded policy details and endorsement rules. The system checks authorization and eligibility, runs **mock eKYC** and a **bypassed mock document check**, estimates premium impact, and creates a **draft endorsement for human approval**.
+Build a customer-facing AI-assisted life insurance endorsement request workflow. Customers select one of their policies, describe a requested change, and receive RAG-grounded policy details and endorsement rules. The system checks authorization and eligibility, runs **mock eKYC** and a **bypassed mock document check**, estimates premium impact, and presents a proposed updated-policy view for the customer to review and approve.
 
-- **Users:** Authenticated policy-service staff using synthetic demo accounts. All staff have one application role.
+- **Users:** Authenticated customers using synthetic demo accounts to request and review changes to their own policies.
 - **Supported changes:** Beneficiary, correspondence address, payment frequency, and accidental-death rider.
 - **Policy statuses:** `ACTIVE` and `EXPIRED`; only `ACTIVE` policies may proceed to endorsement eligibility.
 - **Data:** Synthetic policies, customer profiles, rules, documents, and rating tables only.
-- **Out of scope:** Production identity-provider integration, real eKYC, real document inspection/OCR, medical underwriting, insurer integrations, issuance, automated approval, live policy updates, or coverage binding.
+- **Out of scope:** Production identity-provider integration, real eKYC, real document inspection/OCR, medical underwriting, insurer integrations, issuance, live policy updates, or coverage binding.
 
 ### Authentication and access
 
-Staff use individual synthetic demo accounts. Access to policy information and endorsement actions is limited to assigned staff, and a draft creator cannot review their own work. Mock eKYC checks a synthetic customer scenario; it does not authenticate staff. The detailed authentication, session, authorization, and audit requirements are in the [FR-01 ticket](tickets/fr-01-authenticate-staff.md).
+Customers use individual synthetic demo accounts. A customer can view and request changes only for policies linked to that account. The customer reviews the proposed updated-policy view for their own request and records an approval or rejection; another customer's request cannot be approved. Mock eKYC checks a synthetic identity scenario within an endorsement request; it does not establish a sign-in session. The detailed authentication, session, authorization, and audit requirements are in the [FR-01 ticket](tickets/fr-01-authenticate-staff.md).
 
-## 2. Staff journey
+## 2. Customer journey
 
-1. A staff member signs in, selects an assigned policy, and describes a supported change.
+1. A customer signs in, selects one of their policies, and describes a supported change.
 2. The assistant presents cited policy details and applicable endorsement rules, then explains any missing information or reason the request cannot proceed.
-3. For an eligible synthetic request, the system shows the mock premium impact and prepares a non-binding draft.
-4. A different authorized staff member records an approval or rejection decision. The decision does not issue an endorsement or change coverage.
+3. For an eligible synthetic request, the system shows the mock premium impact and a proposed updated-policy view beside the current policy details.
+4. The same customer reviews the proposal again and approves or rejects it. Approval records the proposed change in the customer's history page; no further review or issuance step runs. The underlying policy record and coverage remain unchanged.
 
 ## 3. Product and safety boundaries
 
-The assistant retrieves cited policy details and effective endorsement rules, while deterministic backend checks decide eligibility and mock premium impact. Staff see whether evidence is missing or conflicting. Requests that fail authorization, eligibility, or mock eKYC do not advance to a quote or draft.
+The assistant retrieves cited policy details and effective endorsement rules, while deterministic backend checks decide eligibility and mock premium impact. Customers see whether evidence is missing or conflicting. Requests that fail authorization, eligibility, or mock eKYC do not advance to a quote or draft.
 
 The demonstration uses synthetic data only. Document verification is explicitly bypassed and recorded as `BYPASSED_MOCK`; it must never be presented as real verification. Drafts and recorded human decisions never change or bind coverage. The chosen stack and API boundary are recorded in [ADR.md](ADR.md); detailed behavior belongs in the ticket records.
 
-**Guardrails:** Access checks precede RAG. Failed eKYC, missing or contradictory rules, expired policies, and ineligible changes block automatic quote/draft creation. A document bypass is a declared simulation, not evidence of real verification. No workflow state changes a policy.
+**Guardrails:** Access checks precede RAG. Failed eKYC, missing or contradictory rules, expired policies, and ineligible changes block automatic quote/draft creation. A document bypass is a declared simulation, not evidence of real verification. The updated-policy view is a proposal and approval creates a history record only; no workflow state changes a policy or binds coverage.
 
 ## 4. Evaluation
 
@@ -53,12 +53,12 @@ The evaluation design, minimum case counts, reporting fields, and regression sce
 ## 5. Definition of done
 
 - The planned MVP capabilities function with seeded synthetic data using Docker Compose.
-- Staff can sign in and out; protected actions require a valid session, and the backend enforces policy access and no-self-approval.
+- Customers can sign in and out; protected actions require a valid session, and the backend enforces ownership-based policy access and customer decisions on their own proposals only.
 - RAG provides versioned, cited policy and rule evidence, restricted by policy authorization.
 - The four supported endorsement types reach a draft when eligible; blocked cases show reasons.
 - Mock eKYC gates the workflow; document verification is always visibly marked `BYPASSED_MOCK` and audited.
-- A draft can be submitted for human approval, then approved or rejected by a different signed-in staff member.
+- The customer sees the proposed updated policy and mock premium impact before approving or rejecting their own request. An approved change appears in that customer's history page with the proposed values, decision, and time; there is no later approval or issuance step.
 - Quotes are deterministic, all actions are auditable, and **no draft or approval modifies or binds any live policy**.
 - Evaluation thresholds in Section 4 are met.
 
-**Principle:** *RAG retrieves evidence; backend validates and quotes; the agent prepares a draft; a different staff member decides; live policy changes remain outside the MVP.*
+**Principle:** *RAG retrieves evidence; backend validates and quotes; the agent presents a proposed updated policy; the customer reviews and decides; no live coverage is bound.*

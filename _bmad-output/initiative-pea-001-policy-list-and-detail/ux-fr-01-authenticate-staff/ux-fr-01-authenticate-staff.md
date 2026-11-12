@@ -1,5 +1,5 @@
 ---
-name: FR-01 staff authentication UX
+name: FR-01 customer authentication UX
 status: final
 updated: 2026-11-12
 ---
