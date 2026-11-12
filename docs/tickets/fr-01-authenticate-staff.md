@@ -2,7 +2,7 @@
 
 **Title:** [Story] Authenticate staff with synthetic demo accounts
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/33
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an authentication failure could expose another account's policy or allow unauthorized review.
@@ -49,7 +49,7 @@ N/A
 
 ## Accepted decisions and readiness
 - 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #13 was closed.
-- 2026-11-12: Selected FR-01 from backlog for a new ticket and UX handoff. Labeled historical Issues and PRs are retired evidence. New Issue #33 tracks this selected ticket; the handoff still needs review before implementation.
+- 2026-11-12: Selected FR-01 from backlog for a new ticket and UX handoff. Labeled historical Issues and PRs are retired evidence; this handoff awaits a new tracking Issue after merge.
 - No scope decision has superseded the acceptance criteria above.
 - Historical UX PR #14 merged, but its design artifacts were removed during the reset. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Review the revert before a new build.
 
