@@ -1,31 +1,31 @@
 ---
 name: Policy Endorsement Assistant
-description: Behavior contract for FR-01 staff authentication.
+description: Behavior contract for FR-01 customer authentication.
 status: final
 sources:
   - docs/tickets/fr-01-authenticate-staff.md
 updated: 2026-11-12
 ---
 
-# FR-01 Staff Authentication Experience
+# FR-01 Customer Authentication Experience
 
 ## Foundation
 
-Responsive web for synthetic policy-service staff. Next.js App Router and shadcn/ui are the intended implementation. [DESIGN.md](DESIGN.md) governs appearance; this document governs behavior. The [sign-in mockup](../../../design/page/sign-in.html) is a preview; both documents win if it differs.
+Responsive web for customers using synthetic policies. Next.js App Router and shadcn/ui are the intended implementation. [DESIGN.md](DESIGN.md) governs appearance; this document governs sign-in behavior. The [sign-in mockup](../../../design/page/sign-in.html) is a preview; both documents win if it differs. FR-11 and FR-12 own the later proposed-policy review and history screens.
 
 ## Information Architecture
 
 | Surface | Route | Purpose |
 |---|---|---|
 | Sign in | `/sign-in` | Enter individual demo credentials and receive session feedback. |
-| Protected policy pages | `/policies` and detail routes | Display only authorized synthetic policies after session validation. |
-| Signed-in header | Protected pages | Identify the current staff member and offer Sign out. |
+| Protected policy pages | `/policies` and detail routes | Display only synthetic policies linked to the signed-in customer after session validation. |
+| Signed-in header | Protected pages | Identify the current customer and offer Sign out. |
 
 A direct protected URL validates the server session before showing policy content. Invalid sessions lead to sign-in. After success, return to a safe requested internal route or `/policies`; never follow an external redirect.
 
 ## Voice and Tone
 
-Use “Staff sign in,” “Account ID,” “Password,” “Sign in,” and “Sign out.” Invalid credentials: “Sign-in failed. Check your account ID and password.” Expiry: “Your session ended. Sign in again to continue.” Sign-out: “You signed out.” API failure: “Sign-in is unavailable. Try again.” Never identify which credential was wrong.
+Use “Sign in to request a policy change,” “Account ID,” “Password,” “Sign in,” and “Sign out.” Explain that only the customer's synthetic policies are available, proposed changes require their review, and approved changes appear in history without changing live coverage. Invalid credentials: “Sign-in failed. Check your account ID and password.” Expiry: “Your session ended. Sign in again to continue.” Sign-out: “You signed out.” API failure: “Sign-in is unavailable. Try again.” Never identify which credential was wrong.
 
 ## Component Patterns
 
@@ -47,7 +47,7 @@ Use “Staff sign in,” “Account ID,” “Password,” “Sign in,” and �
 | API unavailable | Retryable error; no protected content. |
 | Expired or signed out | Protected content removed; distinct notice on sign-in. |
 | Signed in | Safe internal destination; backend remains authority for actor and policy access. |
-| Unknown or unassigned policy | Same non-disclosing unavailable result. |
+| Unknown or another customer's policy | Same non-disclosing unavailable result. |
 
 ## Interaction Primitives
 
@@ -66,12 +66,12 @@ The same fields and actions work on desktop and mobile. The form remains one col
 
 ## Key Flows
 
-### Sign in to assigned policy work
+### Sign in to request a policy change
 
-1. Amina, a synthetic demo staff member, opens `/policies` with no valid session.
+1. Amina, a synthetic demo customer, opens `/policies` with no valid session.
 2. The app directs her to sign-in without rendering policy data.
 3. She enters her Account ID and password.
-4. **Climax:** `/policies` opens under her validated session and shows only assigned policies; the header offers Sign out.
+4. **Climax:** `/policies` opens under her validated session and shows only policies linked to her account; the header offers Sign out.
 
 Failure: invalid credentials show the generic error and create no usable session.
 

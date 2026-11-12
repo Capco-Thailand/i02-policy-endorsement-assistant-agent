@@ -5,7 +5,7 @@
 **GitHub Issue:** Not filed
 **Feature ID:** FR-07
 **Product context:** [PRD](../PRD.md)
-**Risk:** Proposed High — presenting a bypass as verification could mislead staff.
+**Risk:** Proposed High — presenting a bypass as verification could mislead customers.
 **State:** Backlog draft
 
 ## Summary and objective
