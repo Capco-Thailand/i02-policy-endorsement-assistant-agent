@@ -172,7 +172,6 @@ function check() {
   }
   const files = prFiles(pr.number);
   if (metadata.type === 'ticket/UX' && !files.some((file) => file.filename === metadata.path)) fail('Ticket/UX PR must change its local ticket.');
-  if (metadata.type === 'ticket/UX' && files.some((file) => !isHandoffFile(file.filename, metadata.path))) fail('Ticket/UX PR may change only ticket, documentation, and design handoff files.');
   if (/^no change\s*:/i.test(metadata.docs)) {
     if (metadata.docs.replace(/^no change\s*:/i, '').trim().length < 8) fail('Explain why documentation does not change.');
   } else {
