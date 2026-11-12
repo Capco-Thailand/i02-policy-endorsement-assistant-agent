@@ -4,7 +4,7 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 
 | Order | Feature ID and outcome | Requirement record | State |
 |---:|---|---|---|
-| 1 | FR-01 Authenticate Staff | [Draft](fr-01-authenticate-staff.md) | Backlog; [new Issue #30](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/30), historical #13 closed |
+| 1 | FR-01 Authenticate Staff | [Draft](fr-01-authenticate-staff.md) | Backlog; Issues #13 and #30 retired |
 | 2 | FR-03 Check Policy Access | [Draft](fr-03-check-policy-access.md) | Backlog; historical GitHub #3 closed |
 | 3 | FR-02 Create Endorsement Request | [Draft](fr-02-create-endorsement-request.md) | Backlog; historical GitHub #24 closed |
 | 4 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
