@@ -53,7 +53,7 @@ Out of scope:
 
 - FR-01 authentication and assigned-policy authorization must be usable before implementation.
 - Historical Issue #1 policy list/detail and FR-03 policy access provide the policy selection flow and data boundary; verify their current code state before building.
-- UI handoff for this ticket is drafted below; resolve its open questions before implementation.
+- UI handoff was removed during the design reset; create a new handoff and resolve its open questions before implementation.
 
 ## Related subtasks
 
@@ -66,13 +66,11 @@ None.
 - 2026-11-11: The cleaned backlog retains FR-02 as its feature ID and places FR-03 policy access before implementation of this ticket.
 - Open question: Confirm the precise synthetic field schema and permitted values for each change type before implementation.
 - Open question: Confirm whether an `EXPIRED` policy request should be recorded for audit or blocked at submission. The proposed behavior above records it and blocks advancement.
-- Status: Requirements and UX handoff drafted; dependency verification pending. Do not start implementation until the open questions are settled.
+- Status: Requirements remain a backlog draft; UX handoff and dependency verification are pending. Do not start implementation until the open questions are settled.
 
 ## UX handoff references
 
-- Visual contract: `_bmad-output/ux-fr-02-create-endorsement-request/DESIGN.md` (draft)
-- Behavior contract: `_bmad-output/ux-fr-02-create-endorsement-request/EXPERIENCE.md` (draft)
-- Browser-viewable mockup: `design/page/create-endorsement-request.html` (linked from `design/page/index.html`)
+- None. Create a new visual and behavior handoff before implementation. Preserve `design/global.css` as the shared style starting point.
 
 ## Definition of Done
 
