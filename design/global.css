@@ -1,0 +1,24 @@
+:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172b3a;background:#f5f3ee;font-synthesis:none;--ink:#172b3a;--muted:#52616b;--paper:#fff;--canvas:#f5f3ee;--accent:#9b4d28;--error:#a12a2a;--line:#cbd3d8}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);background:var(--canvas);line-height:1.5}
+h1,h2{font-family:Georgia,serif;line-height:1.15}
+h1{font-size:clamp(2rem,5vw,3rem)}
+a{color:#7c3514}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:1px solid var(--accent);border-radius:4px;padding:.65rem 1rem;color:#7c3514;background:var(--paper)}
+button.primary{color:#fff;background:var(--accent)}
+button:disabled{opacity:.65;cursor:wait}
+input,select,textarea{width:100%;padding:.65rem;border:1px solid #687780;border-radius:4px;color:var(--ink);background:var(--paper)}
+label{display:block;font-weight:650;margin-bottom:.35rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+.shell{max-width:760px;margin:auto;padding:2rem 1.5rem 5rem}
+.kicker{color:var(--muted);font-size:.9rem;letter-spacing:.02em}
+.panel{background:var(--paper);border:1px solid var(--line);padding:1.5rem}
+.form-shell{max-width:28rem;margin:3.5rem auto}
+.form-shell form p{margin:1rem 0}
+.muted{color:var(--muted)}
+.error{color:var(--error);font-weight:650}
+.policy-row{border-top:1px solid var(--line);padding:1rem 0}
+.policy-row:last-child{border-bottom:1px solid var(--line)}
+@media(max-width:480px){.shell{padding:1.25rem 1rem 3rem}.form-shell{margin:2rem auto}.panel{padding:1rem}}
