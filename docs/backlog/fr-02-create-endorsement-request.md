@@ -20,7 +20,7 @@ As a customer, I can submit a change request for one of my policies, so the endo
 
 - The [PRD](../PRD.md) defines the four supported changes, assigned-policy access, synthetic-data boundary, and non-binding workflow.
 - [ADR](../ADR.md) places authorization and writes in Fastify, with schema-defined API contracts. The browser uses that API.
-- FR-01 [authentication backlog draft](fr-01-authenticate-staff.md) owns customer session identity and policy ownership authorization. Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covers policy list/detail; [FR-03](fr-03-check-policy-access.md) covers policy access.
+- FR-01 [authentication ticket](../tickets/fr-01-authenticate-staff.md) owns customer session identity and policy ownership authorization. Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covers policy list/detail; [FR-03](fr-03-check-policy-access.md) covers policy access.
 - The request is an input to FR-04 through FR-10. Saving it is not an eligibility decision, quote, draft, approval, or policy update.
 
 ## Request rules and data
