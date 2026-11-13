@@ -6,7 +6,7 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 |---:|---|---|---|
 | 1 | FR-01 Authenticate Customers | [Ticket](../tickets/fr-01-authenticate-staff.md) | New handoff in review; prior [PR #32](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/32) merged and superseded by rollback; [Issue #33](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/33) retained for traceability |
 | 2 | FR-03 Check Policy Access | [Draft](fr-03-check-policy-access.md) | Backlog; historical GitHub #3 closed |
-| 3 | FR-02 Create Endorsement Request | [Ticket](../tickets/fr-02-create-endorsement-request.md) | Selected for ticket and UX handoff; historical GitHub #24 closed |
+| 3 | FR-02 Create Endorsement Request | [Ticket](../tickets/fr-02-create-endorsement-request.md) | Handoff merged; [Issue #41](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/41); waiting for FR-01 and FR-03 |
 | 4 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
 | 5 | FR-05 Retrieve Endorsement Rules with RAG | [Draft](fr-05-retrieve-endorsement-rules-with-rag.md) | Backlog |
 | 6 | FR-06 Verify Customer Identity | [Draft](fr-06-verify-customer-identity-mock-ekyc.md) | Backlog |
