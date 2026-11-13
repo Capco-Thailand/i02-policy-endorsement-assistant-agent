@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in — Policy Endorsement Assistant</title>
+    <link rel="stylesheet" href="../global.css" />
+    <script src="sign-in.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <span class="brand-mark" aria-hidden="true">PEA</span>
+      <span>Policy Endorsement Assistant<small>Synthetic policy prototype</small></span>
+    </header>
+    <main class="auth-shell">
+      <section class="auth-copy" aria-labelledby="page-title">
+        <p class="auth-kicker">Customer access <span>/</span> FR-01</p>
+        <h1 class="auth-title" id="page-title">Sign in to view your policies</h1>
+        <p class="auth-intro">Use your synthetic demo account to access policies linked to you and review your own requests.</p>
+        <p class="auth-boundary"><strong>Prototype only</strong><span>Policy data is synthetic. No action here changes or binds coverage.</span></p>
+      </section>
+      <section class="auth-panel" aria-labelledby="form-title">
+        <div class="auth-panel-heading">
+          <p class="auth-panel-kicker">Customer sign-in</p>
+          <h2 id="form-title">Enter your demo credentials</h2>
+        </div>
+        <form id="sign-in-form" novalidate>
+          <p class="auth-message" id="form-message" role="alert" tabindex="-1" hidden></p>
+          <div class="auth-field">
+            <label for="account-id">Account ID</label>
+            <input id="account-id" name="accountId" autocomplete="username" required aria-describedby="account-error" />
+            <span id="account-error" class="notice" hidden>Enter your account ID.</span>
+          </div>
+          <div class="auth-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required aria-describedby="password-error" />
+            <span id="password-error" class="notice" hidden>Enter your password.</span>
+          </div>
+          <button class="button auth-submit" id="submit" type="submit">Sign in</button>
+          <p class="auth-footer">Synthetic demo accounts only. Credentials are provided in the local setup guide.</p>
+        </form>
+      </section>
+    </main>
+    <nav class="auth-preview" aria-label="Mockup states">
+      <button type="button" data-state="invalid">Preview invalid credentials</button>
+      <button type="button" data-state="expired">Preview expired session</button>
+      <button type="button" data-state="unavailable">Preview API unavailable</button>
+      <button type="button" data-state="reset">Reset preview</button>
+    </nav>
+  </body>
+</html>

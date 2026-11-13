@@ -1,12 +1,12 @@
 # FR-01 — Authenticate Customers
 
 **Title:** [Story] Authenticate customers with synthetic demo accounts
-**Labels:** `type:story`
-**GitHub Issue:** Not filed
+**Labels:** `type:story`, `role:dev`
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an authentication failure could expose another customer's policy or let someone approve their request.
-**State:** Backlog draft
+**State:** Selected for ticket/UX handoff
 **Requirements owner:** This file.
 
 ## Summary and objective
@@ -19,7 +19,7 @@ As a customer, I can sign in with my own demo account and access only my synthet
 - Product context: `docs/PRD.md`, Authentication and access, customer journey, evaluation, and definition of done. This ticket owns the FR-01 detail.
 - Architecture: `docs/ADR.md` puts authentication, access control, and writes in Fastify; the browser uses the API.
 - The prior API and web implementation was removed. `docs/API_DEVELOPMENT.md` records the current absence of a runtime.
-- Produce a fresh UX handoff and sign-in mockup before implementation.
+- The FR-01 UX handoff and sign-in mockup accompany this ticket for review before implementation.
 - Risk: high. A failure could expose another customer's policy or allow approval of that customer's request. Verify the rejection paths against every protected route as those routes are added.
 
 ## Acceptance criteria
@@ -51,10 +51,12 @@ N/A
 - 2026-11-12: Corrected the primary actor from policy-service staff to the customer. Customers request changes to their own synthetic policies, review the proposed updated-policy view, and record their own decisions. Approval adds a record to the customer's history page without a later review or issuance step. This supersedes the previous staff sign-in and separate-reviewer model.
 - The customer-facing criteria above are the current FR-01 scope; the proposal review and history screens belong to later tickets.
 
-## UX handoff
+## UX handoff references
 
-No current design. Create fresh `DESIGN.md`, `EXPERIENCE.md`, and browser mockup when this draft is selected.
-- Open UX wording question: confirm account display names when demo fixtures are seeded.
+- [Visual contract](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01/DESIGN.md)
+- [Behavior contract](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01/EXPERIENCE.md)
+- [Sign-in mockup](../../design/page/sign-in.html) and [mockup index](../../design/page/index.html)
+- Display names in the eventual signed-in UI come from synthetic account fixtures; the sign-in screen does not assume names.
 
 ## Definition of Done
 
