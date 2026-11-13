@@ -1,6 +1,6 @@
 # PRD — I02 Life Insurance Policy Endorsement Assistant
 
-**Version:** 1.4 | **Date:** 2026-11-12 | **Status:** MVP
+**Version:** 1.5 | **Date:** 2026-11-13 | **Status:** MVP
 
 This PRD states the business outcome, product scope, cross-feature rules, and success measures. Detailed behavior and acceptance criteria live in [implementation tickets](tickets/) and [backlog tickets](backlog/). GitHub Issues track discussion and delivery status; [ticket workflow](TICKETING.md) explains how the records connect. Architecture decisions live in [ADR.md](ADR.md).
 
@@ -10,7 +10,7 @@ Build a customer-facing AI-assisted life insurance endorsement request workflow.
 
 - **Users:** Authenticated customers using synthetic demo accounts to request and review changes to their own policies.
 - **Supported changes:** Beneficiary, correspondence address, payment frequency, and accidental-death rider.
-- **Policy statuses:** `ACTIVE` and `EXPIRED`; only `ACTIVE` policies may proceed to endorsement eligibility.
+- **Policy statuses:** `ACTIVE` and `EXPIRED`; only `ACTIVE` policies may start or submit an endorsement request. An `EXPIRED` policy cannot create a request.
 - **Data:** Synthetic policies, customer profiles, rules, documents, and rating tables only.
 - **Out of scope:** Production identity-provider integration, real eKYC, real document inspection/OCR, medical underwriting, insurer integrations, issuance, live policy updates, or coverage binding.
 
@@ -31,7 +31,7 @@ The assistant retrieves cited policy details and effective endorsement rules, wh
 
 The demonstration uses synthetic data only. Document verification is explicitly bypassed and recorded as `BYPASSED_MOCK`; it must never be presented as real verification. Drafts and recorded human decisions never change or bind coverage. The chosen stack and API boundary are recorded in [ADR.md](ADR.md); detailed behavior belongs in the ticket records.
 
-**Guardrails:** Access checks precede RAG. Failed eKYC, missing or contradictory rules, expired policies, and ineligible changes block automatic quote/draft creation. A document bypass is a declared simulation, not evidence of real verification. The updated-policy view is a proposal and approval creates a history record only; no workflow state changes a policy or binds coverage.
+**Guardrails:** Access checks precede RAG. Expired policies cannot create endorsement requests. Failed eKYC, missing or contradictory rules, and ineligible changes block automatic quote/draft creation. A document bypass is a declared simulation, not evidence of real verification. The updated-policy view is a proposal and approval creates a history record only; no workflow state changes a policy or binds coverage.
 
 ## 4. Evaluation
 

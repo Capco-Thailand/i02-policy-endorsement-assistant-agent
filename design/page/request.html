@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Request a policy change · Policy Endorsement Assistant</title>
+  <link rel="stylesheet" href="../global.css">
+  <link rel="stylesheet" href="request.css">
+</head>
+<body>
+  <main class="request-shell">
+    <p class="request-kicker">Policy Endorsement Assistant · synthetic demo</p>
+    <a href="index.html">← Design previews</a>
+    <h1>Request a policy change</h1>
+    <section class="policy-context" aria-labelledby="policy-heading">
+      <h2 id="policy-heading">Selected policy</h2>
+      <p>Family Protection · POL-001</p>
+      <p id="policy-status"><strong>Status:</strong> Active</p>
+    </section>
+
+    <section id="expired-state" hidden aria-labelledby="expired-heading">
+      <h2 id="expired-heading">This policy has expired</h2>
+      <p>You cannot request a change to an expired policy.</p>
+      <a href="index.html">Back to policies</a>
+    </section>
+
+    <form id="request-form">
+      <p>Choose one change. Your request will be recorded for checks; it will not update this policy or bind coverage.</p>
+      <p><label for="change-type">Change type</label><select id="change-type" name="changeType">
+        <option value="BENEFICIARY">Beneficiary</option>
+        <option value="ADDRESS">Correspondence address</option>
+        <option value="FREQUENCY">Payment frequency</option>
+        <option value="RIDER">Accidental-death rider</option>
+      </select></p>
+
+      <fieldset data-type="BENEFICIARY"><legend>Replacement beneficiary list</legend>
+        <p>Enter every beneficiary who should remain on the policy. Allocations must total 100%.</p>
+        <div id="beneficiary-rows"><div class="beneficiary-row">
+          <p><label for="beneficiary-1">Beneficiary name</label><input id="beneficiary-1" name="beneficiaryName" required></p>
+          <p><label for="allocation-1">Allocation %</label><input id="allocation-1" name="allocation" type="number" min="1" max="100" step="1" required></p>
+          <button type="button" class="remove-beneficiary">Remove</button>
+        </div></div>
+        <button type="button" id="add-beneficiary">Add beneficiary</button>
+        <p id="allocation-error" class="error" role="alert" hidden>Allocations must total 100%.</p>
+      </fieldset>
+
+      <fieldset data-type="ADDRESS" hidden disabled><legend>Correspondence address</legend>
+        <p><label for="address">New address</label><textarea id="address" name="address" rows="4" required></textarea></p>
+      </fieldset>
+
+      <fieldset data-type="FREQUENCY" hidden disabled><legend>Payment frequency</legend>
+        <p><label for="frequency">New frequency</label><select id="frequency" name="frequency" required>
+          <option value="">Select a frequency</option><option>Monthly</option><option>Quarterly</option><option>Semi-annual</option><option>Annual</option>
+        </select></p>
+      </fieldset>
+
+      <fieldset data-type="RIDER" hidden disabled><legend>Accidental-death rider</legend>
+        <p><label for="rider">Requested action</label><select id="rider" name="rider" required>
+          <option value="">Select an action</option><option>Add rider</option><option>Remove rider</option>
+        </select></p>
+      </fieldset>
+
+      <p><label for="effective-date">Requested effective date</label><input id="effective-date" name="effectiveDate" type="date" required></p>
+      <button type="submit" class="primary">Record request</button>
+      <p id="form-error" class="error" role="alert" tabindex="-1" hidden>Check the fields above and try again.</p>
+    </form>
+
+    <section id="confirmation" tabindex="-1" hidden aria-labelledby="confirmation-heading">
+      <h2 id="confirmation-heading">Request recorded; checks are pending</h2>
+      <p>Demo request ID: REQ-001. This is not an approval or policy update.</p>
+    </section>
+  </main>
+  <script src="request.js"></script>
+</body>
+</html>
