@@ -10,6 +10,7 @@
     "ticket:create": "node scripts/ticket-workflow.mjs create",
     "ticket:preflight": "node scripts/ticket-workflow.mjs preflight",
     "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue",
+    "ticket:reset": "node scripts/reset-ticket-workflow.mjs",
     "plan:issues": "node scripts/plan-role-dev-issues.mjs"
   },
   "devDependencies": {
