@@ -23,6 +23,14 @@ function issueNumber(text) {
   return match ? Number(match[1]) : null;
 }
 function featureId(text) { return text.match(/^\*\*Feature ID:\*\*\s*(FR-\d+)\s*$/mi)?.[1]?.toUpperCase() ?? null; }
+function issueLabels(ticket) {
+  if (/^# \[Bug\]/m.test(ticket)) return ['type:bug'];
+  if (/^# \[Subtask\]/m.test(ticket)) return ['type:subtask'];
+  return ['type:story', 'role:dev'];
+}
+function waivesHandoffMerge(branch) {
+  return ['test/create-ticket', 'codex/role-dev-implementation-plans'].includes(branch);
+}
 function withIssueLink(ticket, number) {
   const line = `**GitHub Issue:** https://github.com/${repo}/issues/${number}`;
   const pending = /\*\*GitHub Issue:\*\* (?:Pending ticket\/UX PR merge|\[added by `ticket:create`\])/;
@@ -152,9 +160,8 @@ async function create(path) {
   } else {
     const title = ticket.match(/^# (.+)$/m)?.[1] ?? path;
     issue = api(`repos/${repo}/issues`, 'POST', [['title', title], ['body', issueBody(path, ticket)]]);
-    const label = /^# \[Bug\]/m.test(ticket) ? 'type:bug' : /^# \[Subtask\]/m.test(ticket) ? 'type:subtask' : 'type:story';
-    gh('issue', 'edit', String(issue.number), '--repo', repo, '--add-label', label);
   }
+  gh('issue', 'edit', String(issue.number), '--repo', repo, '--add-label', issueLabels(ticket).join(','));
   if (!linked) {
     writeFileSync(resolve(path), withIssueLink(ticket, issue.number));
   }
@@ -333,15 +340,15 @@ function preflight(path) {
   if (!sameIssue(issue.body ?? '', path)) fail('Issue and ticket paths disagree.');
   const prs = relatedPrs(number, path);
   console.log(`Issue #${number}: ${issue.state}; PRs: ${prs.map((pr) => `#${pr.number} ${pr.mergedAt ? 'merged' : pr.state.toLowerCase()}`).join(', ') || 'none'}`);
-  const testBranch = execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim() === 'test/create-ticket';
-  if (!testBranch && !prs.some((pr) => prType(pr) === 'ticket/UX' && pr.mergedAt)) fail('Ticket/UX PR has not merged.');
-  if (testBranch) console.log('test/create-ticket: skipping the ticket/UX PR merge requirement.');
+  const branch = execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim();
+  if (!waivesHandoffMerge(branch) && !prs.some((pr) => prType(pr) === 'ticket/UX' && pr.mergedAt)) fail('Ticket/UX PR has not merged.');
+  if (waivesHandoffMerge(branch)) console.log(`${branch}: skipping the ticket/UX PR merge requirement.`);
   if (issue.state === 'closed' || prs.some((pr) => prType(pr) === 'implementation' && (pr.state === 'OPEN' || pr.mergedAt))) fail('Implementation is open or has merged; review existing work before another build.');
   const handover = (issue.body ?? '').replace(/<!-- ticket-requirements:start -->[\s\S]*?<!-- ticket-requirements:end -->/, '');
   if (/\*\*Status:\*\*\s*(Blocked|In Review|Done)/i.test(handover)) fail('Issue handover does not show a ticket ready for a new build.');
 }
 
-export { isHandoffFile, issueBody, issueNumber, issueTicket, parsePr, replaceTicket, sameIssue, withIssueLink };
+export { isHandoffFile, issueBody, issueLabels, issueNumber, issueTicket, parsePr, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink };
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) try {
   if (!repo) fail('GITHUB_REPOSITORY is required.');
   if (command === 'create') await create(ticketPath(arg));

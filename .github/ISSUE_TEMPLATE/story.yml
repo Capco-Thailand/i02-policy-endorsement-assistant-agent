@@ -1,7 +1,7 @@
 name: Story
 description: Define a user or system outcome and its acceptance criteria.
 title: "[Story] "
-labels: ["type:story"]
+labels: ["type:story", "role:dev"]
 body:
   - type: markdown
     attributes:
