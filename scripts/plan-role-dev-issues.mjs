@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const outputDir = resolve(root, 'doc/implementation-plan');
+const outputDir = resolve(root, 'docs/implementation-plan');
 
 export function slug(title) {
   return title
