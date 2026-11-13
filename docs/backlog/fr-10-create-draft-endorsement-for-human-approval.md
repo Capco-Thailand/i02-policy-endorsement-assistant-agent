@@ -1,6 +1,6 @@
-# FR-10 — Create Draft Endorsement for Human Approval
+# FR-10 — Prepare Proposed Endorsement for Customer Review
 
-**Title:** [Story] Create Draft Endorsement for Human Approval
+**Title:** [Story] Prepare Proposed Endorsement for Customer Review
 **Labels:** `type:story`
 **GitHub Issue:** Not filed
 **Feature ID:** FR-10
@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Save a non-binding `DRAFT` with proposed changes, quote, and supporting evidence; submit as `PENDING_APPROVAL`.
+Save a non-binding `DRAFT` with proposed changes, quote, and supporting evidence; present a proposed updated-policy view for customer review as `PENDING_APPROVAL`.
 
 ## User story or requirement
 
-System requirement: Save a non-binding `DRAFT` with proposed changes, quote, and supporting evidence; submit as `PENDING_APPROVAL`.
+System requirement: Save a non-binding `DRAFT` with proposed changes, quote, and supporting evidence; present a proposed updated-policy view for customer review as `PENDING_APPROVAL`.
 
 ## Business or technical context
 
@@ -25,7 +25,7 @@ System requirement: Save a non-binding `DRAFT` with proposed changes, quote, and
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
 - [ ] Save proposed changes, mock premium impact, verification outcomes, and cited policy/rule evidence as non-binding `DRAFT` with `binding=false`.
-- [ ] Submission changes status to `PENDING_APPROVAL`; neither action changes policy coverage.
+- [ ] Submission changes status to `PENDING_APPROVAL` and shows the current and proposed synthetic policy values and mock premium impact before the customer decides. Neither action changes live policy coverage.
 
 ## Scope and out of scope
 
@@ -46,6 +46,7 @@ None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
 
+- 2026-11-12: Prepare a proposed updated-policy view for the customer to review before approval; keep the draft non-binding.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.
 

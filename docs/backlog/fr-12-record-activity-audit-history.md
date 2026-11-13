@@ -1,6 +1,6 @@
-# FR-12 — Record Activity & Audit History
+# FR-12 — Customer Change History & Audit
 
-**Title:** [Story] Record Activity & Audit History
+**Title:** [Story] Customer Change History & Audit
 **Labels:** `type:story`
 **GitHub Issue:** Not filed
 **Feature ID:** FR-12
@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Log access, RAG sources, eKYC result, document bypass, quotes, draft creation, and reviewer decisions.
+Log access, RAG sources, eKYC result, document bypass, quotes, draft creation, and customer decisions. Show each customer the approved changes to their own synthetic policies in a history page.
 
 ## User story or requirement
 
-System requirement: Log access, RAG sources, eKYC result, document bypass, quotes, draft creation, and reviewer decisions.
+System requirement: Log access, RAG sources, eKYC result, document bypass, quotes, draft creation, and customer decisions; show approved change records in the owning customer's history page.
 
 ## Business or technical context
 
@@ -24,7 +24,8 @@ System requirement: Log access, RAG sources, eKYC result, document bypass, quote
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] Audit authenticated actor and action, policy access, RAG sources and versions, mock eKYC result, document bypass, quotes, draft creation, and reviewer decisions.
+- [ ] Audit authenticated actor and action, policy access, RAG sources and versions, mock eKYC result, document bypass, quotes, draft creation, and customer decisions.
+- [ ] After approval, the owning customer can see the proposed change, approval decision, and time in their history page; another customer cannot access the record.
 - [ ] Exclude credentials, session secrets, and unnecessary personal data.
 
 ## Scope and out of scope
@@ -46,6 +47,7 @@ None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
 
+- 2026-11-12: Customer approval adds the proposed change to that customer's history page with no further processing.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.
 

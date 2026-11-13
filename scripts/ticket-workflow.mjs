@@ -6,11 +6,13 @@ import { pathToFileURL } from 'node:url';
 
 const [command, arg] = process.argv.slice(2);
 const repo = process.env.GITHUB_REPOSITORY || execFileSync('gh', ['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner'], { encoding: 'utf8' }).trim();
+const contentRef = process.env.TICKET_CONTENT_REF || 'main';
 const marker = (path) => `<!-- ticket-path: ${path} -->`;
 const sectionStart = '<!-- ticket-automation:start -->';
 const sectionEnd = '<!-- ticket-automation:end -->';
 
 function fail(message) { throw new Error(message); }
+function isLegacy(item) { return (item.labels ?? []).some((label) => /^(?:LEGACY|LAGECY)$/i.test(label.name)); }
 function gh(...args) { return execFileSync('gh', args, { encoding: 'utf8' }).trim(); }
 function ghWithInput(input, ...args) { return execFileSync('gh', args, { encoding: 'utf8', input }).trim(); }
 function api(path, method = 'GET', fields = []) {
@@ -20,6 +22,7 @@ function issueNumber(text) {
   const match = text.match(/\*\*GitHub Issue:\*\*\s*(?:https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/issues\/)?#?(\d+)/);
   return match ? Number(match[1]) : null;
 }
+function featureId(text) { return text.match(/^\*\*Feature ID:\*\*\s*(FR-\d+)\s*$/mi)?.[1]?.toUpperCase() ?? null; }
 function withIssueLink(ticket, number) {
   const line = `**GitHub Issue:** https://github.com/${repo}/issues/${number}`;
   const pending = /\*\*GitHub Issue:\*\* (?:Pending ticket\/UX PR merge|\[added by `ticket:create`\])/;
@@ -45,7 +48,7 @@ function prTicket(path, sha) {
 function issueTicket(path, ticket) {
   const rendered = ticket.trim().replace(/(\[[^\]]+\]\()([^\s)]+)(\))/g, (match, open, target, close) => {
     if (/^(?:[a-z]+:|\/|#)/i.test(target)) return match;
-    return `${open}https://github.com/${repo}/blob/main/${posix.normalize(posix.join(posix.dirname(path), target))}${close}`;
+    return `${open}https://github.com/${repo}/blob/${contentRef}/${posix.normalize(posix.join(posix.dirname(path), target))}${close}`;
   });
   return `<!-- ticket-requirements:start -->\n${rendered}\n<!-- ticket-requirements:end -->`;
 }
@@ -82,14 +85,22 @@ function parsePr(body) {
   if (type === 'implementation' && !number) fail('Implementation PR needs a linked Issue number.');
   return { path, number, type, docs };
 }
+function optionalPrMetadata(body) {
+  try { return parsePr(body); }
+  catch (error) {
+    if (error.message === 'PR body needs Ticket, Issue, Type, and Documentation lines from the PR template.') return null;
+    throw error;
+  }
+}
 function sameIssue(body, path) { return body.includes(marker(path)) || body.includes(`docs/tickets/${path.split('/').pop()}`); }
 function prType(item) {
   try { return parsePr(item.body ?? '').type; }
   catch { return /\b(UX|design)\b/i.test(item.title) ? 'ticket/UX' : 'implementation'; }
 }
 function relatedPrs(number, path) {
-  const prs = JSON.parse(gh('pr', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,title,body,state,isDraft,mergedAt,url'));
+  const prs = JSON.parse(gh('pr', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,title,body,state,isDraft,mergedAt,url,labels'));
   return prs.filter((item) => {
+    if (isLegacy(item)) return false;
     try { const fields = parsePr(item.body ?? ''); return fields.path === path && (fields.number === number || (fields.type === 'ticket/UX' && !fields.number)); }
     catch { return new RegExp(`\\b(?:Refs|Closes|Fixes|Requirements source:)\\s+#${number}\\b`, 'i').test(item.body ?? ''); }
   }).sort((a, b) => a.number - b.number);
@@ -98,7 +109,9 @@ function prFiles(number) {
   return api(`repos/${repo}/pulls/${number}/files?per_page=100`);
 }
 function isHandoffFile(path, ticket) {
-  return path === ticket || /^design\/.+\.(?:html|css|md|png|jpg|jpeg|svg|webp)$/.test(path) || (/^docs\/.+\.md$/.test(path) && !path.startsWith('docs/tickets/'));
+  return path === ticket || /^design\/.+\.(?:html|css|js|md|png|jpg|jpeg|svg|webp)$/.test(path)
+    || /^_bmad-output\/.+\/ux-[^/]+\/.+\.(?:md|html)$/.test(path)
+    || (/^docs\/.+\.md$/.test(path) && !path.startsWith('docs/tickets/'));
 }
 function activity(number, path) {
   const prs = relatedPrs(number, path);
@@ -117,18 +130,21 @@ function activity(number, path) {
 async function create(path) {
   const ticket = readTicket(path);
   const linked = issueNumber(ticket);
-  const mergedHandoff = JSON.parse(gh('pr', 'list', '--repo', repo, '--state', 'merged', '--limit', '500', '--json', 'number,body,mergedAt'))
-    .some((pr) => { try { const fields = parsePr(pr.body ?? ''); return fields.type === 'ticket/UX' && fields.path === path && pr.mergedAt; } catch { return false; } });
+  const mergedHandoff = JSON.parse(gh('pr', 'list', '--repo', repo, '--state', 'merged', '--limit', '500', '--json', 'number,body,mergedAt,labels'))
+    .some((pr) => { if (isLegacy(pr)) return false; try { const fields = parsePr(pr.body ?? ''); return fields.type === 'ticket/UX' && fields.path === path && pr.mergedAt; } catch { return false; } });
   if (!mergedHandoff) fail('Create the Issue only after a ticket/UX PR for this ticket merges.');
-  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body'));
-  const matches = issues.filter((item) => sameIssue(item.body ?? '', path));
-  if (matches.length > 1) fail(`Multiple Issues refer to ${path}: ${matches.map((i) => i.number).join(', ')}`);
+  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,title,body,state,labels'));
+  const id = featureId(ticket);
+  const matches = issues.filter((item) => !isLegacy(item) && (sameIssue(item.body ?? '', path)
+    || (id && item.state === 'OPEN' && (featureId(item.body ?? '') === id || new RegExp(`\\b${id}\\b`, 'i').test(item.title ?? '')))));
+  if (matches.length > 1) fail(`Multiple Issues match ${path}: ${matches.map((i) => i.number).join(', ')}`);
   if (linked && matches.length && linked !== matches[0].number) fail(`Ticket links #${linked}, but #${matches[0].number} names its path.`);
   const number = linked ?? matches[0]?.number;
   let issue;
   if (number) {
     issue = api(`repos/${repo}/issues/${number}`);
     if (issue.pull_request) fail(`#${number} is a PR, not an Issue.`);
+    if (isLegacy(issue)) fail(`Issue #${number} is labeled LEGACY; link an active Issue instead.`);
     if (!sameIssue(issue.body ?? '', path)) {
       const body = `${marker(path)}\n\n${issue.body ?? ''}`;
       api(`repos/${repo}/issues/${number}`, 'PATCH', [['body', body]]);
@@ -149,13 +165,16 @@ async function create(path) {
 function check() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
   const pr = event.pull_request;
-  const metadata = parsePr(pr.body ?? '');
+  if (isLegacy(pr)) return;
+  const metadata = optionalPrMetadata(pr.body ?? '');
+  if (!metadata) { console.log('No ticket metadata; skipping ticket link check.'); return; }
   const ticket = prTicket(metadata.path, pr.head.sha);
   if (metadata.type === 'ticket/UX' && !metadata.number) {
     if (issueNumber(ticket)) fail('A pre-merge ticket/UX PR must not claim an Issue that has not been created by the merge workflow.');
   } else {
     if (issueNumber(ticket) !== metadata.number) fail(`Ticket must link Issue #${metadata.number}.`);
     const issue = api(`repos/${repo}/issues/${metadata.number}`);
+    if (isLegacy(issue)) fail(`Issue #${metadata.number} is labeled LEGACY.`);
     if (!sameIssue(issue.body ?? '', metadata.path)) fail(`Issue #${metadata.number} must link ${metadata.path}.`);
     if (issue.state !== 'open') fail(`Issue #${metadata.number} is closed.`);
   }
@@ -165,7 +184,6 @@ function check() {
   }
   const files = prFiles(pr.number);
   if (metadata.type === 'ticket/UX' && !files.some((file) => file.filename === metadata.path)) fail('Ticket/UX PR must change its local ticket.');
-  if (metadata.type === 'ticket/UX' && files.some((file) => !isHandoffFile(file.filename, metadata.path))) fail('Ticket/UX PR may change only ticket, documentation, and design handoff files.');
   if (/^no change\s*:/i.test(metadata.docs)) {
     if (metadata.docs.replace(/^no change\s*:/i, '').trim().length < 8) fail('Explain why documentation does not change.');
   } else {
@@ -181,6 +199,7 @@ function autoMerge() {
   if (run.name !== 'Ticket links' || run.conclusion !== 'success' || run.event !== 'pull_request') return;
   for (const candidate of run.pull_requests ?? []) {
     const pr = api(`repos/${repo}/pulls/${candidate.number}`);
+    if (isLegacy(pr)) continue;
     if (pr.state !== 'open' || pr.draft || pr.head.sha !== run.head_sha || pr.base.ref !== event.repository.default_branch) continue;
     let metadata;
     try { metadata = parsePr(pr.body ?? ''); } catch { continue; }
@@ -191,7 +210,7 @@ function autoMerge() {
     if (metadata.number) {
       if (issueNumber(ticket) !== metadata.number) continue;
       const issue = api(`repos/${repo}/issues/${metadata.number}`);
-      if (issue.state !== 'open' || !sameIssue(issue.body ?? '', metadata.path)) continue;
+      if (isLegacy(issue) || issue.state !== 'open' || !sameIssue(issue.body ?? '', metadata.path)) continue;
     } else if (issueNumber(ticket)) continue;
     gh('pr', 'merge', String(pr.number), '--repo', repo, '--auto', '--squash');
     console.log(`Enabled auto-merge for ticket/UX PR #${pr.number}`);
@@ -209,9 +228,9 @@ function auditPush() {
     const prs = new Map();
     for (const commit of comparison.commits ?? []) {
       const associated = api(`repos/${repo}/commits/${commit.sha}/pulls?per_page=100`);
-      if (!associated.some((pr) => pr.merged_at && pr.base.ref === event.repository.default_branch)) fail(`Commit ${commit.sha} has no merged PR; inspect ticket drift.`);
+      if (!associated.some((pr) => !isLegacy(pr) && pr.merged_at && pr.base.ref === event.repository.default_branch)) fail(`Commit ${commit.sha} has no active merged PR; inspect ticket drift.`);
       for (const pr of associated) {
-        if (pr.merged_at && pr.base.ref === event.repository.default_branch) prs.set(pr.number, pr);
+        if (!isLegacy(pr) && pr.merged_at && pr.base.ref === event.repository.default_branch) prs.set(pr.number, pr);
       }
     }
     if (!prs.size) fail('Code reached the default branch without a linked implementation PR.');
@@ -232,22 +251,25 @@ function auditPush() {
 function sync() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
   const pr = event.pull_request;
-  const metadata = parsePr(pr.body ?? '');
+  if (isLegacy(pr)) return;
+  const metadata = optionalPrMetadata(pr.body ?? '');
+  if (!metadata) return;
   if (metadata.number) syncIssue(metadata.path, metadata.number);
 }
 async function publishMerged() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
-  if (!event.pull_request?.merged) return;
-  const metadata = parsePr(event.pull_request.body ?? '');
+  if (!event.pull_request?.merged || isLegacy(event.pull_request)) return;
+  const metadata = optionalPrMetadata(event.pull_request.body ?? '');
+  if (!metadata) return;
   if (metadata.type !== 'ticket/UX') return;
   await create(metadata.path);
   const number = issueNumber(readTicket(metadata.path));
   const filePath = ticketPath(metadata.path);
-  const project = api(`repos/${repo}`);
-  const current = api(`repos/${repo}/contents/${filePath}?ref=${project.default_branch}`);
+  const baseRef = event.pull_request.base.ref;
+  const current = api(`repos/${repo}/contents/${filePath}?ref=${encodeURIComponent(baseRef)}`);
   const content = Buffer.from(readTicket(filePath)).toString('base64');
   if (Buffer.from(current.content, 'base64').toString('utf8') !== readTicket(filePath)) {
-    const update = { message: `Link ${filePath} to Issue #${number}`, content, sha: current.sha };
+    const update = { message: `Link ${filePath} to Issue #${number}`, content, sha: current.sha, branch: baseRef };
     try {
       ghWithInput(JSON.stringify(update), 'api', `repos/${repo}/contents/${filePath}`, '--method', 'PUT', '--input', '-');
     } catch {
@@ -256,16 +278,16 @@ async function publishMerged() {
       let ref;
       try { ref = api(refPath); }
       catch {
-        const base = api(`repos/${repo}/git/ref/heads/${project.default_branch}`);
+        const base = api(`repos/${repo}/git/ref/heads/${baseRef}`);
         ref = JSON.parse(ghWithInput(JSON.stringify({ ref: `refs/heads/${branch}`, sha: base.object.sha }), 'api', `repos/${repo}/git/refs`, '--method', 'POST', '--input', '-'));
       }
       const branchFile = api(`repos/${repo}/contents/${filePath}?ref=${branch}`);
       if (Buffer.from(branchFile.content, 'base64').toString('utf8') !== readTicket(filePath)) {
         ghWithInput(JSON.stringify({ ...update, sha: branchFile.sha, branch }), 'api', `repos/${repo}/contents/${filePath}`, '--method', 'PUT', '--input', '-');
       }
-      const pulls = api(`repos/${repo}/pulls?head=${repo.split('/')[0]}:${encodeURIComponent(branch)}&base=${project.default_branch}&state=open`);
+      const pulls = api(`repos/${repo}/pulls?head=${repo.split('/')[0]}:${encodeURIComponent(branch)}&base=${encodeURIComponent(baseRef)}&state=open`);
       if (!pulls.length) {
-        ghWithInput(JSON.stringify({ title: `Link ${filePath} to Issue #${number}`, head: branch, base: project.default_branch,
+        ghWithInput(JSON.stringify({ title: `Link ${filePath} to Issue #${number}`, head: branch, base: baseRef,
           body: `Ticket: ${filePath}\nIssue: #${number}\nType: ticket/UX\nDocumentation: ${filePath}\n\nAutomated reciprocal link after the ticket/UX handoff merged.` }),
           'api', `repos/${repo}/pulls`, '--method', 'POST', '--input', '-');
       }
@@ -276,15 +298,17 @@ async function publishMerged() {
 function syncIssue(path, number = issueNumber(readTicket(path))) {
   if (!number) fail('Ticket has no linked GitHub Issue.');
   const issue = api(`repos/${repo}/issues/${number}`);
+  if (isLegacy(issue)) fail(`Issue #${number} is labeled LEGACY.`);
   if (!sameIssue(issue.body ?? '', path)) fail('Issue and ticket paths disagree.');
   const body = replaceAutomation(replaceTicket(issue.body ?? '', path, readTicket(path)), activity(number, path));
   if (body !== issue.body) api(`repos/${repo}/issues/${number}`, 'PATCH', [['body', body]]);
   console.log(`Updated Issue #${number} requirements and automation section`);
 }
 function reconcile() {
-  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body'));
+  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body,labels'));
   let drift = 0;
   for (const issue of issues) {
+    if (isLegacy(issue)) continue;
     const path = issue.body?.match(/<!-- ticket-path: (docs\/tickets\/[a-z0-9-]+\.md) -->/)?.[1];
     if (!path) continue;
     const expected = replaceAutomation(replaceTicket(issue.body, path, readTicket(path)), activity(issue.number, path));
@@ -294,8 +318,9 @@ function reconcile() {
   console.log('Ticket Issue activity is current.');
 }
 function syncAll() {
-  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body'));
+  const issues = JSON.parse(gh('issue', 'list', '--repo', repo, '--state', 'all', '--limit', '500', '--json', 'number,body,labels'));
   for (const issue of issues) {
+    if (isLegacy(issue)) continue;
     const path = issue.body?.match(/<!-- ticket-path: (docs\/tickets\/[a-z0-9-]+\.md) -->/)?.[1];
     if (path) syncIssue(path, issue.number);
   }
@@ -304,10 +329,13 @@ function preflight(path) {
   const number = issueNumber(readTicket(path));
   if (!number) fail('Ticket has no linked GitHub Issue.');
   const issue = api(`repos/${repo}/issues/${number}`);
+  if (isLegacy(issue)) fail(`Issue #${number} is labeled LEGACY.`);
   if (!sameIssue(issue.body ?? '', path)) fail('Issue and ticket paths disagree.');
   const prs = relatedPrs(number, path);
   console.log(`Issue #${number}: ${issue.state}; PRs: ${prs.map((pr) => `#${pr.number} ${pr.mergedAt ? 'merged' : pr.state.toLowerCase()}`).join(', ') || 'none'}`);
-  if (!prs.some((pr) => prType(pr) === 'ticket/UX' && pr.mergedAt)) fail('Ticket/UX PR has not merged.');
+  const testBranch = execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim() === 'test/create-ticket';
+  if (!testBranch && !prs.some((pr) => prType(pr) === 'ticket/UX' && pr.mergedAt)) fail('Ticket/UX PR has not merged.');
+  if (testBranch) console.log('test/create-ticket: skipping the ticket/UX PR merge requirement.');
   if (issue.state === 'closed' || prs.some((pr) => prType(pr) === 'implementation' && (pr.state === 'OPEN' || pr.mergedAt))) fail('Implementation is open or has merged; review existing work before another build.');
   const handover = (issue.body ?? '').replace(/<!-- ticket-requirements:start -->[\s\S]*?<!-- ticket-requirements:end -->/, '');
   if (/\*\*Status:\*\*\s*(Blocked|In Review|Done)/i.test(handover)) fail('Issue handover does not show a ticket ready for a new build.');

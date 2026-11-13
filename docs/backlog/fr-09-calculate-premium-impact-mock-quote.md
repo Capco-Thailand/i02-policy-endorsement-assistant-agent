@@ -5,7 +5,7 @@
 **GitHub Issue:** Not filed
 **Feature ID:** FR-09
 **Product context:** [PRD](../PRD.md)
-**Risk:** Proposed Medium — an incorrect non-binding estimate could mislead staff.
+**Risk:** Proposed Medium — an incorrect non-binding estimate could mislead customers.
 **State:** Backlog draft
 
 ## Summary and objective

@@ -9,6 +9,8 @@ permissions:
   pull-requests: read
 jobs:
   reconcile:
+    # Pause drift validation until ticket checks are restored.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

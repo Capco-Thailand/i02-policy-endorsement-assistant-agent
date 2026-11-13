@@ -1,14 +1,38 @@
 # Policy Endorsement Assistant
 
-Prototype monorepo for synthetic insurance policy endorsements. Policy flows are tracked in GitHub issues. The application workspaces are planned; this checkout does not yet contain their implementation files.
+Prototype monorepo for synthetic insurance policy endorsements. FR-01 provides customer demo sessions and protected reads for linked synthetic policies. The app never connects to insurer systems or changes coverage.
 
 ## Workspaces
 
-- `apps/api` — planned TypeScript Fastify API with schema-derived OpenAPI contracts.
-- `apps/web` — planned React/Next.js App Router frontend with shadcn/ui.
-- `apps/ai` — planned synthetic data and RAG retrieval code.
+- `apps/api` — TypeScript Fastify API for sessions, policy ownership, and schema-derived OpenAPI at `/docs`.
+- `apps/web` — React and Next.js App Router sign-in and protected policy pages.
+- `apps/ai` — reserved for future synthetic data and retrieval work; it has no runtime dependencies yet.
 
-Once the workspaces are implemented, install dependencies from the repository root and run the API and web development scripts there. The target stack and container layout are in [the PRD](docs/PRD.md). See [API development](docs/API_DEVELOPMENT.md) for the planned API contract.
+## Run locally
+
+Use Node.js 20.9 or newer. From the repository root, install the single npm workspace lockfile:
+
+```sh
+npm ci
+```
+
+Start the API and web app in separate terminals:
+
+```sh
+npm run dev:api
+npm run dev:web
+```
+
+The API listens on `http://localhost:3000`; Next.js listens on `http://localhost:3001`. Browse to `http://localhost:3001/sign-in`. API and web tests run with `npm run test:api` and `npm run test:web`; `npm run build` builds both apps, and `npm run format:check` checks application formatting.
+
+## Demo accounts
+
+| Account ID   | Password              | Display name |
+| ------------ | --------------------- | ------------ |
+| `demo-alice` | `alice-demo-password` | Alice Morgan |
+| `demo-bob`   | `bob-demo-password`   | Bob Chen     |
+
+These fixed credentials are for local synthetic demonstrations only. Sessions use an opaque HttpOnly cookie and expire after 30 minutes. Sessions are held in memory; restarting the API revokes them. See [API development](docs/API_DEVELOPMENT.md) for route and configuration details.
 
 ## Ticket workflow
 

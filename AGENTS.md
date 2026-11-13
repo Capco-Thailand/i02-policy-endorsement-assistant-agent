@@ -11,7 +11,7 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 
 ## Policy
 
-- Use synthetic policy data only. Never connect to live insurer or policy systems, bind coverage, or treat a draft as approval; drafts remain non-binding and pending human review.
+- Use synthetic policy data only. Never connect to live insurer or policy systems or bind coverage. Customers review and approve proposed changes to their own policies in the prototype; approval creates a non-binding history record and does not update the underlying policy.
 
 ## Where things are
 
@@ -22,16 +22,16 @@ For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STAND
 
 ## Skill routing
 
-- Requirements and GitHub Issues: use BMad `bmad-agent-po` and [TICKET_TEMPLATE.md](docs/TICKET_TEMPLATE.md). Name backlog and ticket files by FR ID; [backlog/README.md](docs/backlog/README.md) records build order. The local Markdown ticket owns build requirements and accepted decisions; its full content is displayed and refreshed in the GitHub Issue. Commit the ticket and UX handoff and merge their PR before the workflow creates its Issue. Before implementation, run `npm run ticket:preflight -- docs/tickets/<file>.md`, then use `bmad-build` with the local ticket. UX decisions: `bmad-ux`. Use `bmad` when the next BMad step is unclear.
+- Requirements and GitHub Issues: use BMad `bmad-agent-po` and [TICKET_TEMPLATE.md](docs/TICKET_TEMPLATE.md). Name backlog and ticket files by FR ID; [backlog/README.md](docs/backlog/README.md) records build order. The local Markdown ticket owns build requirements and accepted decisions; its full content is displayed and refreshed in the GitHub Issue. For a new ticket, commit and merge the ticket/UX PR before Issue creation. If an active Issue already exists, preserve its number, edit the local ticket, and refresh that Issue with `npm run ticket:sync -- docs/tickets/<file>.md` while automation is disabled; do not create another Issue for an edit or push. Before implementation, run `npm run ticket:preflight -- docs/tickets/<file>.md`, then use `bmad-build` with the local ticket. Only on `test/create-ticket`, preflight waives the merged ticket/UX PR requirement for build testing; all other checks and UX document reading still apply. UX decisions: `bmad-ux`. Use `bmad` when the next BMad step is unclear.
 - BMad setup or render failures on Windows: use `bmad-render-repair`.
 - Module design: use Matt Pocock `codebase-design`; domain terminology: `domain-modeling`; hard bugs: `diagnosing-bugs`; test-first changes: `tdd`; branch or PR review: `code-review`.
 - When a task uses both, keep the local ticket file as the detailed requirements source, the GitHub Issue as its readable copy and delivery tracker, and use the Matt Pocock skill for its focused engineering method.
-- For UI ticket creation, run `bmad-ux` from the ticket requirements. UX delivers `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable `design/page/<pagename>.html` mockups linked from `design/page/index.html`; Sofia links these in the local ticket. Open one PR containing the requirement ticket and UX handoff for team review. After merge, automation creates the GitHub Issue and links the ticket. `bmad-build` follows the reviewed ticket and UX documents later, then verifies UI behavior and accessibility. See [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md) and [TICKETING.md](docs/TICKETING.md#ticket-creation-flow).
+- For UI ticket creation, run `bmad-ux` from the ticket requirements. UX delivers `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable `design/page/<pagename>.html` mockups linked from `design/page/index.html`; Sofia links these in the local ticket. Open one PR containing the requirement ticket and UX handoff for team review. After merge, use `npm run ticket:create -- docs/tickets/<file>.md` while Issue automation is disabled. `bmad-build` follows the reviewed ticket and UX documents later, then verifies UI behavior and accessibility. See [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md) and [TICKETING.md](docs/TICKETING.md#ticket-creation-flow).
 
 ## Documentation maintenance
 
 - Before finishing a change, check whether it changed documented behavior, API contracts, stack choices, test commands, or design conventions. Update the affected `docs/` files in the same change.
 - Update this file when a repo-wide rule, role route, or document path changes. Keep detailed guidance in `docs/`, and verify that every path linked here still exists.
-- When a product-level requirement changes, update the PRD and affected ticket files with the implementation. When a ticket-level requirement changes, update its local file with the implementation and let the workflow refresh the Issue copy; do not rewrite a requirement merely to fit existing code.
+- When a product-level requirement changes, update the PRD and affected ticket files with the implementation. When a ticket-level requirement changes, update its local file with the implementation and refresh its existing active Issue copy; while Issue automation is disabled, run `npm run ticket:sync -- docs/tickets/<file>.md`. Do not rewrite a requirement merely to fit existing code or create a duplicate Issue.
 
 <!-- /bmad:context -->
