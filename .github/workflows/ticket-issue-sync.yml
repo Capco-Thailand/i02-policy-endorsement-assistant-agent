@@ -2,9 +2,9 @@ name: Ticket Issue activity
 on:
   pull_request_target:
     types: [closed]
-    branches: [main, test/create-ticket]
+    branches: [main, 'test/**']
   push:
-    branches: [main, test/create-ticket]
+    branches: [main, 'test/**']
 permissions:
   contents: write
   issues: write

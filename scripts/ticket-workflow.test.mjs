@@ -4,10 +4,14 @@ import assert from 'node:assert/strict';
 process.env.GITHUB_REPOSITORY = 'example/tickets';
 const { isHandoffFile, issueBody, issueLabels, parsePr, issueNumber, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink } = await import('./ticket-workflow.mjs');
 
-test('handoff merge waiver applies only to named branches', () => {
+test('handoff merge waiver applies to main and test branches', () => {
   assert.equal(waivesHandoffMerge('test/create-ticket'), true);
-  assert.equal(waivesHandoffMerge('codex/role-dev-implementation-plans'), true);
-  assert.equal(waivesHandoffMerge('main'), false);
+  assert.equal(waivesHandoffMerge('test/nested/create-ticket'), true);
+  assert.equal(waivesHandoffMerge('main'), true);
+  assert.equal(waivesHandoffMerge('test/'), true);
+  assert.equal(waivesHandoffMerge('test'), false);
+  assert.equal(waivesHandoffMerge('test-other'), false);
+  assert.equal(waivesHandoffMerge('codex/role-dev-implementation-plans'), false);
   assert.equal(waivesHandoffMerge('codex/role-dev-implementation-plans-next'), false);
 });
 

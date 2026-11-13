@@ -29,7 +29,7 @@ function issueLabels(ticket) {
   return ['type:story', 'role:dev'];
 }
 function waivesHandoffMerge(branch) {
-  return ['test/create-ticket', 'codex/role-dev-implementation-plans'].includes(branch);
+  return branch === 'main' || branch.startsWith('test/');
 }
 function withIssueLink(ticket, number) {
   const line = `**GitHub Issue:** https://github.com/${repo}/issues/${number}`;
