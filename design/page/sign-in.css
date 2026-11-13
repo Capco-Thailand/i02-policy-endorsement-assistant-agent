@@ -1,3 +1,0 @@
-[hidden] { display: none !important; }
-.auth-panel { box-shadow: none; }
-.auth-message:focus { outline: 3px solid var(--focus); outline-offset: 3px; }

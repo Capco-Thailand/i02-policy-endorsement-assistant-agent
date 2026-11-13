@@ -6,7 +6,7 @@
 **Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an authentication failure could expose another customer's policy or let someone approve their request.
-**State:** Selected for ticket handoff
+**State:** Backlog draft; requires a fresh ticket and UX handoff
 **Requirements owner:** This file; historical [Issue #13](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/13) is closed.
 
 ## Summary and objective
@@ -18,8 +18,8 @@ As a customer, I can sign in with my own demo account and access only my synthet
 ## Business or technical context
 - Product context: `docs/PRD.md`, Authentication and access, customer journey, evaluation, and definition of done. This ticket owns the FR-01 detail.
 - Architecture: `docs/ADR.md` puts authentication, access control, and writes in Fastify; the browser uses the API.
-- Existing `docs/API_DEVELOPMENT.md` describes a deterministic token-to-user fixture as a prior API plan and explicitly says it is not authentication. FR-01 replaces that proposed identity mechanism.
-- UX handoff: the new visual and behavior contracts and sign-in mockup are linked below.
+- The prior API and web implementation was removed. `docs/API_DEVELOPMENT.md` records the current absence of a runtime.
+- A new UX handoff and sign-in mockup must be produced before implementation.
 - Risk: high. A failure could expose another customer's policy or allow approval of that customer's request. Verify the rejection paths against every protected route as those routes are added.
 
 ## Acceptance criteria
@@ -51,15 +51,12 @@ N/A
 - 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #13 was closed.
 - 2026-11-12: Selected FR-01 from backlog for a new ticket and UX handoff. Labeled historical Issues and PRs are retired evidence. New Issue #33 tracks this selected ticket; the handoff still needs review before implementation.
 - 2026-11-12: Corrected the primary actor from policy-service staff to the customer. Customers request changes to their own synthetic policies, review the proposed updated-policy view, and record their own decisions. Approval adds a record to the customer's history page without a later review or issuance step. This supersedes the previous staff sign-in and separate-reviewer model.
-- 2026-11-12: PR #32 is the current handoff; duplicate PR #34 is retired. Keep active Issue #33 and refresh its requirements copy when this ticket changes.
+- 2026-11-13: PR #32 merged, then FR-01 was returned to backlog. The API/web implementation, verification record, UX handoff, and sign-in mockup were removed for a fresh start. Issue #33 remains historical tracking context; a future selection must reconcile it with the new ticket.
 - The customer-facing criteria above are the current FR-01 scope; the proposal review and history screens belong to later tickets.
 - Historical UX PR #14 merged, but its design artifacts were removed during the reset. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Review the revert before a new build.
 
 ## UX handoff references
-- Visual contract: [DESIGN.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-authenticate-staff/DESIGN.md)
-- Behavior contract: [EXPERIENCE.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-authenticate-staff/EXPERIENCE.md)
-- Browser-viewable mockup: [sign-in.html](../../design/page/sign-in.html), linked from [design index](../../design/page/index.html). Shared styles: [global.css](../../design/global.css).
-- Open UX wording question: confirm account display names when demo fixtures are seeded.
+None. Create a new `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable mockup when FR-01 is selected again. Confirm account display names when demo fixtures are seeded.
 
 ## Definition of Done
 

@@ -2,7 +2,7 @@
 
 Apply these rules to code and infrastructure changes. [PRD.md](PRD.md) defines product behavior; [TESTING_STANDARD.md](TESTING_STANDARD.md) defines test coverage.
 
-The repository uses npm workspaces for `apps/api`, `apps/web`, and `apps/ai`. Install dependencies from the root with `npm ci` and keep one root `package-lock.json`. Add dependencies to the workspace that uses them. The AI workspace has no runtime until a concrete retrieval or data need exists.
+The repository currently has only the `apps/ai` npm workspace placeholder. The planned `apps/api` and `apps/web` workspaces will be recreated when implementation resumes. Install dependencies from the root with `npm ci` and keep one root `package-lock.json`. Add dependencies to the workspace that uses them. The AI workspace has no runtime until a concrete retrieval or data need exists.
 
 ## Implementation order
 
@@ -10,7 +10,7 @@ For a feature or bug fix that changes behavior, use test-driven development as d
 
 ## Formatting
 
-- Use Prettier for application source and configuration. When implementing the first application code, add Prettier as a root dev dependency, commit its version in the root lockfile, and add root `format` and `format:check` scripts plus project configuration and ignore rules. Exclude the root lockfile, generated files, build output, and documents; do not reformat unrelated files.
+- Use Prettier for application source and configuration. Prettier is a root dev dependency with project configuration and ignore rules. When application source returns, expand the root `format` and `format:check` scripts to include it. Exclude the root lockfile, generated files, build output, and documents; do not reformat unrelated files.
 - Run `npm run format` on code in scope after the red-to-green cycles and `npm run format:check` before review. A failed or missing format check leaves a code change unfinished.
 - Keep JSX and CSS readable after formatting: give meaningful sections and conditional states clear structure. Formatting does not replace the component responsibility rules below.
 
