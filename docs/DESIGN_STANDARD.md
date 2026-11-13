@@ -2,6 +2,10 @@
 
 PO/UX design output is browser-viewable HTML, CSS, and JavaScript under `design/`. These files show intended pages and interactions; the React implementation lives in `apps/web/`.
 
+## Visual reference
+
+Use [Stripe's interface](https://stripe.com/payments/checkout) as a reference for clear type hierarchy, deliberate spacing, concise form guidance, visible input states, and an obvious primary action. Translate those qualities into the synthetic policy-servicing journey. Record the resulting choices in `DESIGN.md` and `EXPERIENCE.md`, and show them in the browser mockups. [Visual and UX constraints](VISUAL_UX_CONSTRAINTS.md) still govern the palette, decoration, and layout.
+
 ## Layout
 
 - `design/global.css`: shared colors, type, spacing, and page styles.
