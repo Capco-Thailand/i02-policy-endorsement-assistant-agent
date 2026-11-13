@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in — Policy Endorsement Assistant</title>
+  <link rel="stylesheet" href="../global.css">
+  <script src="sign-in.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <span class="brand-mark" aria-hidden="true">PE</span>
+    <span>Policy Endorsement Assistant <small>Customer demonstration</small></span>
+  </header>
+  <main class="auth-shell">
+    <section class="auth-copy" aria-labelledby="page-title">
+      <p class="auth-kicker">Your policies <span>/</span> Secure access</p>
+      <h1 class="auth-title" id="page-title">Sign in to view your policies</h1>
+      <p class="auth-intro">Review your policy information and, later, proposed changes from one place.</p>
+      <p class="auth-boundary"><strong>Demonstration only</strong><span>Accounts and policies shown here are synthetic. No change on this site updates or binds coverage.</span></p>
+    </section>
+    <section class="auth-panel" aria-labelledby="form-title">
+      <div class="auth-panel-heading">
+        <p class="auth-panel-kicker">Customer access</p>
+        <h2 id="form-title">Welcome back</h2>
+      </div>
+      <p class="auth-message" id="auth-message" role="alert" tabindex="-1" hidden></p>
+      <form id="sign-in-form">
+        <div class="auth-field">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" autocomplete="username" required>
+        </div>
+        <div class="auth-field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="button auth-submit" id="submit" type="submit">Sign in</button>
+      </form>
+      <p class="auth-footer">Use the local demo account provided with the prototype.</p>
+    </section>
+  </main>
+  <aside class="auth-preview" aria-label="Mockup state controls">
+    <button type="button" data-state="initial">Initial</button>
+    <button type="button" data-state="invalid">Invalid credentials</button>
+    <button type="button" data-state="expired">Expired session</button>
+    <button type="button" data-state="unavailable">Service unavailable</button>
+    <button type="button" data-state="pending">Submitting</button>
+    <a class="session-sign-out" href="session.html">Signed-in entry</a>
+  </aside>
+</body>
+</html>

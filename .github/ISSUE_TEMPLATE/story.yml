@@ -18,7 +18,7 @@ body:
     id: ticket
     attributes:
       label: Local ticket path
-      placeholder: docs/tickets/fr-01-authenticate-staff.md
+      placeholder: docs/tickets/fr-01-authenticate-customers.md
     validations:
       required: true
   - type: textarea
