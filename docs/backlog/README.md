@@ -1,12 +1,12 @@
 # Requirement order
 
-This is the implementation order for the [product scope in the PRD](../PRD.md). FR-01 and FR-02 have selected ticket files; the other requirements are in backlog. A draft becomes ready for implementation after its requirements, acceptance criteria, dependencies, and fresh UX handoff are reviewed in a merged PR and its GitHub tracking Issue is created. Backlog filenames use feature IDs; the order below records dependencies and may differ from the ID sequence. GitHub Issue numbers are separate.
+This is the implementation order for the [product scope in the PRD](../PRD.md). A draft becomes ready for implementation after its requirements, acceptance criteria, dependencies, and fresh UX handoff are reviewed in a merged PR and its GitHub tracking Issue is created. Backlog filenames use feature IDs; the order below records dependencies and may differ from the ID sequence. GitHub Issue numbers are separate.
 
 | Order | Feature ID and outcome | Requirement record | State |
 |---:|---|---|---|
-| 1 | FR-01 Authenticate Customers | [Ticket](../tickets/fr-01-authenticate-staff.md) | New handoff in review; prior [PR #32](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/32) merged and superseded by rollback; [Issue #33](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/33) retained for traceability |
+| 1 | FR-01 Authenticate Customers | [Draft](fr-01-authenticate-staff.md) | Backlog; fresh UX handoff needed |
 | 2 | FR-03 Check Policy Access | [Draft](fr-03-check-policy-access.md) | Backlog; historical GitHub #3 closed |
-| 3 | FR-02 Create Endorsement Request | [Ticket](../tickets/fr-02-create-endorsement-request.md) | Handoff merged; [Issue #41](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/41); waiting for FR-01 and FR-03 |
+| 3 | FR-02 Create Endorsement Request | [Draft](fr-02-create-endorsement-request.md) | Backlog; fresh UX handoff needed; depends on FR-01 and FR-03 |
 | 4 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
 | 5 | FR-05 Retrieve Endorsement Rules with RAG | [Draft](fr-05-retrieve-endorsement-rules-with-rag.md) | Backlog |
 | 6 | FR-06 Verify Customer Identity | [Draft](fr-06-verify-customer-identity-mock-ekyc.md) | Backlog |
@@ -17,5 +17,3 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 | 11 | FR-11 Customer Review and Decision | [Draft](fr-11-review-approve-reject-endorsement-draft.md) | Backlog |
 | 12 | FR-12 Customer Change History and Audit | [Draft](fr-12-record-activity-audit-history.md) | Backlog |
 | 13 | FR-13 Run with Docker Compose | [Draft](fr-13-run-the-system-with-docker-compose.md) | Backlog |
-
-Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covered policy list and detail before the current FR numbering. Its work is a prerequisite for FR-02 and FR-03, not a second FR-01 ticket.

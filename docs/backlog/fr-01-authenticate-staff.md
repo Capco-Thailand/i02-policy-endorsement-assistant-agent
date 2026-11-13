@@ -1,13 +1,13 @@
 # FR-01 — Authenticate Customers
 
 **Title:** [Story] Authenticate customers with synthetic demo accounts
-**Labels:** `type:story`, `role:dev`
-**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/37
+**Labels:** `type:story`
+**GitHub Issue:** Not filed
 **Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an authentication failure could expose another customer's policy or let someone approve their request.
-**State:** Selected for ticket and UX handoff
-**Requirements owner:** This file; historical [Issue #13](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/13) is closed.
+**State:** Backlog draft
+**Requirements owner:** This file.
 
 ## Summary and objective
 Deliver FR-01 so each synthetic demo customer can sign in, access only policies linked to their account, and sign out. The API rejects expired or invalid sessions and provides an ownership guard for later endorsement requests and customer decisions.
@@ -19,7 +19,7 @@ As a customer, I can sign in with my own demo account and access only my synthet
 - Product context: `docs/PRD.md`, Authentication and access, customer journey, evaluation, and definition of done. This ticket owns the FR-01 detail.
 - Architecture: `docs/ADR.md` puts authentication, access control, and writes in Fastify; the browser uses the API.
 - The prior API and web implementation was removed. `docs/API_DEVELOPMENT.md` records the current absence of a runtime.
-- A new UX handoff and sign-in mockup must be produced before implementation.
+- Produce a fresh UX handoff and sign-in mockup before implementation.
 - Risk: high. A failure could expose another customer's policy or allow approval of that customer's request. Verify the rejection paths against every protected route as those routes are added.
 
 ## Acceptance criteria
@@ -41,24 +41,19 @@ Out of scope:
 - Building policy, RAG, endorsement, or draft workflows beyond the authorization integration they require.
 
 ## Dependencies
-- A runnable Fastify API and Next.js web foundation is required. Historical Issues #4 and #9 are retired and do not prove that the current checkout has those applications. Establish the minimum foundation in the FR-01 implementation or merge it first.
+- A runnable Fastify API and Next.js web foundation is required. Establish the minimum foundation in the FR-01 implementation or merge it first.
 - FR-11 provides the customer review and decision endpoint; its implementation must use the ownership guard established here.
 
 ## Related subtasks
 N/A
 
 ## Accepted decisions and readiness
-- 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #13 was closed.
-- 2026-11-12: An earlier FR-01 selection produced Issue #33, now deleted. It is historical context only.
 - 2026-11-12: Corrected the primary actor from policy-service staff to the customer. Customers request changes to their own synthetic policies, review the proposed updated-policy view, and record their own decisions. Approval adds a record to the customer's history page without a later review or issuance step. This supersedes the previous staff sign-in and separate-reviewer model.
-- 2026-11-13: PR #32 merged, then FR-01 was returned to backlog. The API/web implementation, verification record, UX handoff, and sign-in mockup were removed for a fresh start. This selection creates a new ticket and UX handoff.
 - The customer-facing criteria above are the current FR-01 scope; the proposal review and history screens belong to later tickets.
-- Historical UX PR #14 merged, but its design artifacts were removed during the reset. Implementation PR #15 merged and was reverted by commit `bdb4433`; the replacement implementation decision and acceptance checks are pending. Review the revert before a new build.
 
-## UX handoff references
-- Visual contract: [DESIGN.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-customer-authentication/DESIGN.md)
-- Behavior contract: [EXPERIENCE.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-01-customer-authentication/EXPERIENCE.md)
-- Browser preview: [sign-in.html](../../design/page/sign-in.html), linked from [design index](../../design/page/index.html).
+## UX handoff
+
+No current design. Create fresh `DESIGN.md`, `EXPERIENCE.md`, and browser mockup when this draft is selected.
 - Open UX wording question: confirm account display names when demo fixtures are seeded.
 
 ## Definition of Done

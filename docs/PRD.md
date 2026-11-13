@@ -16,7 +16,7 @@ Build a customer-facing AI-assisted life insurance endorsement request workflow.
 
 ### Authentication and access
 
-Customers use individual synthetic demo accounts. A customer can view and request changes only for policies linked to that account. The customer reviews the proposed updated-policy view for their own request and records an approval or rejection; another customer's request cannot be approved. Mock eKYC checks a synthetic identity scenario within an endorsement request; it does not establish a sign-in session. The detailed authentication, session, authorization, and audit requirements are in the [FR-01 backlog draft](tickets/fr-01-authenticate-staff.md).
+Customers use individual synthetic demo accounts. A customer can view and request changes only for policies linked to that account. The customer reviews the proposed updated-policy view for their own request and records an approval or rejection; another customer's request cannot be approved. Mock eKYC checks a synthetic identity scenario within an endorsement request; it does not establish a sign-in session. The detailed authentication, session, authorization, and audit requirements are in the [FR-01 backlog draft](backlog/fr-01-authenticate-staff.md).
 
 ## 2. Customer journey
 

@@ -1,12 +1,12 @@
 # FR-02 — Create Endorsement Request
 
 **Title:** [Story] Create an endorsement request for a customer's policy
-**Labels:** `type:story`, `role:dev`, `role:fe-data-rag`, `role:be-infra`
-**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/41
+**Labels:** `type:story`
+**GitHub Issue:** Not filed
 **Feature ID:** FR-02
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a request against another customer's policy could disclose data or start an unauthorized workflow.
-**State:** Handoff merged; waiting for FR-01 and FR-03 dependencies
+**State:** Backlog draft; depends on FR-01 and FR-03
 
 ## Summary and objective
 
@@ -20,7 +20,7 @@ As a customer, I can submit a change request for one of my policies, so the endo
 
 - The [PRD](../PRD.md) defines the four supported changes, assigned-policy access, synthetic-data boundary, and non-binding workflow.
 - [ADR](../ADR.md) places authorization and writes in Fastify, with schema-defined API contracts. The browser uses that API.
-- FR-01 [authentication ticket](fr-01-authenticate-staff.md) owns customer session identity and policy ownership authorization. Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covers policy list/detail; [FR-03](../backlog/fr-03-check-policy-access.md) covers policy access.
+- FR-01 [authentication draft](fr-01-authenticate-staff.md) owns customer session identity and policy ownership authorization. [FR-03](fr-03-check-policy-access.md) covers policy access and selection.
 - The request is an input to FR-04 through FR-10. Saving it is not an eligibility decision, quote, draft, approval, or policy update.
 
 ## Request rules and data
@@ -54,8 +54,8 @@ Out of scope:
 ## Dependencies
 
 - FR-01 authentication and assigned-policy authorization must be usable before implementation.
-- Historical Issue #1 policy list/detail and FR-03 policy access provide the policy selection flow and data boundary; verify their current code state before building.
-- FR-02 UX handoff is linked below. Confirm FR-01 and FR-03 are usable before implementation.
+- FR-03 policy access provides the policy selection flow and data boundary; verify its implementation before building.
+- Create a fresh FR-02 UX handoff and confirm FR-01 and FR-03 are usable before implementation.
 
 ## Related subtasks
 
@@ -63,19 +63,15 @@ None.
 
 ## Accepted decisions and readiness
 
-- 2026-11-12: The customer, rather than policy-service staff, requests changes to a policy linked to their account. This follows the customer-facing product correction.
-- 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #24 was closed. Reconfirm scope and UX through a new ticket/UX handoff before implementation.
-- 2026-11-11: FR-02 was selected as implementation-order ticket 2. Request capture is separate from downstream eligibility, quote, and draft work.
-- 2026-11-11: The cleaned backlog retains FR-02 as its feature ID and places FR-03 policy access before implementation of this ticket.
+- 2026-11-12: The customer requests changes to a policy linked to their account.
+- Request capture is separate from downstream eligibility, quote, and draft work. FR-03 policy access is required first.
 - 2026-11-13: Only `ACTIVE` policies may start or submit an endorsement request. `EXPIRED` policies cannot create a request, including through direct API calls.
 - 2026-11-13: Beneficiary requests replace the complete beneficiary list; the submitted allocations must total 100%.
-- Status: Ticket and UX handoff merged. FR-01 and FR-03 dependency verification is pending; do not start implementation until they are usable.
+- Status: Backlog draft. FR-01 and FR-03 dependency verification is pending; do not start implementation until they are usable.
 
-## UX handoff references
+## UX handoff
 
-- Visual contract: [DESIGN.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-02-endorsement-request/DESIGN.md).
-- Behavior contract: [EXPERIENCE.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-02-endorsement-request/EXPERIENCE.md).
-- Browser previews: [request.html](../../design/page/request.html) and its [expired-policy state](../../design/page/request.html?status=expired), linked from the [design index](../../design/page/index.html).
+No current design. Create fresh `DESIGN.md`, `EXPERIENCE.md`, and browser mockups for request entry and expired policies when this draft is selected.
 
 ## Definition of Done
 
