@@ -26,6 +26,7 @@ test('ticket handoff cannot carry application or workflow code', () => {
   assert.equal(isHandoffFile(ticket, ticket), true);
   assert.equal(isHandoffFile('design/page/request.html', ticket), true);
   assert.equal(isHandoffFile('docs/PRD.md', ticket), true);
+  assert.equal(isHandoffFile('README.md', ticket), true);
   assert.equal(isHandoffFile('apps/api/src/app.ts', ticket), false);
   assert.equal(isHandoffFile('.github/workflows/ticket-check.yml', ticket), false);
   assert.equal(isHandoffFile('docs/tickets/fr-3-other.md', ticket), false);

@@ -117,7 +117,7 @@ function prFiles(number) {
   return api(`repos/${repo}/pulls/${number}/files?per_page=100`);
 }
 function isHandoffFile(path, ticket) {
-  return path === ticket || /^design\/.+\.(?:html|css|js|md|png|jpg|jpeg|svg|webp)$/.test(path)
+  return path === ticket || path === 'README.md' || /^design\/.+\.(?:html|css|js|md|png|jpg|jpeg|svg|webp)$/.test(path)
     || /^_bmad-output\/.+\/ux-[^/]+\/.+\.(?:md|html)$/.test(path)
     || (/^docs\/.+\.md$/.test(path) && !path.startsWith('docs/tickets/'));
 }
