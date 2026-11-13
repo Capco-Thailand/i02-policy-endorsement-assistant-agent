@@ -9,7 +9,8 @@
     "format:check": "prettier --check package.json",
     "ticket:create": "node scripts/ticket-workflow.mjs create",
     "ticket:preflight": "node scripts/ticket-workflow.mjs preflight",
-    "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue"
+    "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue",
+    "plan:issues": "node scripts/plan-role-dev-issues.mjs"
   },
   "devDependencies": {
     "prettier": "3.6.2"

@@ -1,12 +1,12 @@
 # FR-02 — Create Endorsement Request
 
 **Title:** [Story] Create an endorsement request for a customer's policy
-**Labels:** `type:story`, `role:fe-data-rag`, `role:be-infra`
-**GitHub Issue:** Not filed
+**Labels:** `type:story`, `role:dev`, `role:fe-data-rag`, `role:be-infra`
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-02
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a request against another customer's policy could disclose data or start an unauthorized workflow.
-**State:** Backlog draft
+**State:** Selected for ticket and UX handoff
 
 ## Summary and objective
 
@@ -20,24 +20,26 @@ As a customer, I can submit a change request for one of my policies, so the endo
 
 - The [PRD](../PRD.md) defines the four supported changes, assigned-policy access, synthetic-data boundary, and non-binding workflow.
 - [ADR](../ADR.md) places authorization and writes in Fastify, with schema-defined API contracts. The browser uses that API.
-- FR-01 [authentication backlog draft](fr-01-authenticate-staff.md) owns customer session identity and policy ownership authorization. Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covers policy list/detail; [FR-03](fr-03-check-policy-access.md) covers policy access.
+- FR-01 [authentication ticket](fr-01-authenticate-staff.md) owns customer session identity and policy ownership authorization. Historical [Issue #1](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/1) covers policy list/detail; [FR-03](../backlog/fr-03-check-policy-access.md) covers policy access.
 - The request is an input to FR-04 through FR-10. Saving it is not an eligibility decision, quote, draft, approval, or policy update.
 
 ## Request rules and data
 
 - The server derives the requester from the authenticated session and records the selected policy ID, one change type, requested effective date, change-specific inputs, creation time, and a request ID. It does not accept a client-supplied requester as authority.
 - Supported change types are beneficiary, correspondence address, payment frequency, and accidental-death rider. The UI presents only these four options; the API rejects any other value.
-- Beneficiary requests capture the requested beneficiary name and intended allocation; address requests capture the requested correspondence address; frequency requests capture the requested payment frequency; rider requests capture whether the rider is to be added or removed. The precise field schema and permitted frequency/allocation values must be settled against the synthetic fixtures before implementation.
+- Beneficiary requests submit a complete replacement list with at least one beneficiary. Each entry has a non-empty name and an allocation percentage greater than zero; percentages total exactly 100. Address requests capture a non-empty correspondence address. Frequency requests select one of `MONTHLY`, `QUARTERLY`, `SEMI_ANNUAL`, or `ANNUAL`. Rider requests specify `ADD` or `REMOVE` for accidental-death coverage. The API validates the fields for the selected change type and rejects fields for another type.
+- The requested effective date is a valid calendar date in `YYYY-MM-DD` format. The server records the submitted date without making an eligibility decision in this ticket.
 - Required information is collected before the request advances to later validation. An incomplete form can remain in the browser, but it is not a submitted request.
 - The API checks the session and policy ownership before returning policy data or accepting a request. An unknown policy and another customer's policy receive the same non-disclosing response.
+- Only an `ACTIVE` policy can start or submit an endorsement request. An `EXPIRED` policy shows an unavailable state in the UI; a direct API submission is rejected without creating a request.
 
 ## Acceptance criteria
 
-- [ ] From one of their policy detail views, customers can start a request; the selected policy is visible throughout entry. The four supported change types show their relevant inputs and required-field guidance.
+- [ ] From an `ACTIVE` policy detail view, customers can start a request; the selected policy is visible throughout entry. The four supported change types show only their relevant inputs and required-field guidance. A beneficiary change replaces the full list, and its allocations must total 100%.
 - [ ] Submitting complete, valid input creates one request with a server-generated ID, session-derived requester, selected policy, change type, requested effective date, change-specific data, and creation time; the UI confirms that the request was recorded and remains pending checks.
 - [ ] Missing required data, malformed dates, invalid change-specific data, or unsupported change types produce field-level or API errors and create no request. The entered values remain available for correction.
 - [ ] Missing or expired sessions are rejected. Unknown policy IDs or policies linked to another customer are rejected without disclosing policy details or creating a request. A forged requester field cannot change the recorded actor.
-- [ ] A request may be recorded for an `EXPIRED` policy for traceability, but it cannot advance to eligibility, quote, or draft; the UI identifies that block. Eligibility is decided by FR-08.
+- [ ] An `EXPIRED` policy cannot start an endorsement request in the UI. A direct API submission for it is rejected and creates no request, quote, or draft. The UI explains that the policy is expired.
 - [ ] Creating a request never updates a policy, binds coverage, creates a quote or draft, or presents the change as approved. Synthetic data only is used.
 - [ ] The API contract documents request and error shapes; meaningful checks cover successful capture for all four types, invalid input, missing session, cross-account access, and the no-policy-write boundary.
 
@@ -53,7 +55,7 @@ Out of scope:
 
 - FR-01 authentication and assigned-policy authorization must be usable before implementation.
 - Historical Issue #1 policy list/detail and FR-03 policy access provide the policy selection flow and data boundary; verify their current code state before building.
-- UI handoff was removed during the design reset; create a new handoff and resolve its open questions before implementation.
+- FR-02 UX handoff is linked below. Confirm FR-01 and FR-03 are usable before implementation.
 
 ## Related subtasks
 
@@ -65,13 +67,15 @@ None.
 - 2026-11-11: Moved back to backlog for the ticket workflow test; historical Issue #24 was closed. Reconfirm scope and UX through a new ticket/UX handoff before implementation.
 - 2026-11-11: FR-02 was selected as implementation-order ticket 2. Request capture is separate from downstream eligibility, quote, and draft work.
 - 2026-11-11: The cleaned backlog retains FR-02 as its feature ID and places FR-03 policy access before implementation of this ticket.
-- Open question: Confirm the precise synthetic field schema and permitted values for each change type before implementation.
-- Open question: Confirm whether an `EXPIRED` policy request should be recorded for audit or blocked at submission. The proposed behavior above records it and blocks advancement.
-- Status: Requirements remain a backlog draft; UX handoff and dependency verification are pending. Do not start implementation until the open questions are settled.
+- 2026-11-13: Only `ACTIVE` policies may start or submit an endorsement request. `EXPIRED` policies cannot create a request, including through direct API calls.
+- 2026-11-13: Beneficiary requests replace the complete beneficiary list; the submitted allocations must total 100%.
+- Status: Selected for ticket and UX handoff. FR-01 and FR-03 dependency verification is pending; do not start implementation until they are usable.
 
 ## UX handoff references
 
-- None. Create a new visual and behavior handoff before implementation. Preserve `design/global.css` as the shared style starting point.
+- Visual contract: [DESIGN.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-02-endorsement-request/DESIGN.md).
+- Behavior contract: [EXPERIENCE.md](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-fr-02-endorsement-request/EXPERIENCE.md).
+- Browser previews: [request.html](../../design/page/request.html) and its [expired-policy state](../../design/page/request.html?status=expired), linked from the [design index](../../design/page/index.html).
 
 ## Definition of Done
 

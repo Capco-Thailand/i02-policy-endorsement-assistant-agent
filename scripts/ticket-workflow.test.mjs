@@ -2,7 +2,20 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 process.env.GITHUB_REPOSITORY = 'example/tickets';
-const { isHandoffFile, issueBody, parsePr, issueNumber, replaceTicket, sameIssue, withIssueLink } = await import('./ticket-workflow.mjs');
+const { isHandoffFile, issueBody, issueLabels, parsePr, issueNumber, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink } = await import('./ticket-workflow.mjs');
+
+test('handoff merge waiver applies only to named branches', () => {
+  assert.equal(waivesHandoffMerge('test/create-ticket'), true);
+  assert.equal(waivesHandoffMerge('codex/role-dev-implementation-plans'), true);
+  assert.equal(waivesHandoffMerge('main'), false);
+  assert.equal(waivesHandoffMerge('codex/role-dev-implementation-plans-next'), false);
+});
+
+test('story Issues receive both type and development labels', () => {
+  assert.deepEqual(issueLabels('# FR-01 — Authenticate Customers'), ['type:story', 'role:dev']);
+  assert.deepEqual(issueLabels('# [Bug] Session expiry'), ['type:bug']);
+  assert.deepEqual(issueLabels('# [Subtask] Cookie handling'), ['type:subtask']);
+});
 
 test('ticket handoff cannot carry application or workflow code', () => {
   const ticket = 'docs/tickets/fr-2-request.md';
