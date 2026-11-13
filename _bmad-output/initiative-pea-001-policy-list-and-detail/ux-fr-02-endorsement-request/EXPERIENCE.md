@@ -8,7 +8,7 @@ updated: 2026-11-13
 Responsive browser application using shadcn/ui in implementation. [DESIGN.md](DESIGN.md) owns appearance. The [HTML preview](../../../design/page/request.html) simulates request capture locally; the implementation requires the FR-01 session and FR-03 policy access.
 
 ## Information Architecture
-From an `ACTIVE` policy detail, the customer enters one supported change and sees a request-recorded confirmation. Keep the selected policy identified throughout. An `EXPIRED` policy shows why request creation is unavailable and a route back to policies.
+From an `ACTIVE` policy detail, the customer enters one supported change and sees a request-recorded confirmation. Keep the selected policy identified beside the form on wide screens and above it on narrow screens. An `EXPIRED` policy shows why request creation is unavailable and a route back to policies.
 
 ## Voice and Tone
 Use direct labels and field guidance. Say “Request recorded; checks are pending” on success. Explain that capture is not approval or a policy update. Tell the customer plainly that an expired policy cannot be changed.
@@ -29,4 +29,4 @@ Provide keyboard operation, visible focus, semantic headings, associated labels,
 Alice opens an active synthetic policy, selects a change, enters details and an effective date, then submits. She sees that checks are pending. Alice opens an expired policy and sees why no request can start. Bob cannot request a change to Alice’s policy by changing the URL.
 
 ## Responsive & Platform
-On narrow screens, policy facts and controls stack in one column. The submit action follows fields in reading and keyboard order.
+On wide screens, the policy summary stays alongside the form. On narrow screens, the policy summary precedes the form. The submit action follows fields in reading and keyboard order.

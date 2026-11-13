@@ -6,7 +6,7 @@ const formError = document.querySelector('#form-error');
 let nextBeneficiaryId = 2;
 
 if (new URLSearchParams(location.search).get('status') === 'expired') {
-  document.querySelector('#policy-status').innerHTML = '<strong>Status:</strong> Expired';
+  document.querySelector('#policy-status').textContent = 'Expired';
   form.hidden = true;
   document.querySelector('#expired-state').hidden = false;
 }

@@ -1,21 +1,43 @@
-body { background: #f5f3ee; color: #172b3a; font-family: system-ui, sans-serif; }
-.request-shell { max-width: 760px; margin: auto; padding: 32px 24px 80px; }
-.request-shell h1,.request-shell h2 { font-family: Georgia, serif; }
-.request-shell h1 { font-size: clamp(2rem,5vw,3rem); margin: 22px 0; }
-.request-kicker { color: #52616b; font-size: .85rem; }
-.policy-context { background: white; border: 1px solid #cbd3d8; padding: 20px; margin-bottom: 28px; }
-.policy-context h2 { margin: 0; font-size: 1.2rem; }
-.policy-context p { margin-bottom: 0; }
-form { max-width: 580px; }
-label { display: block; font-weight: 650; margin-bottom: 6px; }
-input,select,textarea { width: 100%; padding: 10px; border: 1px solid #687780; border-radius: 4px; background: white; color: #172b3a; font: inherit; }
-fieldset { margin: 24px 0; border: 1px solid #cbd3d8; padding: 16px; }
-legend { font-weight: 700; padding: 0 6px; }
-.beneficiary-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
-.remove-beneficiary { align-self: center; width: max-content; }
-button { padding: 10px 14px; border: 1px solid #9b4d28; border-radius: 4px; background: white; color: #7c3514; cursor: pointer; }
-button.primary { background: #9b4d28; color: white; margin-top: 8px; }
-.error { color: #a12a2a; font-weight: 650; }
-:focus-visible { outline: 3px solid #9b4d28; outline-offset: 3px; }
-[hidden] { display: none !important; }
-@media (max-width: 480px) { .beneficiary-row { grid-template-columns: 1fr; gap: 0; } }
+.request-shell { max-width: 1120px; margin: auto; padding: 0 32px 80px; }
+.request-heading { max-width: 650px; padding: 3.4rem 0 2.4rem; }
+.request-heading h1 { margin-bottom: .8rem; }
+.request-grid { display: grid; grid-template-columns: minmax(235px, 330px) minmax(0, 600px); align-items: start; gap: clamp(2.5rem, 7vw, 7rem); }
+.policy-context { position: sticky; top: 2rem; padding-top: .4rem; }
+.policy-context h2 { margin-bottom: 1.7rem; font-size: 1.55rem; }
+.policy-name { margin-bottom: .35rem; font-size: 1.12rem; font-weight: 700; }
+.policy-id { color: var(--muted); font-size: .9rem; }
+.policy-facts { margin: 1.7rem 0 0; border-top: 1px solid var(--line); }
+.policy-facts div { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem 0; border-bottom: 1px solid var(--line); }
+.policy-facts dt { color: var(--muted); }
+.policy-facts dd { margin: 0; font-weight: 650; text-align: right; }
+.policy-boundary { margin-top: 1.7rem; }
+.request-panel { min-width: 0; padding: clamp(1.5rem, 3.6vw, 2.5rem); border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+.request-panel h2 { margin-bottom: .55rem; }
+.request-panel .section-lead { margin-bottom: 2rem; color: var(--muted); }
+.field-group { margin: 1.5rem 0; }
+.field-help { margin: .5rem 0 0; color: var(--muted); font-size: .85rem; }
+fieldset { min-width: 0; margin: 2rem 0; padding: 1.3rem 0 0; border: 0; border-top: 1px solid var(--soft-line); }
+legend { padding: 0 .5rem 0 0; font-size: 1.05rem; font-weight: 700; }
+.beneficiary-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(110px, 1fr) auto; align-items: end; gap: .75rem; margin: 1.25rem 0; }
+.beneficiary-row p { margin: 0; }
+.remove-beneficiary { margin-bottom: 0; }
+.request-actions { padding-top: 1.5rem; border-top: 1px solid var(--soft-line); }
+.request-actions .primary { min-width: 170px; }
+.request-actions .fine-print { max-width: 31rem; margin: 1rem 0 0; }
+.request-panel .error { margin-top: 1rem; }
+.status-panel { border-left: 4px solid var(--accent); }
+.status-panel h2 { margin-top: .6rem; }
+@media (max-width: 760px) {
+  .request-shell { padding: 0 20px 56px; }
+  .request-heading { padding: 2.5rem 0 1.5rem; }
+  .request-grid { grid-template-columns: 1fr; gap: 1.8rem; }
+  .policy-context { position: static; padding: 0; }
+  .policy-context h2 { margin-bottom: 1rem; }
+  .policy-facts { margin-top: 1.1rem; }
+}
+@media (max-width: 480px) {
+  .beneficiary-row { grid-template-columns: 1fr 1fr; }
+  .beneficiary-row p:first-child { grid-column: 1 / -1; }
+  .remove-beneficiary { justify-self: start; }
+  .request-actions .primary { width: 100%; }
+}

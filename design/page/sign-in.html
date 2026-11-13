@@ -1,6 +1,47 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Customer sign in · Policy Endorsement Assistant</title><link rel="stylesheet" href="../global.css"></head>
-<body><main class="shell"><p class="kicker">Policy Endorsement Assistant · synthetic demo preview</p><a href="index.html">← Design previews</a>
-<section id="signed-out" class="form-shell" aria-labelledby="title"><h1 id="title" tabindex="-1">Sign in to your policies</h1><p>Use your demo account to view policies linked to you.</p><form id="sign-in"><p><label for="account">Account ID</label><input id="account" name="account" autocomplete="username" required></p><p><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></p><p id="error" class="error" role="alert" tabindex="-1" hidden>Account ID or password is incorrect.</p><button class="primary" type="submit">Sign in</button></form><p class="muted">Preview: use Alice or Bob with password demo. Any other credentials show an error.</p><p>Demo only. No live coverage is changed.</p></section>
-<section id="signed-in" hidden aria-labelledby="policies-title"><div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap"><h1 id="policies-title" tabindex="-1">Your policies</h1><button id="sign-out" type="button">Sign out</button></div><p id="customer-name"></p><p class="muted">Synthetic policies linked to this demo account.</p><div id="policy-list" class="panel"></div><p><button id="expire" type="button">Preview session expiry</button></p><p>Requests and approvals in this prototype do not bind coverage.</p></section>
-</main><script src="sign-in.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer sign in · Policy Endorsement Assistant</title>
+  <link rel="stylesheet" href="../global.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="site-header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">PEA</span><span>Policy Endorsement Assistant</span></a>
+      <a class="preview-link" href="index.html">Design previews</a>
+    </header>
+    <section id="signed-out" class="sign-in-layout" aria-labelledby="title">
+      <div class="sign-in-intro">
+        <p class="eyebrow">Your synthetic policies</p>
+        <h1 id="title" tabindex="-1">A clear view of your policy.</h1>
+        <p class="lead">Sign in to review the policies linked to your demo account and start a change request.</p>
+        <div class="boundary-note"><strong>Prototype only</strong><p class="fine-print">Policy information is synthetic. Requests and decisions do not change live coverage.</p></div>
+      </div>
+      <div class="form-card">
+        <p class="eyebrow">Customer access</p>
+        <h2>Sign in</h2>
+        <p class="muted">Enter your demo account credentials.</p>
+        <form id="sign-in">
+          <p><label for="account">Account ID</label><input id="account" name="account" autocomplete="username" required></p>
+          <p><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></p>
+          <p id="error" class="form-error error" role="alert" tabindex="-1" hidden>Account ID or password is incorrect.</p>
+          <button class="primary" type="submit">Sign in</button>
+        </form>
+        <p class="preview-hint fine-print">Preview: use Alice or Bob with password demo. Other credentials show an error.</p>
+      </div>
+    </section>
+    <section id="signed-in" class="signed-in-view" hidden aria-labelledby="policies-title">
+      <p class="eyebrow">Customer account</p>
+      <div class="view-heading"><h1 id="policies-title" tabindex="-1">Your policies</h1><button id="sign-out" type="button">Sign out</button></div>
+      <p id="customer-name"></p>
+      <p class="muted">Synthetic policies linked to this demo account.</p>
+      <div id="policy-list" class="panel"></div>
+      <p><button id="expire" type="button">Preview session expiry</button></p>
+      <p class="fine-print">Requests and decisions in this prototype do not bind coverage.</p>
+    </section>
+  </main>
+  <script src="sign-in.js"></script>
+</body>
+</html>

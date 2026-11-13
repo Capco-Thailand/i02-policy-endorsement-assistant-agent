@@ -9,66 +9,74 @@
 </head>
 <body>
   <main class="request-shell">
-    <p class="request-kicker">Policy Endorsement Assistant · synthetic demo preview</p>
-    <a href="index.html">← Design previews</a>
-    <h1>Request a policy change</h1>
-    <section class="policy-context" aria-labelledby="policy-heading">
-      <h2 id="policy-heading">Selected policy</h2>
-      <p>Family Protection · POL-001</p>
-      <p id="policy-status"><strong>Status:</strong> Active</p>
-    </section>
-
-    <section id="expired-state" hidden aria-labelledby="expired-heading">
-      <h2 id="expired-heading">This policy has expired</h2>
-      <p>You cannot request a change to an expired policy.</p>
-      <a href="index.html">Back to policies</a>
-    </section>
-
-    <form id="request-form">
-      <p>Choose one change. In the application, your request is recorded for checks; it does not update this policy or bind coverage. This preview stores nothing.</p>
-      <p><label for="change-type">Change type</label><select id="change-type" name="changeType">
-        <option value="BENEFICIARY">Beneficiary</option>
-        <option value="ADDRESS">Correspondence address</option>
-        <option value="FREQUENCY">Payment frequency</option>
-        <option value="RIDER">Accidental-death rider</option>
-      </select></p>
-
-      <fieldset data-type="BENEFICIARY"><legend>Replacement beneficiary list</legend>
-        <p>Enter every beneficiary who should remain on the policy. Each allocation must be greater than zero, and allocations must total 100%.</p>
-        <div id="beneficiary-rows"><div class="beneficiary-row">
-          <p><label for="beneficiary-1">Beneficiary name</label><input id="beneficiary-1" name="beneficiaryName" required></p>
-          <p><label for="allocation-1">Allocation %</label><input id="allocation-1" name="allocation" type="number" min="0" max="100" step="any" required></p>
-          <button type="button" class="remove-beneficiary">Remove</button>
-        </div></div>
-        <button type="button" id="add-beneficiary">Add beneficiary</button>
-        <p id="allocation-error" class="error" role="alert" hidden>Each allocation must be greater than zero, and allocations must total 100%.</p>
-      </fieldset>
-
-      <fieldset data-type="ADDRESS" hidden disabled><legend>Correspondence address</legend>
-        <p><label for="address">New address</label><textarea id="address" name="address" rows="4" required></textarea></p>
-      </fieldset>
-
-      <fieldset data-type="FREQUENCY" hidden disabled><legend>Payment frequency</legend>
-        <p><label for="frequency">New frequency</label><select id="frequency" name="frequency" required>
-          <option value="">Select a frequency</option><option>Monthly</option><option>Quarterly</option><option>Semi-annual</option><option>Annual</option>
-        </select></p>
-      </fieldset>
-
-      <fieldset data-type="RIDER" hidden disabled><legend>Accidental-death rider</legend>
-        <p><label for="rider">Requested action</label><select id="rider" name="rider" required>
-          <option value="">Select an action</option><option>Add rider</option><option>Remove rider</option>
-        </select></p>
-      </fieldset>
-
-      <p><label for="effective-date">Requested effective date</label><input id="effective-date" name="effectiveDate" type="date" required></p>
-      <button type="submit" class="primary">Record request</button>
-      <p id="form-error" class="error" role="alert" tabindex="-1" hidden>Check the fields above and try again.</p>
-    </form>
-
-    <section id="confirmation" tabindex="-1" hidden aria-labelledby="confirmation-heading">
-      <h2 id="confirmation-heading">Request recorded; checks are pending</h2>
-      <p>Preview request ID: REQ-001. This local preview does not submit to an API. A recorded request is not an approval or policy update.</p>
-    </section>
+    <header class="site-header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">PEA</span><span>Policy Endorsement Assistant</span></a>
+      <a class="preview-link" href="index.html">Design previews</a>
+    </header>
+    <div class="request-heading">
+      <p class="eyebrow">Synthetic policy service</p>
+      <h1>Request a policy change</h1>
+      <p class="lead">Choose one change for this policy. Your request will be checked before any proposal is prepared.</p>
+    </div>
+    <div class="request-grid">
+      <aside class="policy-context" aria-labelledby="policy-heading">
+        <p class="eyebrow">01 / Selected policy</p>
+        <h2 id="policy-heading">Policy summary</h2>
+        <p class="policy-name">Family Protection</p>
+        <p class="policy-id">POL-001 · Synthetic demo</p>
+        <dl class="policy-facts"><div><dt>Status</dt><dd id="policy-status">Active</dd></div><div><dt>Policyholder</dt><dd>Alice</dd></div></dl>
+        <p class="policy-boundary fine-print">This preview uses synthetic data. A request or decision does not change live coverage.</p>
+      </aside>
+      <section id="expired-state" class="request-panel status-panel" hidden aria-labelledby="expired-heading">
+        <p class="eyebrow">Request unavailable</p>
+        <h2 id="expired-heading">This policy has expired</h2>
+        <p>You cannot request a change to an expired policy.</p>
+        <a href="index.html">Back to policies</a>
+      </section>
+      <form id="request-form" class="request-panel" aria-labelledby="request-details-heading">
+        <p class="eyebrow">02 / Your request</p>
+        <h2 id="request-details-heading">Change details</h2>
+        <p class="section-lead">Enter the requested change and effective date. This preview stores nothing.</p>
+        <div class="field-group"><label for="change-type">Change type</label><select id="change-type" name="changeType">
+          <option value="BENEFICIARY">Beneficiary</option>
+          <option value="ADDRESS">Correspondence address</option>
+          <option value="FREQUENCY">Payment frequency</option>
+          <option value="RIDER">Accidental-death rider</option>
+        </select><p class="field-help">Only one change type can be submitted per request.</p></div>
+        <fieldset data-type="BENEFICIARY"><legend>Replacement beneficiaries</legend>
+          <p class="field-help">Enter everyone who should remain on the policy. Each allocation must be greater than zero; together they must total 100%.</p>
+          <div id="beneficiary-rows"><div class="beneficiary-row">
+            <p><label for="beneficiary-1">Beneficiary name</label><input id="beneficiary-1" name="beneficiaryName" required></p>
+            <p><label for="allocation-1">Allocation %</label><input id="allocation-1" name="allocation" type="number" min="0" max="100" step="any" inputmode="decimal" required></p>
+            <button type="button" class="remove-beneficiary">Remove</button>
+          </div></div>
+          <button type="button" id="add-beneficiary">Add beneficiary</button>
+          <p id="allocation-error" class="form-error error" role="alert" hidden>Each allocation must be greater than zero, and allocations must total 100%.</p>
+        </fieldset>
+        <fieldset data-type="ADDRESS" hidden disabled><legend>Correspondence address</legend>
+          <div class="field-group"><label for="address">New address</label><textarea id="address" name="address" rows="4" required></textarea></div>
+        </fieldset>
+        <fieldset data-type="FREQUENCY" hidden disabled><legend>Payment frequency</legend>
+          <div class="field-group"><label for="frequency">New frequency</label><select id="frequency" name="frequency" required>
+            <option value="">Select a frequency</option><option>Monthly</option><option>Quarterly</option><option>Semi-annual</option><option>Annual</option>
+          </select></div>
+        </fieldset>
+        <fieldset data-type="RIDER" hidden disabled><legend>Accidental-death rider</legend>
+          <div class="field-group"><label for="rider">Requested action</label><select id="rider" name="rider" required>
+            <option value="">Select an action</option><option>Add rider</option><option>Remove rider</option>
+          </select></div>
+        </fieldset>
+        <div class="field-group"><label for="effective-date">Requested effective date</label><input id="effective-date" name="effectiveDate" type="date" required><p class="field-help">The date will be reviewed in later checks.</p></div>
+        <div class="request-actions"><button type="submit" class="primary">Record request</button><p class="fine-print">Recording a request does not approve a change or update this policy.</p></div>
+        <p id="form-error" class="form-error error" role="alert" tabindex="-1" hidden>Check the fields above and try again.</p>
+      </form>
+      <section id="confirmation" class="request-panel status-panel" tabindex="-1" hidden aria-labelledby="confirmation-heading">
+        <p class="eyebrow">Request captured</p>
+        <h2 id="confirmation-heading">Request recorded; checks are pending</h2>
+        <p>Preview request ID: REQ-001. This local preview does not submit to an API.</p>
+        <p>A recorded request is not an approval or policy update.</p>
+      </section>
+    </div>
   </main>
   <script src="request.js"></script>
 </body>

@@ -10,7 +10,7 @@ colors:
   error: '#a12a2a'
 typography:
   body: 'system-ui, sans-serif'
-  heading: 'Georgia, serif'
+  heading: 'Inter, ui-sans-serif, system-ui, sans-serif'
 rounded:
   control: 4px
 spacing:
@@ -21,7 +21,7 @@ components:
 # FR-02 visual design
 
 ## Brand & Style
-Continue the FR-01 synthetic policy-service direction: warm paper surfaces, dark ink, restrained rust accent.
+Use the [Stripe Checkout interface](https://stripe.com/payments/checkout) as a reference for a clear summary-and-form relationship, crisp control states, and action hierarchy. Continue the FR-01 warm paper, dark ink, and restrained rust direction.
 
 ## Colors
 Use `{colors.ink}` for content, `{colors.muted}` for guidance, `{colors.accent}` for the primary action, and `{colors.error}` plus text for validation.
@@ -30,16 +30,16 @@ Use `{colors.ink}` for content, `{colors.muted}` for guidance, `{colors.accent}`
 Use `{typography.heading}` for the page title and `{typography.body}` for policy facts, labels, controls, and status.
 
 ## Layout & Spacing
-Put selected policy facts above the form. Sequence change type, its fields, effective date, and submit action in one column using `{spacing.unit}` increments.
+On wide screens, keep the selected policy summary beside the request form; the summary remains visible as the form grows. Within the form, sequence change type, its fields, effective date, and submit action using `{spacing.unit}` increments. Stack summary before form on narrow screens.
 
 ## Elevation & Depth
-Use borders and whitespace rather than shadows or decorative cards.
+Use whitespace, thin dividers, and one bordered form surface to distinguish the task from the policy summary.
 
 ## Shapes
 Use modest `{rounded.control}` corners with visible borders.
 
 ## Components
-Keep the policy summary visible during entry. Show only fields for the selected change. Place errors beside affected fields; show an error summary after submission. Expired policies show an unavailable state with no form.
+Keep the policy summary visible during entry. Show only fields for the selected change. Inputs have clear default, hover, focus, and error states. Place errors beside affected fields; show an error summary after submission. Expired policies show an unavailable state with no form.
 
 ## Do's and Don'ts
 Say “Request recorded; checks are pending” after capture. Do not imply approval, a quote, a policy update, or coverage binding.

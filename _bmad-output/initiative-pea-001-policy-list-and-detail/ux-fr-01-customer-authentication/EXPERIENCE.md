@@ -29,4 +29,4 @@ Provide keyboard operation, visible focus, semantic headings, associated labels,
 Alice signs in and reaches her policy list, then signs out. Bob cannot see Alice’s policies by changing a URL. If Alice’s session expires, protected content disappears and she returns to sign-in.
 
 ## Responsive & Platform
-The form remains one column on narrow screens. Policy rows stack without hiding the status or action.
+On wide screens, the introduction sits beside the sign-in form. On narrow screens, it moves above the form. Policy rows stack without hiding status or action.

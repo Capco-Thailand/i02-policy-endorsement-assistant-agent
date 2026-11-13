@@ -10,7 +10,7 @@ colors:
   error: '#a12a2a'
 typography:
   body: 'system-ui, sans-serif'
-  heading: 'Georgia, serif'
+  heading: 'Inter, ui-sans-serif, system-ui, sans-serif'
 rounded:
   control: 4px
 spacing:
@@ -21,7 +21,7 @@ components:
 # FR-01 visual design
 
 ## Brand & Style
-Calm synthetic policy service. Identify the demo context before credentials are entered. Reuse the prior warm paper, dark ink, and rust direction.
+Use the [Stripe Checkout interface](https://stripe.com/payments/checkout) as a reference for precise form hierarchy, spacing, and states. Keep the established warm paper, dark ink, and rust palette for synthetic policy service. Identify the demo context before credentials are entered.
 
 ## Colors
 Use `{colors.ink}` for content, `{colors.muted}` for guidance, `{colors.accent}` for the primary action, and `{colors.error}` for errors. Errors also have text.
@@ -30,16 +30,16 @@ Use `{colors.ink}` for content, `{colors.muted}` for guidance, `{colors.accent}`
 Use `{typography.heading}` for page headings and `{typography.body}` for copy and controls.
 
 ## Layout & Spacing
-Keep the form in one narrow column with ample whitespace. Use `{spacing.unit}` increments; preserve reading order on narrow screens.
+On wide screens, pair a short policy-service introduction with one focused sign-in panel. Use `{spacing.unit}` increments and generous spacing between heading, fields, and action. Stack the introduction before the form on narrow screens.
 
 ## Elevation & Depth
 Use borders and background contrast, without layered shadows.
 
 ## Shapes
-Use `{rounded.control}` on inputs and buttons.
+Use `{rounded.control}` on inputs and buttons, with slightly larger corners on the one sign-in panel.
 
 ## Components
-The sign-in form has visible labels, an inline alert, and one primary action. A plain note marks the synthetic prototype. The signed-in preview uses simple policy rows and a sign-out action.
+The sign-in form has visible labels, clear default, hover, focus, disabled, and error states, and one full-width primary action. A plain note marks the synthetic prototype. The signed-in preview uses simple policy rows and a sign-out action.
 
 ## Do's and Don'ts
 Use direct policy-service language. Avoid gradients, glass, decorative imagery, and claims that a decision binds coverage.
