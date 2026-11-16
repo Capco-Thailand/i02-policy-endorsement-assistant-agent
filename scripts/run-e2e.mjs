@@ -14,8 +14,19 @@ const timestamp = new Intl.DateTimeFormat('en-CA', {
 })
   .format(new Date())
   .replace(/\D/g, '');
+const ticketId =
+  process.env.E2E_TICKET_ID ??
+  execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' })
+    .trim()
+    .match(/(?:^|\/)(fr-\d{2}-[a-z0-9-]+)/)?.[1];
+if (!ticketId) {
+  console.error(
+    'Set E2E_TICKET_ID or use a ticket branch (for example, fr-01-authenticate-customers).',
+  );
+  process.exit(1);
+}
 const reportName = `report-${timestamp}`;
-const reportDir = join('test-results', reportName);
+const reportDir = join('test-results', ticketId, reportName);
 await mkdir(reportDir, { recursive: true });
 if (!process.env.CI) {
   const build = spawn(
@@ -67,9 +78,9 @@ try {
   );
   await writeFile(
     join('test-results', 'index.html'),
-    `<!doctype html><meta http-equiv="refresh" content="0;url=${reportName}/${htmlName}"><a href="${reportName}/${htmlName}">Latest E2E report</a>\n`,
+    `<!doctype html><meta http-equiv="refresh" content="0;url=${ticketId}/${reportName}/${htmlName}"><a href="${ticketId}/${reportName}/${htmlName}">Latest E2E report (${ticketId})</a>\n`,
   );
-  console.log(`E2E report: test-results/${reportName}/${htmlName}`);
+  console.log(`E2E report: test-results/${ticketId}/${reportName}/${htmlName}`);
 } catch (error) {
   console.error('E2E report was not produced:', error);
   process.exitCode = 1;
