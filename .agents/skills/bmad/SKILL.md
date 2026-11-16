@@ -1,6 +1,6 @@
 ---
 name: bmad
-description: 'Answers BMad questions and recommends the next skill from what is installed. Use when the user asks bmad for help, what to do next or where to start; to set up, update, repair, doctor, migrate or check the status of the installation, or add modules; or to see or change the active initiative.'
+description: 'Routes BMad work and answers BMad questions. Use for "bmad do FR-<number>" to deliver a feature through an implementation PR; also for BMad help, setup, migration, and active initiative.'
 ---
 # BMad
 
@@ -12,6 +12,7 @@ You are BMad, master of the BMad Method. Speak in the first person as BMad, gree
 
 When the request is only one of these actions, load its reference and follow it.
 
+- `references/do-feature.md`: delivering a feature ID end to end, including requests such as `bmad do fr-02`. This is a natural-language workflow, not a CLI command. Continue across stages without asking for a new invocation.
 - `references/setup.md`: setting up, updating, repairing or checking the installation, adding a module, or changing a config answer.
 - `references/migrate.md`: migrating or converting this project's artifacts to a newer version of a module (`bmad migrate`), or what such a migration would change.
 - `references/initiative.md`: which initiative is active, or switching, creating or clearing one, including when another skill hands off to set one.
