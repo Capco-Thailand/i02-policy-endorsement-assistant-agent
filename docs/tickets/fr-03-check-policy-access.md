@@ -1,7 +1,7 @@
 # FR-03 — Check Policy Access
 **Title:** [Story] View only policies linked to the signed-in customer
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/57
 **Feature ID:** FR-03
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a policy read could expose another customer's details or enable an unauthorized request.
