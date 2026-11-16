@@ -122,6 +122,15 @@ export function PolicyDetail({ policyId }: { policyId: string }) {
           {policy.status}
         </span>
       </div>
+      {policy.status === 'ACTIVE' ? (
+        <Link className="request-action" href={routes.request(policy.id)}>
+          Start a change request
+        </Link>
+      ) : (
+        <p role="status">
+          This policy is expired. Change requests are unavailable.
+        </p>
+      )}
       <PolicyFacts policy={policy} />
       <Beneficiaries policy={policy} />
       <p className="policy-note">

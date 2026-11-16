@@ -53,6 +53,9 @@ describe('FR-03 policy detail', () => {
       screen.getByRole('link', { name: /Back to policies/ }),
     ).toHaveAttribute('href', '/policies');
     expect(
+      screen.getByRole('link', { name: /Start a change request/i }),
+    ).toHaveAttribute('href', '/policies/POL-NARIN-001/request');
+    expect(
       screen.queryByRole('button', { name: /request|endorse/i }),
     ).not.toBeInTheDocument();
   });
