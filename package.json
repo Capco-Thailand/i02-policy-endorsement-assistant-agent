@@ -14,7 +14,7 @@
     "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue",
     "ticket:reset": "node scripts/reset-ticket-workflow.mjs",
     "plan:issues": "node scripts/plan-role-dev-issues.mjs",
-    "test": "npm run test --workspaces --if-present",
+    "test": "node --test scripts/*.test.mjs && npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "dev:api": "npm run dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",

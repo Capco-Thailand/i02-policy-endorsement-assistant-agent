@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 process.env.GITHUB_REPOSITORY = 'example/tickets';
-const { isHandoffFile, issueBody, issueLabels, parsePr, issueNumber, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink } = await import('./ticket-workflow.mjs');
+const { hasPassedImplementationChecks, isAutoMergeCandidate, isHandoffFile, issueBody, issueLabels, parsePr, issueNumber, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink } = await import('./ticket-workflow.mjs');
 
 test('handoff merge waiver applies to main and test branches', () => {
   assert.equal(waivesHandoffMerge('test/create-ticket'), true);
@@ -87,4 +87,27 @@ test('legacy Issue gains ticket content and drops its generated link', () => {
   assert.doesNotMatch(updated, /\*\*Detailed requirements:\*\*/);
   assert.match(updated, /\*\*Status:\*\* In Review/);
   assert.equal(replaceTicket(updated, path, ticket), updated);
+});
+
+test('implementation PRs can auto-merge while code-bearing ticket handoffs cannot', () => {
+  const ticket = 'docs/tickets/fr-1-auth.md';
+  const code = [{ filename: 'apps/api/src/app.ts' }];
+  assert.equal(isAutoMergeCandidate('implementation', ticket, code), true);
+  assert.equal(isAutoMergeCandidate('implementation', ticket, []), false);
+  assert.equal(isAutoMergeCandidate('ticket/UX', ticket, [{ filename: ticket }, ...code]), false);
+  assert.equal(isAutoMergeCandidate('ticket/UX', ticket, [{ filename: ticket }, { filename: 'design/page/auth.html' }]), true);
+});
+
+test('implementation auto-merge requires successful code-check steps from that run', () => {
+  const names = [
+    'Install implementation dependencies',
+    'Test implementation',
+    'Typecheck implementation',
+    'Check implementation formatting',
+    'Build implementation',
+  ];
+  const steps = names.map((name) => ({ name, conclusion: 'success' }));
+  assert.equal(hasPassedImplementationChecks([{ name: 'check', steps }]), true);
+  assert.equal(hasPassedImplementationChecks([{ name: 'check', steps: steps.map((step) => step.name === 'Test implementation' ? { ...step, conclusion: 'skipped' } : step) }]), false);
+  assert.equal(hasPassedImplementationChecks([{ name: 'other', steps }]), false);
 });
