@@ -11,6 +11,11 @@ export interface Policy {
   id: string;
   customerId: string;
   label: string;
+  status: 'ACTIVE' | 'EXPIRED';
+  effectiveDate: string;
+  expiryDate: string;
+  paymentFrequency: 'MONTHLY' | 'ANNUAL';
+  beneficiaries: { name: string; allocationPercent: number }[];
 }
 
 const seed = (
@@ -38,9 +43,36 @@ export const policies: Policy[] = [
   {
     id: 'POL-NARIN-001',
     customerId: 'CUS-001',
-    label: 'Narin synthetic policy',
+    label: 'Family Protection Plan',
+    status: 'ACTIVE',
+    effectiveDate: '2025-01-01',
+    expiryDate: '2035-12-31',
+    paymentFrequency: 'MONTHLY',
+    beneficiaries: [
+      { name: 'Arisa K.', allocationPercent: 60 },
+      { name: 'Decha K.', allocationPercent: 40 },
+    ],
   },
-  { id: 'POL-MALI-001', customerId: 'CUS-002', label: 'Mali synthetic policy' },
+  {
+    id: 'POL-MALI-001',
+    customerId: 'CUS-002',
+    label: 'Secure Future Plan',
+    status: 'ACTIVE',
+    effectiveDate: '2024-06-01',
+    expiryDate: '2034-05-31',
+    paymentFrequency: 'ANNUAL',
+    beneficiaries: [{ name: 'Pim S.', allocationPercent: 100 }],
+  },
+  {
+    id: 'POL-NARIN-002',
+    customerId: 'CUS-001',
+    label: 'Classic Life Plan',
+    status: 'EXPIRED',
+    effectiveDate: '2015-01-01',
+    expiryDate: '2025-01-01',
+    paymentFrequency: 'ANNUAL',
+    beneficiaries: [{ name: 'Arisa K.', allocationPercent: 100 }],
+  },
 ];
 
 export function authenticate(

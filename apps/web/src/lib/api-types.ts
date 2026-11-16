@@ -187,6 +187,7 @@ export interface paths {
               policies: {
                 id: string;
                 label: string;
+                status: 'ACTIVE' | 'EXPIRED';
               }[];
             };
           };
@@ -240,6 +241,16 @@ export interface paths {
               policy: {
                 id: string;
                 label: string;
+                status: 'ACTIVE' | 'EXPIRED';
+                /** Format: date */
+                effectiveDate: string;
+                /** Format: date */
+                expiryDate: string;
+                paymentFrequency: 'MONTHLY' | 'ANNUAL';
+                beneficiaries: {
+                  name: string;
+                  allocationPercent: number;
+                }[];
               };
             };
           };

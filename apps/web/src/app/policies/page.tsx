@@ -1,6 +1,7 @@
 import { SessionGate } from '../../auth/SessionGate';
 import { SignOutButton } from '../../auth/SignOutButton';
 import { PolicyList } from '../../policies/PolicyList';
+import { FocusHeading } from '../../policies/FocusHeading';
 
 export default function PoliciesPage() {
   return (
@@ -15,9 +16,13 @@ export default function PoliciesPage() {
       </header>
       <main className="policy-shell">
         <p className="auth-kicker">Customer access / Policies</p>
-        <h1>Your linked policies</h1>
-        <p>Only synthetic policies linked to your account appear here.</p>
+        <FocusHeading>Your policies</FocusHeading>
+        <p>Select a policy to review its current details.</p>
         <PolicyList />
+        <p className="policy-note">
+          Synthetic policy data for this prototype. Viewing a policy does not
+          change coverage.
+        </p>
       </main>
     </SessionGate>
   );

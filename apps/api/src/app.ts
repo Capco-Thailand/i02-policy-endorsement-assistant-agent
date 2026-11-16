@@ -13,7 +13,23 @@ const ActorSchema = Type.Object({
   accountId: Type.String(),
   name: Type.String(),
 });
-const PolicySchema = Type.Object({ id: Type.String(), label: Type.String() });
+const PolicySchema = Type.Object({
+  id: Type.String(),
+  label: Type.String(),
+  status: Type.Union([Type.Literal('ACTIVE'), Type.Literal('EXPIRED')]),
+});
+const PolicyDetailSchema = Type.Object({
+  ...PolicySchema.properties,
+  effectiveDate: Type.String({ format: 'date' }),
+  expiryDate: Type.String({ format: 'date' }),
+  paymentFrequency: Type.Union([
+    Type.Literal('MONTHLY'),
+    Type.Literal('ANNUAL'),
+  ]),
+  beneficiaries: Type.Array(
+    Type.Object({ name: Type.String(), allocationPercent: Type.Number() }),
+  ),
+});
 const SignInBody = Type.Object(
   {
     accountId: Type.String({ minLength: 1 }),
@@ -146,7 +162,7 @@ export async function buildApp(options: AppOptions = {}) {
       return {
         policies: policies
           .filter((policy) => ownsPolicy(actor, policy))
-          .map(({ id, label }) => ({ id, label })),
+          .map(({ id, label, status }) => ({ id, label, status })),
       };
     },
   );
@@ -156,7 +172,7 @@ export async function buildApp(options: AppOptions = {}) {
       schema: {
         params: PolicyParams,
         response: {
-          200: Type.Object({ policy: PolicySchema }),
+          200: Type.Object({ policy: PolicyDetailSchema }),
           401: ErrorSchema,
           404: ErrorSchema,
         },
@@ -171,7 +187,17 @@ export async function buildApp(options: AppOptions = {}) {
       if (!ownsPolicy(actor, policy))
         return reply.code(404).send({ error: 'NOT_FOUND' });
       record(actor.id, 'policy-read');
-      return { policy: { id: policy.id, label: policy.label } };
+      return {
+        policy: {
+          id: policy.id,
+          label: policy.label,
+          status: policy.status,
+          effectiveDate: policy.effectiveDate,
+          expiryDate: policy.expiryDate,
+          paymentFrequency: policy.paymentFrequency,
+          beneficiaries: policy.beneficiaries,
+        },
+      };
     },
   );
   app.get('/openapi.json', { schema: { hide: true } }, async () =>

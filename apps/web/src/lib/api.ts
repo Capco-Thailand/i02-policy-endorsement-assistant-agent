@@ -4,6 +4,8 @@ export type Actor =
   paths['/api/auth/session']['get']['responses'][200]['content']['application/json']['actor'];
 export type Policy =
   paths['/api/policies']['get']['responses'][200]['content']['application/json']['policies'][number];
+export type PolicyDetail =
+  paths['/api/policies/{policyId}']['get']['responses'][200]['content']['application/json']['policy'];
 type SignInBody =
   paths['/api/auth/sign-in']['post']['requestBody']['content']['application/json'];
 type SignInResult =
@@ -12,6 +14,8 @@ type SessionResult =
   paths['/api/auth/session']['get']['responses'][200]['content']['application/json'];
 type PoliciesResult =
   paths['/api/policies']['get']['responses'][200]['content']['application/json'];
+type PolicyResult =
+  paths['/api/policies/{policyId}']['get']['responses'][200]['content']['application/json'];
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -28,6 +32,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       throw new Error(
         path === '/api/auth/sign-in' ? 'INVALID_CREDENTIALS' : 'UNAUTHORIZED',
       );
+    if (response.status === 404) throw new Error('NOT_FOUND');
     throw new Error('API_UNAVAILABLE');
   }
   if (response.status === 204) return undefined as T;
@@ -42,3 +47,5 @@ export const getSession = () => request<SessionResult>('/api/auth/session');
 export const signOut = () =>
   request<void>('/api/auth/sign-out', { method: 'POST' });
 export const getPolicies = () => request<PoliciesResult>('/api/policies');
+export const getPolicy = (policyId: string) =>
+  request<PolicyResult>(`/api/policies/${encodeURIComponent(policyId)}`);

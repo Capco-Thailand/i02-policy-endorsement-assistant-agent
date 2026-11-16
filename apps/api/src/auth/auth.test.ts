@@ -35,7 +35,7 @@ describe('FR-01 customer authentication', () => {
     expect(policies.statusCode).toBe(200);
     expect(
       policies.json().policies.map((policy: { id: string }) => policy.id),
-    ).toEqual(['POL-NARIN-001']);
+    ).toEqual(['POL-NARIN-001', 'POL-NARIN-002']);
     const mali = await signIn(app, 'mali', 'MaliDemo123!');
     const maliPolicies = await app.inject({
       method: 'GET',
@@ -175,6 +175,156 @@ describe('FR-01 customer authentication', () => {
     ]);
     expect(JSON.stringify(audit)).not.toContain('NarinDemo123!');
     expect(JSON.stringify(audit)).not.toContain('pea_session');
+    await app.close();
+  });
+});
+
+describe('FR-03 policy access', () => {
+  it('returns status in the owned list and complete facts in linked details', async () => {
+    const app = await buildApp();
+    const { cookie } = await signIn(app, 'narin', 'NarinDemo123!');
+    const list = await app.inject({
+      method: 'GET',
+      url: '/api/policies',
+      headers: { cookie },
+    });
+    expect(list.json().policies).toEqual([
+      {
+        id: 'POL-NARIN-001',
+        label: 'Family Protection Plan',
+        status: 'ACTIVE',
+      },
+      { id: 'POL-NARIN-002', label: 'Classic Life Plan', status: 'EXPIRED' },
+    ]);
+    const active = await app.inject({
+      method: 'GET',
+      url: '/api/policies/POL-NARIN-001',
+      headers: { cookie },
+    });
+    expect(active.json().policy).toEqual({
+      id: 'POL-NARIN-001',
+      label: 'Family Protection Plan',
+      status: 'ACTIVE',
+      effectiveDate: '2025-01-01',
+      expiryDate: '2035-12-31',
+      paymentFrequency: 'MONTHLY',
+      beneficiaries: [
+        { name: 'Arisa K.', allocationPercent: 60 },
+        { name: 'Decha K.', allocationPercent: 40 },
+      ],
+    });
+    const expired = await app.inject({
+      method: 'GET',
+      url: '/api/policies/POL-NARIN-002',
+      headers: { cookie },
+    });
+    expect(expired.json().policy).toMatchObject({
+      status: 'EXPIRED',
+      paymentFrequency: 'ANNUAL',
+    });
+    const mali = await signIn(app, 'mali', 'MaliDemo123!');
+    const maliList = await app.inject({
+      method: 'GET',
+      url: '/api/policies',
+      headers: { cookie: mali.cookie },
+    });
+    expect(maliList.json().policies).toEqual([
+      { id: 'POL-MALI-001', label: 'Secure Future Plan', status: 'ACTIVE' },
+    ]);
+    const maliDetail = await app.inject({
+      method: 'GET',
+      url: '/api/policies/POL-MALI-001',
+      headers: { cookie: mali.cookie },
+    });
+    expect(maliDetail.json().policy).toEqual({
+      id: 'POL-MALI-001',
+      label: 'Secure Future Plan',
+      status: 'ACTIVE',
+      effectiveDate: '2024-06-01',
+      expiryDate: '2034-05-31',
+      paymentFrequency: 'ANNUAL',
+      beneficiaries: [{ name: 'Pim S.', allocationPercent: 100 }],
+    });
+    await app.close();
+  });
+
+  it('hides unowned facts and rejects missing, invalid, expired, and signed-out sessions', async () => {
+    let time = 0;
+    const app = await buildApp({ now: () => time });
+    const { cookie } = await signIn(app, 'narin', 'NarinDemo123!');
+    const cross = await app.inject({
+      method: 'GET',
+      url: '/api/policies/POL-MALI-001?customerId=CUS-002&role=admin',
+      headers: { cookie, 'x-customer-id': 'CUS-002' },
+    });
+    const unknown = await app.inject({
+      method: 'GET',
+      url: '/api/policies/UNKNOWN',
+      headers: { cookie },
+    });
+    expect(cross.statusCode).toBe(404);
+    expect(cross.body).toBe(unknown.body);
+    expect(cross.body).not.toContain('Pim S.');
+    for (const headers of [undefined, { cookie: 'pea_session=forged' }]) {
+      for (const url of ['/api/policies', '/api/policies/POL-NARIN-001']) {
+        const result = await app.inject({ method: 'GET', url, headers });
+        expect(result.statusCode).toBe(401);
+        expect(result.body).toBe('{"error":"UNAUTHORIZED"}');
+      }
+    }
+    time = 30 * 60 * 1000;
+    expect(
+      (
+        await app.inject({
+          method: 'GET',
+          url: '/api/policies/POL-NARIN-001',
+          headers: { cookie },
+        })
+      ).statusCode,
+    ).toBe(401);
+    const next = await signIn(app, 'narin', 'NarinDemo123!');
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/api/auth/sign-out',
+          headers: { cookie: next.cookie },
+        })
+      ).statusCode,
+    ).toBe(204);
+    expect(
+      (
+        await app.inject({
+          method: 'GET',
+          url: '/api/policies/POL-NARIN-001',
+          headers: { cookie: next.cookie },
+        })
+      ).statusCode,
+    ).toBe(401);
+    await app.close();
+  });
+
+  it('reads policies without creating a request or changing policy facts', async () => {
+    const audit: { actorId: string; action: string; at: number }[] = [];
+    const app = await buildApp({ audit });
+    const { cookie } = await signIn(app, 'narin', 'NarinDemo123!');
+    const before = JSON.stringify(policies);
+    await app.inject({
+      method: 'GET',
+      url: '/api/policies',
+      headers: { cookie },
+    });
+    await app.inject({
+      method: 'GET',
+      url: '/api/policies/POL-NARIN-001',
+      headers: { cookie },
+    });
+    expect(JSON.stringify(policies)).toBe(before);
+    expect(audit.map(({ action }) => action)).toEqual([
+      'sign-in',
+      'policies-list',
+      'policy-read',
+    ]);
     await app.close();
   });
 });

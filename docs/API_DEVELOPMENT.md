@@ -1,6 +1,6 @@
 # API development
 
-FR-01 runs a Fastify API on `http://localhost:3000` and a Next.js web app on `http://localhost:3001`. All accounts and policies are synthetic. No route changes coverage or connects to an insurer.
+FR-01 and FR-03 run a Fastify API on `http://localhost:3000` and a Next.js web app on `http://localhost:3001`. All accounts and policies are synthetic. Policy reads do not change coverage or connect to an insurer.
 
 ## Start
 
@@ -10,7 +10,7 @@ Demo accounts:
 
 | Account ID | Password | Linked policy |
 | --- | --- | --- |
-| `narin` | `NarinDemo123!` | `POL-NARIN-001` |
+| `narin` | `NarinDemo123!` | `POL-NARIN-001`, `POL-NARIN-002` |
 | `mali` | `MaliDemo123!` | `POL-MALI-001` |
 
 Passwords are hashed with scrypt in process memory. Sessions are random 32-byte tokens stored in the API process and expire after 30 minutes. Restarting the API invalidates every session. The `pea_session` cookie is HttpOnly, SameSite=Lax, scoped to `/api`, and uses Secure when `NODE_ENV=production`. Local HTTP development does not use Secure. Do not deploy this demo account setup as production authentication.
@@ -24,10 +24,12 @@ Passwords are hashed with scrypt in process memory. Sessions are random 32-byte 
 | `POST /api/auth/sign-in` | `{ "accountId": string, "password": string }` | `200 { "actor": { "id", "accountId", "name" }, "expiresAt": number }` and session cookie | `401 { "error": "UNAUTHORIZED" }` for invalid credentials |
 | `GET /api/auth/session` | Session cookie | `200` with actor and Unix expiry time in milliseconds | `401 { "error": "UNAUTHORIZED" }` |
 | `POST /api/auth/sign-out` | Session cookie | `204`, cookie cleared | `401 { "error": "UNAUTHORIZED" }` |
-| `GET /api/policies` | Session cookie | `200 { "policies": [{ "id", "label" }] }` for linked policies | `401 { "error": "UNAUTHORIZED" }` |
-| `GET /api/policies/:policyId` | Session cookie | `200 { "policy": { "id", "label" } }` | `401` for session failure; identical `404 { "error": "NOT_FOUND" }` for unknown and unowned IDs |
+| `GET /api/policies` | Session cookie | `200 { "policies": [{ "id", "label", "status" }] }` for linked policies | `401 { "error": "UNAUTHORIZED" }` |
+| `GET /api/policies/:policyId` | Session cookie | `200 { "policy": { "id", "label", "status", "effectiveDate", "expiryDate", "paymentFrequency", "beneficiaries" } }` | `401` for session failure; identical `404 { "error": "NOT_FOUND" }` for unknown and unowned IDs |
 
 All protected routes derive the actor from the validated session. Client identity or role fields have no authority. Authenticated actions create actor/action/time audit records without credentials or session tokens. The reusable `mayDecideProposal` guard checks the proposal actor and linked policy; FR-11 must call it from its decision endpoint. That route does not exist in FR-01.
+
+Policy `status` is `ACTIVE` or `EXPIRED`. Dates are ISO calendar dates (`YYYY-MM-DD`); `paymentFrequency` is `MONTHLY` or `ANNUAL`; each beneficiary has `name` and numeric `allocationPercent`. Narin's second policy is expired; Mali's distinct policy is active. The web app presents status and facts as read-only data and offers no endorsement action in FR-03.
 
 ## Checks
 

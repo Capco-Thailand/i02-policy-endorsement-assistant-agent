@@ -1,9 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getPolicies, getSession, signIn, signOut } from './api';
+import { getPolicies, getPolicy, getSession, signIn, signOut } from './api';
 
 export const queryKeys = {
   session: ['session'],
   policies: ['policies'],
+  policy: (policyId: string) => ['policies', policyId],
 } as const;
 export const useSession = () =>
   useQuery({ queryKey: queryKeys.session, queryFn: getSession, retry: false });
@@ -11,6 +12,12 @@ export const usePolicies = () =>
   useQuery({
     queryKey: queryKeys.policies,
     queryFn: getPolicies,
+    retry: false,
+  });
+export const usePolicy = (policyId: string) =>
+  useQuery({
+    queryKey: queryKeys.policy(policyId),
+    queryFn: () => getPolicy(policyId),
     retry: false,
   });
 export const useSignIn = () =>
