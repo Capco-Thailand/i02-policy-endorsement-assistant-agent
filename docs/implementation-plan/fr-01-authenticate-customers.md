@@ -3,14 +3,14 @@ title: FR-01 customer authentication
 type: feature
 ticket: fr-01-authenticate-customers
 created: '2026-11-16'
-status: draft
+status: built
 baseline_revision: d5ac6d9cd5037b815dbaa49c3618e8054434637c
 route: full
 route_source: auto
 risk: high
-review: thorough
-review_source: auto
-lenses_ran: []
+review: quick
+review_source: pinned
+lenses_ran: [quick]
 review_loop_iteration: 0
 context:
   - docs/tickets/fr-01-authenticate-customers.md
@@ -73,22 +73,42 @@ Use in-memory server sessions for this single-process synthetic prototype; resta
 
 ## Plan Change Log
 - 2026-11-16: Initial draft from merged ticket, Issue #51, ADR, and UX handoff.
+- 2026-11-16: User approved the plan and authorized implementation.
 
 ## Review Triage Log
-Pending implementation review.
+- High, patch, fixed — `apps/web/src/lib/api.ts`: JSON Content-Type on an empty sign-out POST made Fastify return 400 before invalidation. The client now omits it; client test and direct API sign-out/reuse check pass.
+- Medium, patch, fixed — `apps/api/src/auth/data.ts`: unknown account IDs skipped scrypt. Both paths now hash and compare; `data.test.ts` passes.
+- Medium, patch, fixed — `apps/web/src/auth/SignInForm.tsx`: missing fields lacked linked errors. Both fields now show associated text and focus; component test passes.
 
 ## Design Notes
 The sign-in form, protected route gate, and compact policy list are separate components because they own different interaction states. Use `design/global.css` and the reviewed sign-in mockup for visual decisions; keep public sign-in free of policy details.
 
 ## Verification
 **Commands:**
-- `npm run test -w @pea/api` — Fastify auth, ownership, audit, and schema tests pass, with red/green evidence recorded.
-- `npm run test -w @pea/web` — UI auth and protected-state tests pass, with red/green evidence recorded.
-- `npm run typecheck` — both workspaces typecheck.
-- `npm run format:check` — in-scope source passes Prettier.
-- `npm run build` — API and Next.js build.
-- `npm run ticket:preflight -- docs/tickets/fr-01-authenticate-customers.md` — active Issue and handoff remain valid.
+- `npm test` — API injection and web component tests.
+- `npm run typecheck` — both workspaces.
+- `npm run build` — Next.js production build; API TypeScript is checked with `tsc --noEmit`.
+- `npm run format:check` — in-scope code passes Prettier.
+
+**Red/green evidence:**
+- API seeded sign-in: `npm run test -w apps/api` failed because the app boundary was absent, then passed after the Fastify route and session implementation.
+- UI credential error, protected gate, and sign-out: `npm run test -w apps/web` failed on each missing component before its implementation, then passed after each slice.
+- API expiry timestamp: `npm run test -w apps/api -- -t 'publishes the server expiry'` failed with `expected undefined to be 1801000`, then passed after the response schema and session change.
+- UI expiry clearing: `npm run test -w apps/web -- -t 'server expiry time'` failed with cached policy data still present, then passed after the timer-based gate change.
+- Review fixes: bodyless sign-out header, unknown-account hashing, and missing-field errors each failed focused tests before the correction and passed afterward.
+
+**Traceability:**
+
+| FR-01 criterion | Evidence and layer | Expected result | Status / gap |
+| --- | --- | --- | --- |
+| Seeded accounts and distinct policies | `apps/api/src/auth/auth.test.ts`, API injection: seeded sign-in and linked policy | Only actor's policy returned | Passed for Narin and Mali. Browser integration not run. |
+| Invalid, missing, expired, signed-out sessions | `apps/api/src/auth/auth.test.ts`, API injection: rejection and invalidation cases; `apps/web/src/lib/api.test.ts` client request | `401` and no policy data; bodyless sign-out reaches API | Passed. Direct API sign-out returned `204`, reuse `401`. |
+| Forged identity and policy isolation | `apps/api/src/auth/auth.test.ts`, API injection: spoofed actor and unknown/unowned IDs | Same `404`, no details | Passed for policy detail. Future actions remain with their owning tickets. |
+| UI sign-out and expiry | `apps/web/src/auth/SessionGate.test.tsx`, `SignOutButton.test.tsx`, component/API mock | Cache cleared and sign-in navigation | Passed at component boundary; browser integration not run. |
+| Generic credentials and field errors | `apps/api/src/auth/data.test.ts`, `apps/web/src/auth/SignInForm.test.tsx` | Unknown account follows hashing path; missing fields show linked errors | Passed. |
+| Proposal decision owner guard | `apps/api/src/auth/auth.test.ts`, guard test | Owner allowed, non-owner blocked | Guard passed; FR-11 owns endpoint wiring and integration test. |
+| Actor/action audit without secrets | `apps/api/src/auth/auth.test.ts`, API injection | Actor and action, no credentials/token | Passed. |
 
 **Manual checks:**
-- Compare desktop and narrow sign-in states with the UX contracts and browser mockup; keyboard and screen-reader error behavior remain usable.
+- Desktop and narrow browser visual comparison could not run: no browser was available in this environment. UI component checks cover field association and focus, but do not prove rendered layout or full screen-reader behavior.
 - Verify FR-11 proposal endpoint is absent and record its integration coverage as deferred, not passed.
