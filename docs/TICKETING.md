@@ -10,7 +10,7 @@ The local Markdown ticket is the single source of truth for build requirements, 
 
 GitHub Issues and PRs labeled `LEGACY` are retired history. The existing misspelled label `LAGECY` has the same meaning until renamed. Exclude either label from duplicate-ticket lookup, current handoff or implementation evidence, and readiness decisions; use such records only for historical context. A new ticket may reuse the FR ID but must link an active Issue and PR.
 
-When work is selected, refine its backlog file into testable requirements and move it to `docs/tickets/fr-<feature-id>-<slug>.md` without changing its FR ID. Put `**GitHub Issue:** Pending ticket/UX PR merge` in the ticket. Before implementation, the ticket must identify dependencies, applicable UX/architecture references, acceptance criteria, and the synthetic-data and human-review boundaries it touches.
+When work is selected, generate the detailed ticket from the backlog draft and repository Markdown/files, then move it to `docs/tickets/fr-<feature-id>-<slug>.md` without changing its FR ID. Do not ask the user questions or wait for answers. Resolve details from the PRD, ADR, backlog, existing tickets/design files, standards, and repository state. For gaps or conflicts, make a conservative, scope-consistent assumption and record the assumption, source, and date under `Accepted decisions and readiness`; never invent product commitments or broaden scope. Mark genuine external dependencies as blockers and continue independent work. Put `**GitHub Issue:** Pending ticket/UX PR merge` in a new ticket. Before implementation, the ticket must identify dependencies, applicable UX/architecture references, acceptance criteria, and the synthetic-data and human-review boundaries it touches.
 
 To reset a workflow test, preview `npm run ticket:reset -- FR-01 FR-02`, then add `--apply` to move selected tickets back to backlog, clear ticket metadata and UX references, remove linked design files and matching implementation plans, update document links, and clear standalone FR status lines from this guide. Empty plan directories, including the old `doc/implementation-plan/`, are pruned. Add `--close-issues` only when the linked GitHub Issues should also be closed. The reset preserves requirements and accepted decisions. Review the printed file list before applying; the command does not delete unrelated files.
 
@@ -25,12 +25,13 @@ In the same PR as a behavior change, update the local ticket for ticket-level sc
 
 ## Ticket creation flow
 
-1. Move the backlog draft to a numbered local ticket; refine scope, dependencies, open questions, and testable acceptance criteria.
-2. For UI work, complete and verify `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable HTML mockups. Add their paths to the local ticket.
-3. Commit the ticket and UX handoff on a task branch. Open one PR with `Issue: Pending` and `Type: ticket/UX`; after validation, auto-merge waits for required reviews.
-4. After the merge, run `npm run ticket:create -- docs/tickets/<file>.md` to create or reuse the GitHub Issue and link the merged ticket. Review the Issue and any link PR before implementation.
+1. Inspect the backlog draft, PRD, ADR, applicable standards, related tickets, UX/design files, and repository state. Derive requirements and decisions from those sources; do not ask interactive questions.
+2. Generate the local ticket from `TICKET_TEMPLATE.md` with testable acceptance criteria, dependencies, scope, safety boundaries, and source-backed assumptions. Preserve the FR ID and link all relevant references.
+3. For UI work, derive or update `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable HTML mockups from the available requirements and design files. Verify the artifacts and add their paths to the ticket.
+4. Validate that referenced files exist, criteria are observable, and the ticket/design agree. Commit the ticket and UX handoff on a task branch, then open one ready-for-review PR with `Issue: Pending` and `Type: ticket/UX`; after validation, auto-merge waits for required reviews.
+5. After merge, run `npm run ticket:create -- docs/tickets/<file>.md` to create or reuse the GitHub Issue and link the merged ticket.
 
-Implementation starts after the reviewed ticket and UX handoff are ready, the Issue exists, and the reciprocal link is on the default branch; `bmad-build` follows those approved requirements as a separate delivery flow.
+Ticket and UX preparation proceeds without user Q&A. Human review remains at the PR and acceptance gates: automation must not approve a PR or mark work accepted/Done. Implementation starts after the reviewed ticket and UX handoff are ready, the Issue exists, and the reciprocal link is on the default branch; `bmad-build` follows those approved requirements as a separate delivery flow.
 
 ## Automated implementation planning
 
