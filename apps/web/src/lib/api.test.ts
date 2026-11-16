@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { signOut } from './api';
+import { getPolicy, signOut } from './api';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -13,5 +13,20 @@ describe('FR-01 API client', () => {
     expect(init.method).toBe('POST');
     expect(init.credentials).toBe('include');
     expect(new Headers(init.headers).has('content-type')).toBe(false);
+  });
+});
+
+describe('FR-03 policy detail client', () => {
+  it('keeps an unavailable policy distinct from a service failure', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, status: 404 }),
+    );
+    await expect(getPolicy('UNKNOWN')).rejects.toThrow('NOT_FOUND');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, status: 503 }),
+    );
+    await expect(getPolicy('POL-NARIN-001')).rejects.toThrow('API_UNAVAILABLE');
   });
 });
