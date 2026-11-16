@@ -32,6 +32,10 @@ In the same PR as a behavior change, update the local ticket for ticket-level sc
 
 Implementation starts after the reviewed ticket and UX handoff are ready, the Issue exists, and the reciprocal link is on the default branch; `bmad-build` follows those approved requirements as a separate delivery flow.
 
+## End-to-end feature delivery
+
+`bmad do fr-<number>` keeps the existing ticket/UX PR merge and Issue creation flow. Once the Issue and linked ticket exist on the default branch, follow `.agents/skills/bmad/references/do-feature.md`: read the ticket and Issue, run `ticket:preflight`, create or reuse `implement/fr-<number>-<slug>`, prepare an implementation plan from `.agents/skills/bmad-build/plan-template.md`, and run `bmad-build` from that plan. After verification, commit, push, and open one ready-for-review implementation PR. `.agents/skills/vercel-react-view-transitions/references/implementation.md` applies only to View Transitions work. Human acceptance and Done remain human-owned.
+
 ## Automated implementation planning
 
 After a merged story ticket creates or reuses its Issue, that Issue receives `role:dev` alongside `type:story`. Run `npm run plan:issues` to prepare draft plans for eligible open Issues, or pass an Issue number to plan one. The command excludes `LEGACY` and `LAGECY`, requires the Issue's `ticket-path` marker and local ticket, and runs `ticket:preflight` before each plan. Existing plan files are skipped so a rerun does not overwrite human edits. A preflight failure stops the run; resolve the ticket state before retrying.
