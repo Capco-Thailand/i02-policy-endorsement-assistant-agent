@@ -287,6 +287,171 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/policies/{policyId}/requests': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          policyId: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json':
+            | {
+                /** @enum {string} */
+                changeType: 'BENEFICIARY';
+                requestedEffectiveDate: string;
+                beneficiaries: {
+                  name: string;
+                  allocationPercent: number;
+                }[];
+              }
+            | {
+                /** @enum {string} */
+                changeType: 'ADDRESS';
+                requestedEffectiveDate: string;
+                correspondenceAddress: string;
+              }
+            | {
+                /** @enum {string} */
+                changeType: 'PAYMENT_FREQUENCY';
+                requestedEffectiveDate: string;
+                paymentFrequency:
+                  | 'MONTHLY'
+                  | 'QUARTERLY'
+                  | 'SEMI_ANNUAL'
+                  | 'ANNUAL';
+              }
+            | {
+                /** @enum {string} */
+                changeType: 'ACCIDENTAL_DEATH_RIDER';
+                requestedEffectiveDate: string;
+                riderAction: 'ADD' | 'REMOVE';
+              };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              request:
+                | {
+                    /** @enum {string} */
+                    changeType: 'BENEFICIARY';
+                    requestedEffectiveDate: string;
+                    beneficiaries: {
+                      name: string;
+                      allocationPercent: number;
+                    }[];
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    changeType: 'ADDRESS';
+                    requestedEffectiveDate: string;
+                    correspondenceAddress: string;
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    changeType: 'PAYMENT_FREQUENCY';
+                    requestedEffectiveDate: string;
+                    paymentFrequency:
+                      | 'MONTHLY'
+                      | 'QUARTERLY'
+                      | 'SEMI_ANNUAL'
+                      | 'ANNUAL';
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    changeType: 'ACCIDENTAL_DEATH_RIDER';
+                    requestedEffectiveDate: string;
+                    riderAction: 'ADD' | 'REMOVE';
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  };
+            };
+          };
+        };
+        /** @description Default Response */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {

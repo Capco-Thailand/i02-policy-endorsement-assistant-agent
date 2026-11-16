@@ -1,5 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getPolicies, getPolicy, getSession, signIn, signOut } from './api';
+import type { RequestBody } from './api';
+import {
+  createRequest,
+  getPolicies,
+  getPolicy,
+  getSession,
+  signIn,
+  signOut,
+} from './api';
 
 export const queryKeys = {
   session: ['session'],
@@ -31,3 +39,8 @@ export const useSignIn = () =>
     }) => signIn(accountId, password),
   });
 export const useSignOut = () => useMutation({ mutationFn: signOut });
+
+export const useCreateRequest = (policyId: string) =>
+  useMutation({
+    mutationFn: (body: RequestBody) => createRequest(policyId, body),
+  });

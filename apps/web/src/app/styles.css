@@ -59,7 +59,10 @@ input {
   font: inherit;
 }
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex='-1']:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
@@ -483,5 +486,85 @@ input:focus-visible {
   }
   html {
     @apply font-sans;
+  }
+}
+
+.request-action,
+.request-panel button[type='submit'] {
+  display: inline-block;
+  margin: 22px 0;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--accent);
+  color: white;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+}
+.request-panel {
+  display: grid;
+  gap: 18px;
+  max-width: 720px;
+  margin-top: 30px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.request-panel label {
+  font-weight: 650;
+}
+.request-panel input,
+.request-panel select,
+.request-panel textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--input);
+  border-radius: 6px;
+  background: white;
+  color: var(--ink);
+}
+.request-panel textarea {
+  min-height: 100px;
+}
+.request-panel fieldset {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.request-panel fieldset label {
+  display: grid;
+  gap: 6px;
+}
+.beneficiary-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin: 14px 0;
+}
+.request-panel button:not([type='submit']) {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+.request-panel button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.request-error {
+  color: var(--error);
+  font-weight: 650;
+}
+@media (max-width: 600px) {
+  .request-panel {
+    padding: 18px;
+  }
+  .beneficiary-row {
+    grid-template-columns: 1fr;
   }
 }
