@@ -6,7 +6,7 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 |---:|---|---|---|
 | 1 | FR-01 Authenticate Customers | [Ticket](../tickets/fr-01-authenticate-customers.md) | Ticket/UX handoff in review; implementation waits for Issue |
 | 2 | FR-03 Check Policy Access | [Draft](fr-03-check-policy-access.md) | Backlog; historical GitHub #3 closed |
-| 3 | FR-02 Create Endorsement Request | [Draft](fr-02-create-endorsement-request.md) | Backlog; fresh UX handoff needed; depends on FR-01 and FR-03 |
+| 3 | FR-02 Create Endorsement Request | [Ticket](../tickets/fr-02-create-endorsement-request.md) | Ticket/UX handoff in review; implementation depends on FR-01 and FR-03 |
 | 4 | FR-04 Retrieve Policy Details with RAG | [Draft](fr-04-retrieve-policy-details-with-rag.md) | Backlog |
 | 5 | FR-05 Retrieve Endorsement Rules with RAG | [Draft](fr-05-retrieve-endorsement-rules-with-rag.md) | Backlog |
 | 6 | FR-06 Verify Customer Identity | [Draft](fr-06-verify-customer-identity-mock-ekyc.md) | Backlog |
