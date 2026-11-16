@@ -105,9 +105,11 @@ test('implementation auto-merge requires successful code-check steps from that r
     'Typecheck implementation',
     'Check implementation formatting',
     'Build implementation',
+    'Test browser E2E',
   ];
   const steps = names.map((name) => ({ name, conclusion: 'success' }));
   assert.equal(hasPassedImplementationChecks([{ name: 'check', steps }]), true);
   assert.equal(hasPassedImplementationChecks([{ name: 'check', steps: steps.map((step) => step.name === 'Test implementation' ? { ...step, conclusion: 'skipped' } : step) }]), false);
+  assert.equal(hasPassedImplementationChecks([{ name: 'check', steps: steps.map((step) => step.name === 'Test browser E2E' ? { ...step, conclusion: 'failure' } : step) }]), false);
   assert.equal(hasPassedImplementationChecks([{ name: 'other', steps }]), false);
 });

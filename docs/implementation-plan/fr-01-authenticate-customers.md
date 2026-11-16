@@ -72,6 +72,7 @@ context:
 Use in-memory server sessions for this single-process synthetic prototype; restart invalidates them. Hash seeded demo passwords. Cookie must be HttpOnly, SameSite, and scoped to the API; document local HTTP settings and production Secure behavior. The policy list is a minimal linked-policy landing surface; FR-03 owns full list/detail access and selection. Keep request and response schemas as the source for OpenAPI and frontend types.
 
 ## Plan Change Log
+- 2026-11-16: Browser follow-up: `npm run test:e2e` passed 17/17 Chromium scenarios twice; latest local HTML: `test-results/report-20261116135708/e2e-20261116135708.html`. `e2e/customer-flows.spec.ts` verifies both account sign-ins, invalid credentials, sign-out, and protected data removal; `e2e/api-boundaries.spec.ts` verifies missing/signed-out sessions and policy ownership. `e2e/visual.spec.ts` compares sign-in at desktop and 375px against reviewed macOS Chromium baselines. Remaining unverified: timed browser expiry, audit redaction in a running server, and FR-11 decision integration.
 - 2026-11-16: Initial draft from merged ticket, Issue #51, ADR, and UX handoff.
 - 2026-11-16: User approved the plan and authorized implementation.
 
