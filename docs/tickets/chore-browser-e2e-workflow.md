@@ -1,6 +1,6 @@
 # Chore — Browser E2E implementation gate
 **Title:** [Chore] Run and retain browser E2E for implementation PRs
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/64
 **Risk:** High — a passing component suite alone can miss broken customer journeys across the web and API.
 **Requirements owner:** This file.
 
