@@ -40,4 +40,17 @@ jobs:
       - name: Build implementation
         if: steps.ticket.outputs.implementation == 'true'
         run: npm run build
+      - name: Install Chromium
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Test browser E2E
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run test:e2e
+      - name: Upload E2E report
+        if: always() && steps.ticket.outputs.implementation == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-${{ github.run_id }}
+          path: test-results/
+          if-no-files-found: warn
 

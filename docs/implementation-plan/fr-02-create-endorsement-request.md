@@ -82,6 +82,8 @@ FR-02 acceptance traceability (AC1–AC6 follow the acceptance bullets above):
 | AC5 — expired policy | `request.test.ts` (API), `RequestForm.test.tsx` (component) | Direct API rejects with no write; initial and mid-form expiry remove request action; passed. | Browser direct URL. |
 | AC6 — no policy/coverage write | `request.test.ts` (API), route and UI inspection | Policy detail unchanged after capture; only request store/audit written; no quote, draft, approval, or binding route exists; passed. | Browser confirmation view and downstream integration. |
 
+Browser follow-up, 2026-11-16: `npm run test:e2e` passed 17/17 Chromium scenarios twice; latest local HTML: `test-results/report-20261116135708/e2e-20261116135708.html`. `e2e/customer-flows.spec.ts` covers active entry, all four submissions, pending confirmation, invalid allocation retained for correction, and expired direct URL. `e2e/api-boundaries.spec.ts` covers session and ownership rejections, malformed date, forged requester, unchanged policy facts, and server-recorded actor/ID/time. `e2e/visual.spec.ts` compares desktop and 375px request entry to reviewed macOS Chromium baselines. The CI artifact preserves each implementation PR run. Remaining: browser focus/keyboard error handling, session loss during submission, and downstream quote/draft checks when those features exist. These remain unverified.
+
 ## Plan Change Log
 
 ## Review Triage Log

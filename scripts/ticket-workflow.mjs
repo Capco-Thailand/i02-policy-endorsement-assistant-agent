@@ -133,6 +133,7 @@ function hasPassedImplementationChecks(jobs) {
     'Typecheck implementation',
     'Check implementation formatting',
     'Build implementation',
+    'Test browser E2E',
   ];
   return jobs.some((job) => job.name === 'check' && required.every((name) =>
     job.steps?.some((step) => step.name === name && step.conclusion === 'success')));
