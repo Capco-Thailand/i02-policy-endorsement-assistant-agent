@@ -1,12 +1,12 @@
 # FR-01 — Authenticate Customers
 
 **Title:** [Story] Authenticate customers with synthetic demo accounts
-**Labels:** `type:story`
-**GitHub Issue:** Not filed
+**Labels:** `type:story`, `role:dev`
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an authentication failure could expose another customer's policy or let someone approve their request.
-**State:** Backlog draft
+**State:** Selected for ticket/UX handoff
 **Requirements owner:** This file.
 
 ## Summary and objective
