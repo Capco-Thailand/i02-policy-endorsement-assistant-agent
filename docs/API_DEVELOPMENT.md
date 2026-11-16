@@ -34,7 +34,7 @@ Policy `status` is `ACTIVE` or `EXPIRED`. Dates are ISO calendar dates (`YYYY-MM
 
 ## Checks
 
-Run `npm test`, `npm run typecheck`, `npm run build -w apps/web`, and `npm run format:check`. API tests use Fastify injection. Web tests exercise components with simulated API responses. An automated browser run is not included in FR-01 implementation evidence.
+Run `npm test`, `npm run typecheck`, `npm run build -w apps/web`, and `npm run format:check`. API tests use Fastify injection. Web tests exercise components with simulated API responses. Browser coverage has not yet been run for FR-01 through FR-03.
 
 ## FR-02 request body
 Send exactly one change type with `requestedEffectiveDate` as a real `YYYY-MM-DD` calendar date. `BENEFICIARY` requires a complete `beneficiaries` replacement array with non-empty names, positive numeric `allocationPercent`, and a total of exactly 100. `ADDRESS` requires non-empty `correspondenceAddress`. `PAYMENT_FREQUENCY` requires `paymentFrequency` set to `MONTHLY`, `QUARTERLY`, `SEMI_ANNUAL`, or `ANNUAL`. `ACCIDENTAL_DEATH_RIDER` requires `riderAction` set to `ADD` or `REMOVE`. Other type fields and client identity claims are rejected. Responses contain only the selected change's data. Requests are held in application memory, separate from policy facts; restart clears them. Recording a request does not approve a change, quote, draft, or bind coverage.
