@@ -2,7 +2,7 @@
 
 Apply these rules to code and infrastructure changes. [PRD.md](PRD.md) defines product behavior; [TESTING_STANDARD.md](TESTING_STANDARD.md) defines test coverage.
 
-The repository currently has only the `apps/ai` npm workspace placeholder. The planned `apps/api` and `apps/web` workspaces will be recreated when implementation resumes. Install dependencies from the root with `npm ci` and keep one root `package-lock.json`. Add dependencies to the workspace that uses them. The AI workspace has no runtime until a concrete retrieval or data need exists.
+The repository has `apps/api` and `apps/web` npm workspaces plus the `apps/ai` placeholder. Install dependencies from the root with `npm ci` and keep one root `package-lock.json`. Add dependencies to the workspace that uses them. The AI workspace has no runtime until a concrete retrieval or data need exists.
 
 ## Implementation order
 
