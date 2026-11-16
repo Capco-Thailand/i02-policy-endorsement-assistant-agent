@@ -2,11 +2,11 @@
 
 **Title:** [Story] Create an endorsement request for a customer's policy
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/52
 **Feature ID:** FR-02
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a request against another customer's policy could disclose data or start an unauthorized workflow.
-**State:** Selected for ticket/UX handoff; implementation blocked by FR-01 and FR-03
+**State:** Selected; implementation depends on FR-01 and FR-03
 
 ## Summary and objective
 
@@ -67,7 +67,7 @@ None.
 - Request capture is separate from downstream eligibility, quote, and draft work. FR-03 policy access is required first.
 - 2026-11-13: Only `ACTIVE` policies may start or submit an endorsement request. `EXPIRED` policies cannot create a request, including through direct API calls.
 - 2026-11-13: Beneficiary requests replace the complete beneficiary list; the submitted allocations must total 100%.
-- Status: Ticket/UX handoff in review. FR-01 and FR-03 dependency verification is pending; do not start implementation until they are usable.
+- Status: Ticket/UX handoff merged. FR-01 and FR-03 dependency verification is pending; do not start implementation until they are usable.
 
 ## UX handoff references
 - [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-02/DESIGN.md)
