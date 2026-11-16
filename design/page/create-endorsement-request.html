@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Request a policy change | Policy Endorsement Assistant</title>
+  <link rel="stylesheet" href="../global.css">
+  <link rel="stylesheet" href="create-endorsement-request.css">
+  <script src="create-endorsement-request.js" defer></script>
+</head>
+<body>
+  <header class="site-header"><span class="brand-mark" aria-hidden="true">PE</span><span>Policy Endorsement Assistant<small>Synthetic customer prototype</small></span></header>
+  <main class="shell detail">
+    <a class="back" href="index.html">← Design mockups</a>
+    <p class="eyebrow">FR-02 / Endorsement request</p>
+    <h1 class="page-title">Request a policy change</h1>
+    <p class="intro">Record one change for your synthetic policy. The request remains pending checks.</p>
+    <section class="request-policy" aria-label="Selected policy"><div><strong>Life Protect Plus</strong><span>Policy POL-1001 · Synthetic example</span></div><span class="badge" id="policy-status">Active</span></section>
+    <div class="request-alert" id="expired" role="status" hidden><strong>This policy has expired.</strong><p>You can't request a change for it.</p></div>
+    <form id="request-form" novalidate>
+      <div id="error-summary" class="request-alert error" role="alert" tabindex="-1" hidden></div>
+      <fieldset class="request-types"><legend>What would you like to change?</legend>
+        <label><input type="radio" name="changeType" value="BENEFICIARY"> Beneficiaries</label>
+        <label><input type="radio" name="changeType" value="ADDRESS"> Correspondence address</label>
+        <label><input type="radio" name="changeType" value="FREQUENCY"> Payment frequency</label>
+        <label><input type="radio" name="changeType" value="RIDER"> Accidental-death rider</label>
+      </fieldset>
+      <div class="request-fields" data-type="BENEFICIARY" hidden><h2 tabindex="-1">Replacement beneficiaries</h2><p class="notice">Enter the complete new list. Allocations must total 100%.</p><div id="beneficiaries"><div class="beneficiary-row"><label>Name <input name="beneficiaryName" autocomplete="off"></label><label>Allocation % <input name="allocation" type="number" min="1" max="100" step="1" inputmode="numeric"></label><button type="button" class="remove-row">Remove</button></div></div><button type="button" id="add-beneficiary" class="secondary-button">Add beneficiary</button><p id="allocation-total" class="notice">Total allocation: 0%</p></div>
+      <div class="request-fields" data-type="ADDRESS" hidden><h2 tabindex="-1">Correspondence address</h2><label>New correspondence address <textarea name="address" rows="3"></textarea></label></div>
+      <div class="request-fields" data-type="FREQUENCY" hidden><h2 tabindex="-1">Payment frequency</h2><label>New frequency <select name="frequency"><option value="">Choose frequency</option><option value="MONTHLY">Monthly</option><option value="QUARTERLY">Quarterly</option><option value="SEMI_ANNUAL">Semi-annual</option><option value="ANNUAL">Annual</option></select></label></div>
+      <div class="request-fields" data-type="RIDER" hidden><h2 tabindex="-1">Accidental-death rider</h2><fieldset><legend>Requested action</legend><label><input type="radio" name="riderAction" value="ADD"> Add rider</label><label><input type="radio" name="riderAction" value="REMOVE"> Remove rider</label></fieldset></div>
+      <div class="request-date"><label for="effective-date">Requested effective date</label><input id="effective-date" name="effectiveDate" type="date" required><small>Choose a calendar date. Eligibility is checked later.</small></div>
+      <p class="sample-note">Submitting records a synthetic request only. It does not update a policy, create a quote or draft, or bind coverage.</p>
+      <button class="button" type="submit">Record request</button>
+    </form>
+    <section id="confirmation" class="request-alert success" tabindex="-1" aria-live="polite" hidden><h2>Request recorded</h2><p>Request <strong>REQ-DEMO-1001</strong> is pending checks. No policy change or coverage has been approved.</p></section>
+    <nav class="request-preview" aria-label="Mockup state previews"><button type="button" data-preview="active">Active policy</button><button type="button" data-preview="expired">Expired policy</button><button type="button" data-preview="recorded">Recorded request</button></nav>
+  </main>
+</body>
+</html>
