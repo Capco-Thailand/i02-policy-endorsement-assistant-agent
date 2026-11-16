@@ -16,4 +16,4 @@ Invoke `bmad-build` with the completed implementation plan and local ticket. Fol
 
 ## Open the implementation PR
 
-Inspect the complete diff, commit and push the implementation branch, and open or update one ready-for-review PR. Use `.github/pull_request_template.md` with `Ticket: docs/tickets/<file>.md`, `Issue: #<number>`, `Type: implementation`, and the documentation result. Verify the PR URL and state, then report it for human review. If implementation or verification fails, retain the branch and report the failing gate. Do not close the Issue or mark it Done.
+Inspect the complete diff, commit and push the implementation branch, and open or update one non-draft PR. Use `.github/pull_request_template.md` with `Ticket: docs/tickets/<file>.md`, `Issue: #<number>`, `Type: implementation`, and the documentation result. The `Ticket links` workflow runs validation, tests, typecheck, formatting, and build; a passing run enables auto-merge. Verify the PR URL, checks, and merge state, then report the result. If a gate fails, retain the branch and report it. Do not close the Issue or mark it Done; human acceptance follows the merge.

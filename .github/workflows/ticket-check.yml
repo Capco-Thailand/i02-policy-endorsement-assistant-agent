@@ -14,9 +14,30 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate ticket links
+        id: ticket
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: node scripts/ticket-workflow.mjs check
+      - uses: actions/setup-node@v4
+        if: steps.ticket.outputs.implementation == 'true'
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install implementation dependencies
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm ci
+      - name: Test implementation
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm test
+      - name: Typecheck implementation
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run typecheck
+      - name: Check implementation formatting
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run format:check
+      - name: Build implementation
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run build
 

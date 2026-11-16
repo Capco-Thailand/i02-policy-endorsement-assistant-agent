@@ -12,7 +12,7 @@ Make local Markdown tickets the build specification while GitHub tracks linked I
 - PR activity updates only an automated Issue section. Human handover and acceptance stay human-owned.
 - A build preflight identifies existing implementation work before another build starts.
 - Documentation and agent instructions explain which record owns each field and how changes are updated together.
-- Validated ticket/UX PRs auto-merge after required checks; merged code is reconciled to linked implementation PRs, including human-triggered merges.
+- Validated ticket/UX PRs auto-merge after ticket checks. Implementation PRs auto-merge after ticket checks, tests, typecheck, formatting, and build; merged code is reconciled to linked PRs.
 - GitHub Issues display the complete local ticket content, refreshed after merged ticket changes, while retaining human handover and discussion.
 
 ## Acceptance criteria
@@ -21,7 +21,7 @@ Make local Markdown tickets the build specification while GitHub tracks linked I
 - [ ] Issue activity reflects related PR open and merge states without overwriting human text or closing the Issue.
 - [ ] Preflight blocks a duplicate build when implementation is already open or merged.
 - [ ] Scheduled drift checks report stale automation data, and documentation describes the review and rollout gates.
-- [ ] Ticket/UX PRs with only allowed handoff files auto-merge after checks; code-bearing PRs cannot use this path.
+- [ ] Ticket/UX PRs with only allowed handoff files auto-merge after checks; code-bearing ticket/UX PRs cannot use this path. Implementation PRs auto-merge only after code checks pass.
 - [ ] A push with code lacking a linked implementation PR fails the activity workflow; merged implementation remains pending human acceptance.
 - [ ] A created or reused Issue shows the full ticket Markdown, and later syncs refresh that content without overwriting human handover.
 

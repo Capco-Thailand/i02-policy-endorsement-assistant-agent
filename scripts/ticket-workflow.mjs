@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { posix, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -121,6 +121,22 @@ function isHandoffFile(path, ticket) {
     || /^_bmad-output\/.+\/ux-[^/]+\/.+\.(?:md|html)$/.test(path)
     || (/^docs\/.+\.md$/.test(path) && !path.startsWith('docs/tickets/'));
 }
+function isAutoMergeCandidate(type, ticket, files) {
+  if (type === 'implementation') return files.length > 0;
+  return type === 'ticket/UX' && files.some((file) => file.filename === ticket)
+    && files.every((file) => isHandoffFile(file.filename, ticket));
+}
+function hasPassedImplementationChecks(jobs) {
+  const required = [
+    'Install implementation dependencies',
+    'Test implementation',
+    'Typecheck implementation',
+    'Check implementation formatting',
+    'Build implementation',
+  ];
+  return jobs.some((job) => job.name === 'check' && required.every((name) =>
+    job.steps?.some((step) => step.name === name && step.conclusion === 'success')));
+}
 function activity(number, path) {
   const prs = relatedPrs(number, path);
   const mergedImplementation = prs.filter((item) => prType(item) === 'implementation' && item.mergedAt);
@@ -197,6 +213,7 @@ function check() {
     const named = metadata.docs.split(',').map((part) => part.trim());
     if (named.some((path) => !files.some((file) => file.filename === path))) fail('Documentation line must name changed paths, or give No change: reason.');
   }
+  if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `implementation=${metadata.type === 'implementation'}\n`);
   console.log(`Checked PR #${pr.number}, ${metadata.number ? `Issue #${metadata.number}` : 'Issue pending merge'}, and ${metadata.path}`);
 }
 
@@ -210,9 +227,12 @@ function autoMerge() {
     if (pr.state !== 'open' || pr.draft || pr.head.sha !== run.head_sha || pr.base.ref !== event.repository.default_branch) continue;
     let metadata;
     try { metadata = parsePr(pr.body ?? ''); } catch { continue; }
-    if (metadata.type !== 'ticket/UX') continue;
     const files = prFiles(pr.number);
-    if (!files.some((file) => file.filename === metadata.path) || files.some((file) => !isHandoffFile(file.filename, metadata.path))) continue;
+    if (!isAutoMergeCandidate(metadata.type, metadata.path, files)) continue;
+    if (metadata.type === 'implementation') {
+      const jobs = api(`repos/${repo}/actions/runs/${run.id}/jobs?per_page=100`).jobs ?? [];
+      if (!hasPassedImplementationChecks(jobs)) continue;
+    }
     const ticket = prTicket(metadata.path, pr.head.sha);
     if (metadata.number) {
       if (issueNumber(ticket) !== metadata.number) continue;
@@ -220,7 +240,7 @@ function autoMerge() {
       if (isLegacy(issue) || issue.state !== 'open' || !sameIssue(issue.body ?? '', metadata.path)) continue;
     } else if (issueNumber(ticket)) continue;
     gh('pr', 'merge', String(pr.number), '--repo', repo, '--auto', '--squash');
-    console.log(`Enabled auto-merge for ticket/UX PR #${pr.number}`);
+    console.log(`Enabled auto-merge for ${metadata.type} PR #${pr.number}`);
   }
 }
 
@@ -348,7 +368,7 @@ function preflight(path) {
   if (/\*\*Status:\*\*\s*(Blocked|In Review|Done)/i.test(handover)) fail('Issue handover does not show a ticket ready for a new build.');
 }
 
-export { isHandoffFile, issueBody, issueLabels, issueNumber, issueTicket, parsePr, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink };
+export { hasPassedImplementationChecks, isAutoMergeCandidate, isHandoffFile, issueBody, issueLabels, issueNumber, issueTicket, parsePr, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink };
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) try {
   if (!repo) fail('GITHUB_REPOSITORY is required.');
   if (command === 'create') await create(ticketPath(arg));
