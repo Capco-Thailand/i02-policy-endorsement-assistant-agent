@@ -9,6 +9,22 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: pea
+          POSTGRES_PASSWORD: synthetic_test_only
+          POSTGRES_DB: pea_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd 'pg_isready -U pea -d pea_test'
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://pea:synthetic_test_only@localhost:5432/pea_test
+      TEST_DATABASE_URL: postgresql://pea:synthetic_test_only@localhost:5432/pea_test
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,6 +44,9 @@ jobs:
       - name: Install implementation dependencies
         if: steps.ticket.outputs.implementation == 'true'
         run: npm ci
+      - name: Migrate and seed synthetic database
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run db:migrate -w apps/api && npm run db:seed -w apps/api
       - name: Test implementation
         if: steps.ticket.outputs.implementation == 'true'
         run: npm test
@@ -45,7 +64,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Test browser E2E
         if: steps.ticket.outputs.implementation == 'true'
-        run: npm run test:e2e
+        run: |
+          if grep -q 'docs/tickets/chore-migrate-persistence-to-neon.md' "$GITHUB_EVENT_PATH" || [[ "$GITHUB_HEAD_REF" == *chore-migrate-persistence-to-neon* ]]; then
+            E2E_TICKET_ID=chore-migrate-persistence-to-neon npm run test:e2e
+          else
+            npm run test:e2e
+          fi
       - name: Upload E2E report
         if: always() && steps.ticket.outputs.implementation == 'true'
         uses: actions/upload-artifact@v4

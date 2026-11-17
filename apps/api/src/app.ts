@@ -12,9 +12,9 @@ import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import { Type, type Static } from '@sinclair/typebox';
-import { authenticate, policies } from './auth/data.js';
+import { database } from './db.js';
 import { ownsPolicy } from './auth/guards.js';
-import { COOKIE_NAME, SESSION_LIFETIME_MS, Sessions } from './auth/session.js';
+import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
 
 const ErrorSchema = Type.Object({ error: Type.String() });
 const ActorSchema = Type.Object({
@@ -57,15 +57,21 @@ export interface AuditRecord {
 }
 export interface AppOptions {
   now?: () => number;
-  audit?: AuditRecord[];
-  requests?: RequestRecord[];
 }
 export async function buildApp(options: AppOptions = {}) {
+  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
   const app = Fastify({ logger: process.env.NODE_ENV !== 'test' });
   const now = options.now ?? Date.now;
-  const sessions = new Sessions(now);
-  const audit = options.audit ?? [];
-  const requests = options.requests ?? [];
+  const db = database();
+  try {
+    await db.ready();
+  } catch (error) {
+    await db.close();
+    throw new Error('Database connection failed', { cause: error });
+  }
+  app.addHook('onClose', async () => {
+    await db.close();
+  });
   await app.register(cookie);
   await app.register(cors, {
     origin: 'http://localhost:3001',
@@ -78,11 +84,9 @@ export async function buildApp(options: AppOptions = {}) {
   });
   const unauthorized = { error: 'UNAUTHORIZED' };
   const actorFor = (request: { cookies: Record<string, string | undefined> }) =>
-    sessions.get(request.cookies[COOKIE_NAME]);
-  const record = (actorId: string, action: string) => {
-    const event = { actorId, action, at: now() };
-    audit.push(event);
-    app.log.info(event, 'audit');
+    db.session(request.cookies[COOKIE_NAME], now());
+  const record = async (actorId: string, action: string) => {
+    await db.audit(actorId, action, now());
   };
   const cookieOptions = {
     path: '/api',
@@ -103,24 +107,23 @@ export async function buildApp(options: AppOptions = {}) {
       },
     },
     async (request, reply) => {
-      const customer = authenticate(
+      const customer = await db.authenticate(
         request.body.accountId,
         request.body.password,
       );
       if (!customer) return reply.code(401).send(unauthorized);
-      const token = sessions.create(customer);
+      const { token, expiresAt } = await db.createSession(customer, now());
       reply.setCookie(COOKIE_NAME, token, {
         ...cookieOptions,
         maxAge: SESSION_LIFETIME_MS / 1000,
       });
-      record(customer.id, 'sign-in');
       return {
         actor: {
           id: customer.id,
           accountId: customer.accountId,
           name: customer.name,
         },
-        expiresAt: sessions.expiresAt(token),
+        expiresAt,
       };
     },
   );
@@ -135,12 +138,13 @@ export async function buildApp(options: AppOptions = {}) {
       },
     },
     async (request, reply) => {
-      const actor = actorFor(request);
-      if (!actor) return reply.code(401).send(unauthorized);
-      record(actor.id, 'session-read');
+      const session = await actorFor(request);
+      if (!session) return reply.code(401).send(unauthorized);
+      const actor = session.actor;
+      await record(actor.id, 'session-read');
       return {
         actor: { id: actor.id, accountId: actor.accountId, name: actor.name },
-        expiresAt: sessions.expiresAt(request.cookies[COOKIE_NAME]),
+        expiresAt: session.expiresAt,
       };
     },
   );
@@ -148,11 +152,12 @@ export async function buildApp(options: AppOptions = {}) {
     '/api/auth/sign-out',
     { schema: { response: { 204: Type.Null(), 401: ErrorSchema } } },
     async (request, reply) => {
-      const actor = actorFor(request);
-      if (!actor) return reply.code(401).send(unauthorized);
-      sessions.delete(request.cookies[COOKIE_NAME]);
+      const session = await actorFor(request);
+      const actor = session?.actor;
+      const token = request.cookies[COOKIE_NAME];
+      if (!actor || !token) return reply.code(401).send(unauthorized);
+      await db.revoke(token, actor.id, now());
       reply.clearCookie(COOKIE_NAME, cookieOptions);
-      record(actor.id, 'sign-out');
       return reply.code(204).send();
     },
   );
@@ -167,13 +172,14 @@ export async function buildApp(options: AppOptions = {}) {
       },
     },
     async (request, reply) => {
-      const actor = actorFor(request);
+      const session = await actorFor(request);
+      const actor = session?.actor;
       if (!actor) return reply.code(401).send(unauthorized);
-      record(actor.id, 'policies-list');
+      await record(actor.id, 'policies-list');
       return {
-        policies: policies
-          .filter((policy) => ownsPolicy(actor, policy))
-          .map(({ id, label, status }) => ({ id, label, status })),
+        policies: (await db.policies(actor.id)).map(
+          ({ id, label, status }) => ({ id, label, status }),
+        ),
       };
     },
   );
@@ -190,14 +196,13 @@ export async function buildApp(options: AppOptions = {}) {
       },
     },
     async (request, reply) => {
-      const actor = actorFor(request);
+      const session = await actorFor(request);
+      const actor = session?.actor;
       if (!actor) return reply.code(401).send(unauthorized);
-      const policy = policies.find(
-        (item) => item.id === request.params.policyId,
-      );
+      const policy = await db.policy(actor.id, request.params.policyId);
       if (!ownsPolicy(actor, policy))
         return reply.code(404).send({ error: 'NOT_FOUND' });
-      record(actor.id, 'policy-read');
+      await record(actor.id, 'policy-read');
       return {
         policy: {
           id: policy.id,
@@ -225,15 +230,14 @@ export async function buildApp(options: AppOptions = {}) {
           409: ErrorSchema,
         },
       },
-      preValidation: (request, reply, done) => {
-        const actor = actorFor(request);
+      preValidation: async (request, reply) => {
+        const session = await actorFor(request);
+        const actor = session?.actor;
         if (!actor) {
           reply.code(401).send(unauthorized);
           return;
         }
-        const policy = policies.find(
-          (item) => item.id === request.params.policyId,
-        );
+        const policy = await db.policy(actor.id, request.params.policyId);
         if (!ownsPolicy(actor, policy)) {
           reply.code(404).send({ error: 'NOT_FOUND' });
           return;
@@ -281,7 +285,7 @@ export async function buildApp(options: AppOptions = {}) {
           reply.code(400).send({ error: 'INVALID_REQUEST_FIELDS' });
           return;
         }
-        done();
+        return;
       },
     },
     async (request, reply) => {
@@ -301,7 +305,8 @@ export async function buildApp(options: AppOptions = {}) {
           .send({ error: 'INVALID_REQUESTED_EFFECTIVE_DATE' });
       if (!validAllocation(body))
         return reply.code(400).send({ error: 'INVALID_ALLOCATION' });
-      const actor = actorFor(request);
+      const session = await actorFor(request);
+      const actor = session?.actor;
       if (!actor) return reply.code(401).send(unauthorized);
       const saved: RequestRecord = {
         ...body,
@@ -310,8 +315,7 @@ export async function buildApp(options: AppOptions = {}) {
         policyId: request.params.policyId,
         createdAt: new Date(now()).toISOString(),
       };
-      requests.push(saved);
-      record(actor.id, 'request-create');
+      await db.saveRequest(saved, now());
       return { request: saved };
     },
   );

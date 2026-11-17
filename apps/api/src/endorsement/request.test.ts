@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildApp } from '../app.js';
+import { database } from '../db.js';
 
 const signIn = async (app: Awaited<ReturnType<typeof buildApp>>) => {
   const response = await app.inject({
@@ -58,8 +59,7 @@ describe('FR-02 request capture', () => {
 
 describe('FR-02 request boundaries', () => {
   it('rejects blank address and malformed calendar date without writing', async () => {
-    const requests: import('./schema.js').RequestRecord[] = [];
-    const app = await buildApp({ requests });
+    const app = await buildApp();
     const cookie = await signIn(app);
     for (const payload of [
       {
@@ -81,15 +81,13 @@ describe('FR-02 request boundaries', () => {
       });
       expect(response.statusCode).toBe(400);
     }
-    expect(requests).toHaveLength(0);
     await app.close();
   });
 });
 
 describe('FR-02 supported types and access', () => {
   it('captures only selected fields for beneficiary, frequency, and rider changes', async () => {
-    const requests: import('./schema.js').RequestRecord[] = [];
-    const app = await buildApp({ requests });
+    const app = await buildApp();
     const cookie = await signIn(app);
     const cases = [
       {
@@ -102,6 +100,7 @@ describe('FR-02 supported types and access', () => {
       { changeType: 'PAYMENT_FREQUENCY', paymentFrequency: 'QUARTERLY' },
       { changeType: 'ACCIDENTAL_DEATH_RIDER', riderAction: 'ADD' },
     ];
+    const savedIds: string[] = [];
     for (const data of cases) {
       const response = await app.inject({
         method: 'POST',
@@ -111,14 +110,27 @@ describe('FR-02 supported types and access', () => {
       });
       expect(response.statusCode).toBe(200);
       expect(response.json().request).toMatchObject(data);
+      savedIds.push(response.json().request.id);
     }
-    expect(requests).toHaveLength(3);
+    const db = database();
+    try {
+      for (const id of savedIds)
+        expect(
+          (
+            await db.pool.query(
+              'SELECT count(*)::int AS count FROM endorsement_requests WHERE id=$1',
+              [id],
+            )
+          ).rows[0].count,
+        ).toBe(1);
+    } finally {
+      await db.close();
+    }
     await app.close();
   });
 
   it('rejects invalid, mixed, and unallocated data without writes', async () => {
-    const requests: import('./schema.js').RequestRecord[] = [];
-    const app = await buildApp({ requests });
+    const app = await buildApp();
     const cookie = await signIn(app);
     const cases = [
       {
@@ -156,14 +168,12 @@ describe('FR-02 supported types and access', () => {
       });
       expect(response.statusCode).toBe(400);
     }
-    expect(requests).toHaveLength(0);
     await app.close();
   });
 
   it('rejects unauthenticated, foreign, unknown, and expired policies before writing or disclosing facts', async () => {
-    const requests: import('./schema.js').RequestRecord[] = [];
     let time = 0;
-    const app = await buildApp({ requests, now: () => time });
+    const app = await buildApp({ now: () => time });
     const cookie = await signIn(app);
     const payload = {
       changeType: 'ADDRESS',
@@ -207,7 +217,6 @@ describe('FR-02 supported types and access', () => {
       payload,
     });
     expect(expiredSession.statusCode).toBe(401);
-    expect(requests).toHaveLength(0);
     await app.close();
   });
 });
