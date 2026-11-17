@@ -8,7 +8,7 @@
 
 ## Context
 
-The frontend, API, and retrieval workspaces need one consistent stack and contract boundary. The product uses synthetic insurance data and must keep authorization, eligibility, quoting, and draft decisions on the server. FR-01 through FR-03 currently run with code-seeded records and process-local state; persistence migration is tracked in the [Neon ticket](tickets/chore-migrate-persistence-to-neon.md).
+The frontend, API, and retrieval workspaces need one consistent stack and contract boundary. The product uses synthetic insurance data and must keep authorization, eligibility, quoting, and draft decisions on the server. FR-01 through FR-03 use server-side PostgreSQL persistence described in the [Neon ticket](tickets/chore-migrate-persistence-to-neon.md).
 
 ## Decision
 
@@ -25,7 +25,7 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 - The web app displays server results and does not recalculate eligibility or premiums.
 - Changes to route schemas require regenerated or rederived client types and updated API consumers.
 - Neon credentials stay in server-side configuration. Local and CI tests use isolated synthetic databases. FR-13 Compose starts the application services and connects them to Neon rather than launching a local PostgreSQL service.
-- The Neon decision is planned, not yet implemented. Until the migration ticket is delivered, restarting the API loses sessions, requests, and audit events.
+- The API requires database configuration and connectivity at startup. Sessions, requests, and audit events survive API restarts; migrations and synthetic seeding run explicitly.
 - The planned Next.js app replaced the earlier Vite shell direction.
 
 ## Alternatives considered
@@ -38,3 +38,5 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 2026-11-17: Selected Neon PostgreSQL for all API-owned persistence. The [migration ticket](tickets/chore-migrate-persistence-to-neon.md) owns the implementation; this ADR records the target architecture.
 
 This record captures the stack decision. Product behavior and safety boundaries remain in [PRD.md](PRD.md); implementation rules remain in [CODING_STANDARDS.md](CODING_STANDARDS.md).
+
+The API uses the `pg` server-side client, explicit SQL migration, and synthetic seed commands. The browser receives data only through Fastify. Session token digests, requests, and audit events persist in PostgreSQL.

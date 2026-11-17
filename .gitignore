@@ -17,3 +17,8 @@ apps/web/*.tsbuildinfo
 apps/web/AGENTS.md
 playwright-report/
 test-results/
+
+# Database credentials
+.env
+.env.*
+!.env.example

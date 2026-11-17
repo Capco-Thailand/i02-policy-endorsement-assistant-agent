@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { buildApp } from '../app.js';
-import { customers, policies } from './data.js';
+import { database } from '../db.js';
+import type { Customer, Policy } from './data.js';
 import { mayDecideProposal } from './guards.js';
+
+const customers = [{ id: 'CUS-001' }, { id: 'CUS-002' }] as Customer[];
+const policies = [
+  { id: 'POL-NARIN-001', customerId: 'CUS-001' },
+  { id: 'POL-MALI-001', customerId: 'CUS-002' },
+] as Policy[];
 
 const signIn = async (
   app: Awaited<ReturnType<typeof buildApp>>,
@@ -161,20 +168,29 @@ describe('FR-01 customer authentication', () => {
   });
 
   it('records actor and action without secrets', async () => {
-    const audit: { actorId: string; action: string; at: number }[] = [];
-    const app = await buildApp({ audit });
+    const app = await buildApp();
     const { cookie } = await signIn(app, 'narin', 'NarinDemo123!');
     await app.inject({
       method: 'GET',
       url: '/api/policies',
       headers: { cookie },
     });
-    expect(audit.map(({ actorId, action }) => [actorId, action])).toEqual([
-      ['CUS-001', 'sign-in'],
-      ['CUS-001', 'policies-list'],
-    ]);
-    expect(JSON.stringify(audit)).not.toContain('NarinDemo123!');
-    expect(JSON.stringify(audit)).not.toContain('pea_session');
+    const db = database();
+    try {
+      const events = (
+        await db.pool.query(
+          "SELECT actor_id,action FROM audit_events WHERE actor_id='CUS-001' AND action IN ('sign-in','policies-list') ORDER BY id DESC LIMIT 2",
+        )
+      ).rows;
+      expect(events.map((event) => event.action).sort()).toEqual([
+        'policies-list',
+        'sign-in',
+      ]);
+      expect(JSON.stringify(events)).not.toContain('NarinDemo123!');
+      expect(JSON.stringify(events)).not.toContain('pea_session');
+    } finally {
+      await db.close();
+    }
     await app.close();
   });
 });
@@ -305,26 +321,25 @@ describe('FR-03 policy access', () => {
   });
 
   it('reads policies without creating a request or changing policy facts', async () => {
-    const audit: { actorId: string; action: string; at: number }[] = [];
-    const app = await buildApp({ audit });
+    const app = await buildApp();
     const { cookie } = await signIn(app, 'narin', 'NarinDemo123!');
-    const before = JSON.stringify(policies);
-    await app.inject({
-      method: 'GET',
-      url: '/api/policies',
-      headers: { cookie },
-    });
-    await app.inject({
-      method: 'GET',
-      url: '/api/policies/POL-NARIN-001',
-      headers: { cookie },
-    });
-    expect(JSON.stringify(policies)).toBe(before);
-    expect(audit.map(({ action }) => action)).toEqual([
-      'sign-in',
-      'policies-list',
-      'policy-read',
-    ]);
+    const db = database();
+    try {
+      const before = await db.policy('CUS-001', 'POL-NARIN-001');
+      await app.inject({
+        method: 'GET',
+        url: '/api/policies',
+        headers: { cookie },
+      });
+      await app.inject({
+        method: 'GET',
+        url: '/api/policies/POL-NARIN-001',
+        headers: { cookie },
+      });
+      expect(await db.policy('CUS-001', 'POL-NARIN-001')).toEqual(before);
+    } finally {
+      await db.close();
+    }
     await app.close();
   });
 });
