@@ -1,7 +1,7 @@
 # FR-06 — Verify Customer Identity (Mock eKYC)
 **Title:** [Story] Simulate identity checks during an endorsement request
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/85
 **Feature ID:** FR-06
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a mock pass could be mistaken for real identity verification.
