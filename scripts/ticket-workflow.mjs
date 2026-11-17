@@ -373,6 +373,7 @@ function syncIssue(path, number = issueNumber(readTicket(path)), completion = nu
   let body = replaceAutomation(replaceTicket(issue.body ?? '', path, readTicket(path)), activity(number, path));
   if (completion) body = markIssueDone(body, completion);
   if (body !== issue.body) api(`repos/${repo}/issues/${number}`, 'PATCH', [['body', body]]);
+  if (completion && issue.state === 'open') api(`repos/${repo}/issues/${number}`, 'PATCH', [['state', 'closed'], ['state_reason', 'completed']]);
   console.log(`Updated Issue #${number} requirements and automation section`);
 }
 function reconcile() {
