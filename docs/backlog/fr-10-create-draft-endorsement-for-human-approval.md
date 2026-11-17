@@ -37,7 +37,6 @@ Out of scope:
 - Further exclusions to confirm during refinement.
 
 ## Dependencies
-- Persist future drafts and their supporting evidence through the API's Neon-backed storage, following the [migration ticket](../tickets/chore-migrate-persistence-to-neon.md). FR-10 owns the new draft schema and workflow rules.
 
 - Determine prerequisites and sequencing with the Product Owner.
 

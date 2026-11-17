@@ -49,7 +49,6 @@ Out of scope:
 None.
 
 ## Accepted decisions and readiness
-- 2026-11-17 persistence handoff: FR-03's merged policy list/detail behavior remains the acceptance baseline. The [Neon migration ticket](chore-migrate-persistence-to-neon.md) moves synthetic policy records and owner links to Neon while preserving the same access and non-disclosure rules. This migration is planned, not part of the merged implementation.
 - 2026-11-12: Customer account ownership replaces staff assignment as the access boundary.
 - 2026-11-16: FR-01's merged API establishes session-derived ownership and minimal list/detail routes. FR-03 adds policy facts, status, and a usable selection/detail UI for FR-02. Historical Issue #3 is not available or a current dependency.
 - The current ticket and UX handoff are ready for review. Implementation waits for the merged handoff and active Issue.
