@@ -1,5 +1,8 @@
 name: Merge validated ticket or implementation
 on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+    branches: [main, main-backup]
   workflow_run:
     workflows: [Ticket links]
     types: [completed]
@@ -10,7 +13,6 @@ permissions:
   pull-requests: write
 jobs:
   enable-auto-merge:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

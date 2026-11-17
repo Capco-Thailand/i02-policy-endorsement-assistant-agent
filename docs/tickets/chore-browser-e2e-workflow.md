@@ -15,4 +15,4 @@ Run automated Chromium E2E for implementation PRs, retain reviewable results, an
 - [ ] The BMad delivery instructions and affected project documentation require E2E evidence and record the FR-01 through FR-03 results and remaining gaps.
 
 ## Scope and dependencies
-Use only synthetic accounts and policies. This chore adds a test harness, workflow gate, and documentation; it does not change product behavior. The existing FR-01, FR-03, and FR-02 implementations provide the runnable customer journey. Human acceptance of feature tickets remains separate from implementation merge.
+Use only synthetic accounts and policies. This chore adds a test harness, workflow gate, and documentation; it does not change product behavior. The existing FR-01, FR-03, and FR-02 implementations provide the runnable customer journey. Merging an implementation PR sets its linked Issue to Done; customer approval of a proposed policy change remains separate and non-binding.
