@@ -1,7 +1,7 @@
 name: Ticket links
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, edited, synchronize, reopened, ready_for_review]
 permissions:
   contents: read
   issues: read
