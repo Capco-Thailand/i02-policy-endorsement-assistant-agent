@@ -15,6 +15,10 @@ import { Type, type Static } from '@sinclair/typebox';
 import { database } from './db.js';
 import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
+import {
+  evaluateMockIdentity,
+  mockIdentityScenarios,
+} from './identity/mock.js';
 
 const ErrorSchema = Type.Object({ error: Type.String() });
 const ActorSchema = Type.Object({
@@ -49,6 +53,24 @@ const SignInBody = Type.Object(
 const PolicyParams = Type.Object({ policyId: Type.String() });
 type Credentials = Static<typeof SignInBody>;
 type Params = Static<typeof PolicyParams>;
+const MockIdentityBody = Type.Object(
+  {
+    scenario: Type.Union(
+      mockIdentityScenarios.map((scenario) => Type.Literal(scenario)),
+    ),
+  },
+  { additionalProperties: false },
+);
+type MockIdentityInput = Static<typeof MockIdentityBody>;
+const MockIdentityResult = Type.Object({
+  status: Type.Union([
+    Type.Literal('VERIFIED'),
+    Type.Literal('FAILED'),
+    Type.Literal('REVIEW_REQUIRED'),
+  ]),
+  reason: Type.String(),
+  disclosure: Type.String(),
+});
 
 export interface AuditRecord {
   actorId: string;
@@ -213,6 +235,44 @@ export async function buildApp(options: AppOptions = {}) {
           paymentFrequency: policy.paymentFrequency,
           beneficiaries: policy.beneficiaries,
         },
+      };
+    },
+  );
+  app.post<{ Params: Params; Body: MockIdentityInput }>(
+    '/api/policies/:policyId/mock-identity',
+    {
+      schema: {
+        params: PolicyParams,
+        body: MockIdentityBody,
+        response: {
+          200: MockIdentityResult,
+          400: ErrorSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          409: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const session = await actorFor(request);
+      const actor = session?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(actor.id, request.params.policyId);
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      if (policy.status !== 'ACTIVE')
+        return reply.code(409).send({ error: 'POLICY_EXPIRED' });
+      const result = evaluateMockIdentity(request.body.scenario);
+      if (!result) return reply.code(400).send({ error: 'INVALID_SCENARIO' });
+      await db.audit(actor.id, 'mock-identity', now(), {
+        policyId: policy.id,
+        status: result.status,
+        reason: result.reason,
+      });
+      return {
+        ...result,
+        disclosure:
+          'Simulated identity check only. No real identity was verified.',
       };
     },
   );

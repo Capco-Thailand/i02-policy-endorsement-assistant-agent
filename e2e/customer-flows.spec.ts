@@ -174,6 +174,30 @@ for (const change of [
   });
 }
 
+test('FR-06: customer sees the simulated identity result after recording a request', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page
+    .getByLabel('Change type')
+    .selectOption({ label: 'Correspondence address' });
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page
+    .getByLabel('Correspondence address', { exact: true })
+    .last()
+    .fill('100 Demo Road');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Simulated identity check' }),
+  ).toBeVisible();
+  await page.getByLabel('Synthetic scenario').selectOption('id-expired');
+  await page.getByRole('button', { name: 'Run mock check' }).click();
+  await expect(page.getByText(/FAILED.*Synthetic ID is expired/)).toBeVisible();
+  await expect(page.getByText(/No real identity was verified/)).toBeVisible();
+});
+
 test('FR-02 AC3: invalid beneficiary allocation stays editable and creates no request', async ({
   page,
 }) => {

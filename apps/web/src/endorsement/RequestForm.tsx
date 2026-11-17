@@ -8,6 +8,7 @@ import type { RequestBody } from '../lib/api';
 import { useCreateRequest, usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { FocusHeading } from '../policies/FocusHeading';
+import { MockIdentityCheck } from './MockIdentityCheck';
 
 type ChangeType = RequestBody['changeType'];
 type Row = { id: number; name: string; allocationPercent: string };
@@ -255,6 +256,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
             Your request was recorded and is pending checks. Request {saved.id}.
             No policy coverage has changed.
           </p>
+          <MockIdentityCheck policyId={policyId} />
           <Link href={routes.policy(policyId)}>Return to policy</Link>
         </section>
       ) : (
