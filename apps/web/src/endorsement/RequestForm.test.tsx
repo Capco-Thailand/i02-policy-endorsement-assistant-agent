@@ -8,6 +8,12 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock('../lib/queries', () => ({
   usePolicy: vi.fn(),
   useCreateRequest: vi.fn(),
+  useMockIdentity: vi.fn(() => ({
+    isPending: false,
+    isError: false,
+    data: null,
+    mutate: vi.fn(),
+  })),
 }));
 
 it('shows four change choices and only selected fields for an active policy', () => {

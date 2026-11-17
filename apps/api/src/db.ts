@@ -213,10 +213,15 @@ export function database(url = process.env.DATABASE_URL) {
     ): Promise<Policy | undefined> {
       return (await this.policies(customerId)).find((p) => p.id === policyId);
     },
-    async audit(actorId: string, action: string, now: number) {
+    async audit(
+      actorId: string,
+      action: string,
+      now: number,
+      metadata: Record<string, string> = {},
+    ) {
       await pool.query(
-        'INSERT INTO audit_events(actor_id,action,at) VALUES ($1,$2,$3)',
-        [actorId, action, new Date(now)],
+        'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+        [actorId, action, new Date(now), JSON.stringify(metadata)],
       );
     },
     async saveRequest(record: RequestRecord, now: number) {

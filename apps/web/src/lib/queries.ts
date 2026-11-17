@@ -7,6 +7,7 @@ import {
   getSession,
   signIn,
   signOut,
+  runMockIdentity,
 } from './api';
 
 export const queryKeys = {
@@ -43,4 +44,9 @@ export const useSignOut = () => useMutation({ mutationFn: signOut });
 export const useCreateRequest = (policyId: string) =>
   useMutation({
     mutationFn: (body: RequestBody) => createRequest(policyId, body),
+  });
+
+export const useMockIdentity = (policyId: string) =>
+  useMutation({
+    mutationFn: (scenario: string) => runMockIdentity(policyId, scenario),
   });

@@ -64,3 +64,14 @@ export const createRequest = (policyId: string, body: RequestBody) =>
     `/api/policies/${encodeURIComponent(policyId)}/requests`,
     { method: 'POST', body: JSON.stringify(body) },
   );
+
+export type MockIdentityResult = {
+  status: 'VERIFIED' | 'FAILED' | 'REVIEW_REQUIRED';
+  reason: string;
+  disclosure: string;
+};
+export const runMockIdentity = (policyId: string, scenario: string) =>
+  request<MockIdentityResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/mock-identity`,
+    { method: 'POST', body: JSON.stringify({ scenario }) },
+  );
