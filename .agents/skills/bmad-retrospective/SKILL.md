@@ -3,13 +3,11 @@ name: bmad-retrospective
 description: 'Review a finished epic folder in the ticket tree against the evidence it left behind — the epic file, each ticket''s story file and plan, diffs, commits — and produce a retrospective with sourced findings, action items, and an acceptance decision. Use when the user says "run a retrospective" or "lets retro the epic [epic]". Supports -H/--headless'
 ---
 
-Run the following command exactly once without changing the current working directory.
+Run the following command exactly once from the project root. If you are in a subdirectory, change to the project root first.
 
-Replace `{project-root}` with the nearest folder containing `_bmad/`, from the working directory upward.
-Replace `{skill-root}` with the absolute path to this skill's directory.
 
 ```bash
-uv run --no-cache "{project-root}/_bmad/scripts/render_skill.py" --project-root "{project-root}" --skill "{skill-root}"
+uv run --cache-dir .uv-cache ./_bmad/scripts/render_skill.py --project-root . --skill ./.agents/skills/bmad-retrospective
 ```
 
 - The command prints the skill's workflow: follow it. `HALT: <reason>`: report the reason and stop.
