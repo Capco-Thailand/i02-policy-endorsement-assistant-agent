@@ -3,10 +3,8 @@ name: bmad-code-review
 description: 'Review code changes with several independent reviewers in parallel, then triage and present the findings. Use when the user says "run code review" or "review this code"'
 ---
 
-Run the following command exactly once without changing the current working directory.
+Run the following command exactly once from the project root. If you are in a subdirectory, change to the project root first.
 
-Replace `{project-root}` with the nearest folder containing `_bmad/`, from the working directory upward.
-Replace `{skill-root}` with the absolute path to this skill's directory.
 
 If the invocation asks for a `quick` or `thorough` review, append `--set workflow.review=<value>` to the command.
 If the invocation asks for a `no-code` review, append `--set workflow.fixes=handoff` to the command.
@@ -14,7 +12,7 @@ If the invocation asks for a `no-code` review, append `--set workflow.fixes=hand
 If the invocation is clearly non-interactive -- it says not to ask questions, or a bot, a CI job or another workflow is running the review -- append `--set workflow.interactive=false`. When in doubt, don't.
 
 ```bash
-uv run --no-cache "{project-root}/_bmad/scripts/render_skill.py" --project-root "{project-root}" --skill "{skill-root}"
+uv run --cache-dir .uv-cache ./_bmad/scripts/render_skill.py --project-root . --skill ./.agents/skills/bmad-code-review
 ```
 
 - The command prints the skill's workflow: follow it. `HALT: <reason>`: report the reason and stop.

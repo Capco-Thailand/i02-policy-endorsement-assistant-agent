@@ -3,13 +3,11 @@ name: bmad-build-auto
 description: 'Implements one story, feature, or bug fix end to end without human interaction: plan, code, review, verify, report status. Use when invoked by name, usually by an orchestrator'
 ---
 
-Run the following command exactly once without changing the current working directory.
+Run the following command exactly once from the project root. If you are in a subdirectory, change to the project root first.
 
-Replace `{project-root}` with the nearest folder containing `_bmad/`, from the working directory upward.
-Replace `{skill-root}` with the absolute path to this skill's directory.
 
 ```bash
-uv run --no-cache "{project-root}/_bmad/scripts/render_skill.py" --project-root "{project-root}" --skill "{skill-root}"
+uv run --cache-dir .uv-cache ./_bmad/scripts/render_skill.py --project-root . --skill ./.agents/skills/bmad-build-auto
 ```
 
 - When the invocation names a route (`oneshot` or `full`), append `--set workflow.route=<value>` to the command.
