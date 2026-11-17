@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Start FE, BE, and RAG with Docker Compose and connect the backend to hosted Neon PostgreSQL containing seeded synthetic data.
+Start FE, BE, RAG, and PostgreSQL/pgvector with seeded synthetic data.
 
 ## User story or requirement
 
-System requirement: Start FE, BE, and RAG through Docker Compose, with the backend using hosted Neon PostgreSQL for application persistence.
+System requirement: Start FE, BE, RAG, and PostgreSQL/pgvector with seeded synthetic data.
 
 ## Business or technical context
 
@@ -24,11 +24,10 @@ System requirement: Start FE, BE, and RAG through Docker Compose, with the backe
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] Run the frontend, backend, and RAG service with Docker Compose; the backend connects to a configured Neon database with seeded synthetic data.
+- [ ] Run the frontend, backend, RAG service, and PostgreSQL/pgvector with seeded synthetic data.
 - [ ] Keep application and storage boundaries consistent with `docs/ADR.md`.
 - [ ] Provide separate frontend, backend, and RAG Dockerfiles, a root `compose.yaml`, health checks, and development environment configuration.
 - [ ] The backend owns writes and internal RAG calls; the browser does not access RAG or storage directly.
-- [ ] Compose does not start a second application database. Missing or invalid Neon configuration fails clearly; no database credential is exposed to the browser or committed to the repository.
 
 ## Scope and out of scope
 
@@ -41,15 +40,13 @@ Out of scope:
 
 ## Dependencies
 
-- The [Neon migration ticket](../tickets/chore-migrate-persistence-to-neon.md) provides the application schema, seed process, and connection configuration before this Compose integration is built.
-- FR-04 and FR-05 define RAG service and retrieval storage needs; do not assume pgvector is already implemented.
+- Determine prerequisites and sequencing with the Product Owner.
 
 ## Related subtasks
 
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
-- 2026-11-17: Use hosted Neon PostgreSQL for application persistence; Compose runs the application services, not a local PostgreSQL/pgvector container. See the [ADR](../ADR.md).
 
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.

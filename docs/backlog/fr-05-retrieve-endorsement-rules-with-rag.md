@@ -37,7 +37,6 @@ Out of scope:
 - Further exclusions to confirm during refinement.
 
 ## Dependencies
-- Follow the [ADR](../ADR.md) API boundary and Neon application persistence decision. Choose rule retrieval storage and any pgvector use during FR-05 refinement; the Neon migration does not implement RAG.
 
 - Determine prerequisites and sequencing with the Product Owner.
 

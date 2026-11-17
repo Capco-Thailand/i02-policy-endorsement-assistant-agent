@@ -48,7 +48,6 @@ Out of scope:
 N/A
 
 ## Accepted decisions and readiness
-- 2026-11-17 persistence handoff: FR-01's merged behavior remains the acceptance baseline. The [Neon migration ticket](chore-migrate-persistence-to-neon.md) moves demo customers, linked policies, sessions, and authentication audit records from process-local storage to Neon without changing the sign-in contract or ownership rules. This migration is planned, not part of the merged implementation.
 - 2026-11-12: Corrected the primary actor from policy-service staff to the customer. Customers request changes to their own synthetic policies, review the proposed updated-policy view, and record their own decisions. Approval adds a record to the customer's history page without a later review or issuance step. This supersedes the previous staff sign-in and separate-reviewer model.
 - The customer-facing criteria above are the current FR-01 scope; the proposal review and history screens belong to later tickets.
 

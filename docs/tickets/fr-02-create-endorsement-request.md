@@ -62,7 +62,6 @@ Out of scope:
 None.
 
 ## Accepted decisions and readiness
-- 2026-11-17 persistence handoff: FR-02's merged request capture behavior remains the acceptance baseline. The [Neon migration ticket](chore-migrate-persistence-to-neon.md) makes request and audit records durable in Neon while preserving the current validation, ownership, and non-binding rules. This migration is planned, not part of the merged implementation.
 
 - 2026-11-12: The customer requests changes to a policy linked to their account.
 - Request capture is separate from downstream eligibility, quote, and draft work. FR-03 policy access is required first.
