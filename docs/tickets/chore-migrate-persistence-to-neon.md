@@ -1,7 +1,7 @@
 # [Story] Persist prototype data in Neon
 **Title:** [Story] Move prototype persistence to Neon PostgreSQL
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/73
+**GitHub Issue:** Pending ticket/UX PR merge
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — incorrect migration could expose another customer's data or lose requests and audit records.
 **Requirements owner:** This file.
