@@ -1,7 +1,7 @@
 # FR-07 — Bypass Document Verification (Mock)
 **Title:** [Story] Record and display a document-check bypass
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/87
 **Feature ID:** FR-07
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a bypass presented as verification could mislead customers.
