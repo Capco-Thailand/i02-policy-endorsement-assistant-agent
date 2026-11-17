@@ -38,6 +38,7 @@ Out of scope:
 - Further exclusions to confirm during refinement.
 
 ## Dependencies
+- Persist customer decisions through the API's Neon-backed storage. FR-11 owns the new decision records; the [migration ticket](../tickets/chore-migrate-persistence-to-neon.md) covers only data groups already implemented.
 
 - Determine prerequisites and sequencing with the Product Owner.
 
