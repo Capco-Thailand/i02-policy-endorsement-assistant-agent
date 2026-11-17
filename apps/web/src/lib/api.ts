@@ -65,13 +65,19 @@ export const createRequest = (policyId: string, body: RequestBody) =>
     { method: 'POST', body: JSON.stringify(body) },
   );
 
-export type MockIdentityResult = {
-  status: 'VERIFIED' | 'FAILED' | 'REVIEW_REQUIRED';
-  reason: string;
-  disclosure: string;
-};
-export const runMockIdentity = (policyId: string, scenario: string) =>
+export type MockIdentityResult =
+  paths['/api/policies/{policyId}/mock-identity']['post']['responses'][200]['content']['application/json'];
+type MockIdentityBody =
+  paths['/api/policies/{policyId}/mock-identity']['post']['requestBody']['content']['application/json'];
+export type MockIdentityScenario = MockIdentityBody['scenario'];
+export const runMockIdentity = (
+  policyId: string,
+  scenario: MockIdentityScenario,
+) =>
   request<MockIdentityResult>(
     `/api/policies/${encodeURIComponent(policyId)}/mock-identity`,
-    { method: 'POST', body: JSON.stringify({ scenario }) },
+    {
+      method: 'POST',
+      body: JSON.stringify({ scenario } satisfies MockIdentityBody),
+    },
   );

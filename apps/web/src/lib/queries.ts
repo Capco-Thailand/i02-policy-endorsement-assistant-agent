@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import type { RequestBody } from './api';
+import type { MockIdentityScenario, RequestBody } from './api';
 import {
   createRequest,
   getPolicies,
@@ -48,5 +48,6 @@ export const useCreateRequest = (policyId: string) =>
 
 export const useMockIdentity = (policyId: string) =>
   useMutation({
-    mutationFn: (scenario: string) => runMockIdentity(policyId, scenario),
+    mutationFn: (scenario: MockIdentityScenario) =>
+      runMockIdentity(policyId, scenario),
   });
