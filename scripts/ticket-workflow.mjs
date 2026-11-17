@@ -246,7 +246,7 @@ function autoMerge() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
   if (event.pull_request) {
     const pr = event.pull_request;
-    if (pr.state !== 'open' || pr.draft || !['main', 'main-backup'].includes(pr.base.ref)) return;
+    if (pr.state !== 'open' || pr.draft || !['main', 'codex/main-backup'].includes(pr.base.ref)) return;
     let metadata;
     try { metadata = parsePr(pr.body ?? ''); } catch { return; }
     if (metadata.type !== 'implementation' || !isAutoMergeCandidate(metadata.type, metadata.path, prFiles(pr.number))) return;
@@ -263,7 +263,7 @@ function autoMerge() {
   for (const candidate of run.pull_requests ?? []) {
     const pr = api(`repos/${repo}/pulls/${candidate.number}`);
     if (isLegacy(pr)) continue;
-    if (pr.state !== 'open' || pr.draft || pr.head.sha !== run.head_sha || !['main', 'main-backup'].includes(pr.base.ref)) continue;
+    if (pr.state !== 'open' || pr.draft || pr.head.sha !== run.head_sha || !['main', 'codex/main-backup'].includes(pr.base.ref)) continue;
     let metadata;
     try { metadata = parsePr(pr.body ?? ''); } catch { continue; }
     const files = prFiles(pr.number);

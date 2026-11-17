@@ -2,7 +2,7 @@ name: Merge validated ticket or implementation
 on:
   pull_request_target:
     types: [opened, edited, synchronize, reopened, ready_for_review]
-    branches: [main, main-backup]
+    branches: [main, 'codex/main-backup']
   workflow_run:
     workflows: [Ticket links]
     types: [completed]
