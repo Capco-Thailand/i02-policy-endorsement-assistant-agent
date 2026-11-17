@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { MockIdentityScenario, RequestBody } from './api';
 import {
+  bypassDocumentCheck,
   createRequest,
   getPolicies,
   getPolicy,
@@ -50,4 +51,8 @@ export const useMockIdentity = (policyId: string) =>
   useMutation({
     mutationFn: (scenario: MockIdentityScenario) =>
       runMockIdentity(policyId, scenario),
+  });
+export const useDocumentBypass = (policyId: string) =>
+  useMutation({
+    mutationFn: (requestId: string) => bypassDocumentCheck(policyId, requestId),
   });

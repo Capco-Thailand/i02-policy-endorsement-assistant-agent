@@ -198,6 +198,30 @@ test('FR-06: customer sees the simulated identity result after recording a reque
   await expect(page.getByText(/No real identity was verified/)).toBeVisible();
 });
 
+test('FR-07: customer sees the recorded document-check bypass', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page
+    .getByLabel('Change type')
+    .selectOption({ label: 'Correspondence address' });
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page
+    .getByLabel('Correspondence address', { exact: true })
+    .last()
+    .fill('100 Demo Road');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await page
+    .getByRole('button', { name: 'Record mock document bypass' })
+    .click();
+  await expect(page.getByText('BYPASSED_MOCK')).toBeVisible();
+  await expect(
+    page.getByText(/Document verification was skipped for this demonstration/),
+  ).toBeVisible();
+});
+
 test('FR-02 AC3: invalid beneficiary allocation stays editable and creates no request', async ({
   page,
 }) => {

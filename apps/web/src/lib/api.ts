@@ -81,3 +81,12 @@ export const runMockIdentity = (
       body: JSON.stringify({ scenario } satisfies MockIdentityBody),
     },
   );
+export type DocumentBypassResult = {
+  status: 'BYPASSED_MOCK';
+  explanation: string;
+};
+export const bypassDocumentCheck = (policyId: string, requestId: string) =>
+  request<DocumentBypassResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/document-bypass`,
+    { method: 'POST', body: JSON.stringify({ requestId }) },
+  );

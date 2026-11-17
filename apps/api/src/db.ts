@@ -213,6 +213,13 @@ export function database(url = process.env.DATABASE_URL) {
     ): Promise<Policy | undefined> {
       return (await this.policies(customerId)).find((p) => p.id === policyId);
     },
+    async ownsRequest(customerId: string, policyId: string, requestId: string) {
+      const result = await pool.query(
+        'SELECT 1 FROM endorsement_requests WHERE id=$1 AND requester_id=$2 AND policy_id=$3',
+        [requestId, customerId, policyId],
+      );
+      return result.rowCount === 1;
+    },
     async audit(
       actorId: string,
       action: string,

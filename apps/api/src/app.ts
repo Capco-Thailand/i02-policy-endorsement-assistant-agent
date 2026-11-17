@@ -280,6 +280,53 @@ export async function buildApp(options: AppOptions = {}) {
       };
     },
   );
+  const DocumentBypassResult = Type.Object({
+    status: Type.Literal('BYPASSED_MOCK'),
+    explanation: Type.Literal(
+      'Document verification was skipped for this demonstration. No document was uploaded or inspected.',
+    ),
+  });
+  const DocumentBypassBody = Type.Object(
+    { requestId: Type.String({ format: 'uuid' }) },
+    { additionalProperties: false },
+  );
+  app.post<{ Params: Params; Body: Static<typeof DocumentBypassBody> }>(
+    '/api/policies/:policyId/document-bypass',
+    {
+      schema: {
+        params: PolicyParams,
+        body: DocumentBypassBody,
+        response: {
+          200: DocumentBypassResult,
+          400: ErrorSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          409: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(actor.id, request.params.policyId);
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      if (policy.status !== 'ACTIVE')
+        return reply.code(409).send({ error: 'POLICY_EXPIRED' });
+      if (!(await db.ownsRequest(actor.id, policy.id, request.body.requestId)))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      await db.audit(actor.id, 'document-bypass', now(), {
+        policyId: policy.id,
+        requestId: request.body.requestId,
+        status: 'BYPASSED_MOCK',
+      });
+      return {
+        status: 'BYPASSED_MOCK',
+        explanation:
+          'Document verification was skipped for this demonstration. No document was uploaded or inspected.',
+      };
+    },
+  );
   app.post<{ Params: Params; Body: RequestInput }>(
     '/api/policies/:policyId/requests',
     {
