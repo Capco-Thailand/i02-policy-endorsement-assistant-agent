@@ -14,7 +14,7 @@ The API reads and writes these records through server-side Neon connections whil
 
 ## Business and technical context
 - The [PRD](../PRD.md) requires synthetic data, account-scoped access, an audit trail, and no policy or coverage binding. The [ADR](../ADR.md) selects hosted Neon PostgreSQL for application persistence; this ticket delivers that decision.
-- Current API state includes seeded customers and policies in code, a process-local session map, and process-local request and audit arrays. Existing FR-01, FR-03, and FR-02 contracts remain the behavioral baseline.
+- Before the migration, the API held customers and policies in code and kept sessions, requests, and audit events in process memory. [Implementation PR #80](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/80) moved these records to PostgreSQL. Existing FR-01, FR-03, and FR-02 contracts remain the behavioral baseline.
 - Store password verifiers and session tokens securely. The browser must continue to use the API boundary; it must never receive a database credential or connect to Neon directly.
 
 ## Acceptance criteria
@@ -47,9 +47,14 @@ None. Split only if implementation planning shows independently reviewable migra
 
 ## Accepted decisions and readiness
 - 2026-11-17: Move customers, policies, sessions, endorsement requests, and audit records to Neon; no API-owned persistence remains process-local.
-- 2026-11-17: The ADR and FR-13 backlog draft now describe the Neon target. This does not mean the migration has been implemented.
-- The database driver, migration tool, and credential delivery mechanism are implementation choices, subject to repository standards and server-only credential handling.
-- Ticket is ready for review. Implementation begins after the ticket/UX PR merges, its GitHub Issue is linked, and the required Neon test connection is available.
+- 2026-11-17: The ADR and FR-13 backlog draft describe the Neon target. The implementation uses server-side `pg`, an explicit SQL migration and synthetic seed commands, and `DATABASE_URL` for configuration.
+- Database credentials remain server-side and outside the repository. Local and CI integration tests use an isolated synthetic PostgreSQL database.
+
+## Implementation and verification evidence
+- 2026-11-17: [Implementation PR #80](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/80) merged. Its CI passed migration and seed, tests, typecheck, formatting, build, and browser E2E. The [implementation plan](../implementation-plan/chore-migrate-persistence-to-neon.md) records criterion coverage and the local browser report path.
+- 2026-11-17: Connected the API to a newly empty Neon database using a server-side local env file excluded from Git. Migration and seed produced two synthetic customers, three policies, and four beneficiaries. No credentials were committed.
+- 2026-11-17: With the API running against Neon, HTTP checks returned `200` for OpenAPI, `200` for demo sign-in, `200` for the account-scoped policy list with two policies, `204` for sign-out, and `401` when the revoked session was reused.
+- Neon request durability, database-failure behavior, and deployment configuration have not been exercised on the hosted database. Those behaviors passed against isolated PostgreSQL in the implementation checks; the hosted result remains unverified.
 
 ## UX handoff references
 N/A — no UI change.
