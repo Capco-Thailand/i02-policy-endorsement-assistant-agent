@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useMockIdentity } from '../lib/queries';
+import type { MockIdentityScenario } from '../lib/api';
 
 const reasons: Record<string, string> = {
   MOCK_CHECKS_PASSED: 'Synthetic identity checks passed.',
@@ -12,7 +13,7 @@ const reasons: Record<string, string> = {
 };
 
 export function MockIdentityCheck({ policyId }: { policyId: string }) {
-  const [scenario, setScenario] = useState('all-pass');
+  const [scenario, setScenario] = useState<MockIdentityScenario>('all-pass');
   const check = useMockIdentity(policyId);
   return (
     <section className="request-panel" aria-labelledby="mock-identity-heading">
@@ -22,7 +23,9 @@ export function MockIdentityCheck({ policyId }: { policyId: string }) {
       <select
         id="mock-identity-scenario"
         value={scenario}
-        onChange={(event) => setScenario(event.target.value)}
+        onChange={(event) =>
+          setScenario(event.target.value as MockIdentityScenario)
+        }
       >
         <option value="all-pass">All checks pass</option>
         <option value="identity-mismatch">Identity mismatch</option>

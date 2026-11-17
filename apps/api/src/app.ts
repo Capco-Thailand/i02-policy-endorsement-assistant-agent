@@ -79,14 +79,18 @@ export interface AuditRecord {
 }
 export interface AppOptions {
   now?: () => number;
+  schemaOnly?: boolean;
 }
 export async function buildApp(options: AppOptions = {}) {
-  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
+  if (!options.schemaOnly && !process.env.DATABASE_URL)
+    throw new Error('DATABASE_URL is required');
   const app = Fastify({ logger: process.env.NODE_ENV !== 'test' });
   const now = options.now ?? Date.now;
-  const db = database();
+  const db = database(
+    options.schemaOnly ? 'postgresql://localhost/schema-only' : undefined,
+  );
   try {
-    await db.ready();
+    if (!options.schemaOnly) await db.ready();
   } catch (error) {
     await db.close();
     throw new Error('Database connection failed', { cause: error });
