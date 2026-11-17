@@ -38,6 +38,7 @@ Out of scope:
 - Further exclusions to confirm during refinement.
 
 ## Dependencies
+- The [Neon migration ticket](../tickets/chore-migrate-persistence-to-neon.md) persists the existing API audit events. FR-12 extends that audit trail for later workflow stages and customer history without a separate process-local store.
 
 - Determine prerequisites and sequencing with the Product Owner.
 

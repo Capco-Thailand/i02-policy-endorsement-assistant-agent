@@ -38,6 +38,7 @@ Out of scope:
 - Further exclusions to confirm during refinement.
 
 ## Dependencies
+- Use the authorized structured policy records from Neon after the [migration ticket](../tickets/chore-migrate-persistence-to-neon.md) is implemented. Choose retrieval storage and any pgvector use during FR-04 refinement; the Neon migration does not implement RAG.
 
 - Determine prerequisites and sequencing with the Product Owner.
 
