@@ -3,13 +3,11 @@ name: bmad-qa-generate-e2e-tests
 description: 'Add end-to-end and API tests for features that already work, following the project''s existing test harness. Use when the user asks for e2e tests, API tests, or automated coverage of an existing feature, or says "create qa automated tests for [feature]". Not for unit tests on work in flight, which the build writes.'
 ---
 
-Run the following command exactly once without changing the current working directory.
+Run the following command exactly once from the project root. If you are in a subdirectory, change to the project root first.
 
-Replace `{project-root}` with the nearest folder containing `_bmad/`, from the working directory upward.
-Replace `{skill-root}` with the absolute path to this skill's directory.
 
 ```bash
-uv run --no-cache "{project-root}/_bmad/scripts/render_skill.py" --project-root "{project-root}" --skill "{skill-root}"
+uv run --cache-dir .uv-cache ./_bmad/scripts/render_skill.py --project-root . --skill ./.agents/skills/bmad-qa-generate-e2e-tests
 ```
 
 - The command prints the skill's workflow: follow it. `HALT: <reason>`: report the reason and stop.

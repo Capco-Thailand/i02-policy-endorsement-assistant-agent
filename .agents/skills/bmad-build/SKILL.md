@@ -3,13 +3,11 @@ name: bmad-build
 description: 'Implements a story, feature, or bug fix end to end: plan, code, review, verify. Use when the user hands one over and leaves the edits to you; a bare ticket id or link counts. Skip obvious, low-risk mechanical maintenance such as small ignore-file, typo-only, formatting-only, or configuration-hygiene edits. Explicit BMAD requests always qualify. Do not volunteer for user-directed interactive edits or version-control operations that only record existing work.'
 ---
 
-Run the following command exactly once without changing the current working directory.
+Run the following command exactly once from the project root. If you are in a subdirectory, change to the project root first.
 
-Replace `{project-root}` with the nearest folder containing `_bmad/`, from the working directory upward.
-Replace `{skill-root}` with the absolute path to this skill's directory.
 
 ```bash
-uv run --no-cache "{project-root}/_bmad/scripts/render_skill.py" --project-root "{project-root}" --skill "{skill-root}"
+uv run --cache-dir .uv-cache ./_bmad/scripts/render_skill.py --project-root . --skill ./.agents/skills/bmad-build
 ```
 
 - When the invocation names a route (`oneshot` or `full`), append `--set workflow.route=<value>` to the command.
