@@ -11,4 +11,4 @@ Describe the outcome and link the delivered UX or implementation evidence.
 
 Check whether this change affects the PRD, ticket, API contract, stack, test commands, or design guidance. Update affected documents in this PR. If none change, use `Documentation: No change: <reason>` above.
 
-Use `Type: ticket/UX` and `Issue: Pending` for the ticket and UX handoff PR. Merge automation creates the Issue. Use `Type: implementation` and the resulting `Issue: #<number>` for a build PR; passing validation and code checks enable auto-merge. Replace every placeholder before opening the PR. Do not use an issue-closing keyword before human acceptance.
+Use `Type: ticket/UX` and `Issue: Pending` for the ticket and UX handoff PR. Merge automation creates the Issue. Use `Type: implementation` and the resulting `Issue: #<number>` for a build PR; the `Ticket links` workflow enables auto-merge after required validation and code checks pass. After merge, automation marks the linked Issue Done. Replace every placeholder before opening the PR.

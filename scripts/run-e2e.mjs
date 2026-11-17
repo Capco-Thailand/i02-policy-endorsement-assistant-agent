@@ -1,4 +1,5 @@
 import { execFileSync, spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { mkdir, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -14,8 +15,13 @@ const timestamp = new Intl.DateTimeFormat('en-CA', {
 })
   .format(new Date())
   .replace(/\D/g, '');
+const eventTicketId = process.env.GITHUB_EVENT_PATH
+  ? JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'))
+      .pull_request?.body?.match(/^Ticket:\s*docs\/tickets\/([a-z0-9-]+)\.md\s*$/mi)?.[1]
+  : null;
 const ticketId =
   process.env.E2E_TICKET_ID ??
+  eventTicketId ??
   execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' })
     .trim()
     .match(/(?:^|\/)(fr-\d{2}-[a-z0-9-]+)/)?.[1];

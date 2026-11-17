@@ -10,7 +10,6 @@ permissions:
   pull-requests: write
 jobs:
   enable-auto-merge:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
