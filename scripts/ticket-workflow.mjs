@@ -215,7 +215,7 @@ function check() {
   const pr = event.pull_request;
   if (isLegacy(pr)) return;
   const metadata = optionalPrMetadata(pr.body ?? '');
-  if (!metadata) { console.log('No ticket metadata; skipping ticket link check.'); return; }
+  if (!metadata) { if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, 'implementation=false\n'); console.log('No ticket metadata; skipping ticket link and implementation checks.'); return; }
   const ticket = prTicket(metadata.path, pr.head.sha);
   if (metadata.type === 'ticket/UX' && !metadata.number) {
     if (issueNumber(ticket)) fail('A pre-merge ticket/UX PR must not claim an Issue that has not been created by the merge workflow.');
