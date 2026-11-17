@@ -2,17 +2,15 @@ name: Ticket Issue activity
 on:
   pull_request_target:
     types: [closed]
-    branches: [main, 'test/**']
+    branches: [main, 'codex/main-backup', 'test/**']
   push:
-    branches: [main, 'test/**']
+    branches: [main, 'codex/main-backup', 'test/**']
 permissions:
   contents: write
   issues: write
   pull-requests: write
 jobs:
   sync:
-    # Ticket automation is paused while all ticket checks are disabled.
-    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

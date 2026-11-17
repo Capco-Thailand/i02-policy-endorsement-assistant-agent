@@ -13,5 +13,6 @@ apps/web/dist/
 apps/web/.next/
 apps/web/next-env.d.ts
 apps/web/*.tsbuildinfo
+apps/web/AGENTS.md
 playwright-report/
 test-results/

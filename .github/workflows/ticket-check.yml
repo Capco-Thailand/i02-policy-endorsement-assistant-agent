@@ -1,7 +1,7 @@
 name: Ticket links
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, edited, synchronize, reopened, ready_for_review]
 permissions:
   contents: read
   issues: read
@@ -14,9 +14,43 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate ticket links
+        id: ticket
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: node scripts/ticket-workflow.mjs check
+      - uses: actions/setup-node@v4
+        if: steps.ticket.outputs.implementation == 'true'
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install implementation dependencies
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm ci
+      - name: Test implementation
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm test
+      - name: Typecheck implementation
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run typecheck
+      - name: Check implementation formatting
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run format:check
+      - name: Build implementation
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run build
+      - name: Install Chromium
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Test browser E2E
+        if: steps.ticket.outputs.implementation == 'true'
+        run: npm run test:e2e
+      - name: Upload E2E report
+        if: always() && steps.ticket.outputs.implementation == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-${{ github.run_id }}
+          path: test-results/
+          if-no-files-found: warn
 

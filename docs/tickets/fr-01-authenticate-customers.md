@@ -1,12 +1,12 @@
 # FR-01 — Authenticate Customers
 
 **Title:** [Story] Authenticate customers with synthetic demo accounts
-**Labels:** `type:story`
-**GitHub Issue:** Not filed
+**Labels:** `type:story`, `role:dev`
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/51
 **Feature ID:** FR-01
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an authentication failure could expose another customer's policy or let someone approve their request.
-**State:** Backlog draft
+**State:** Selected for implementation
 **Requirements owner:** This file.
 
 ## Summary and objective
@@ -51,9 +51,10 @@ N/A
 - 2026-11-12: Corrected the primary actor from policy-service staff to the customer. Customers request changes to their own synthetic policies, review the proposed updated-policy view, and record their own decisions. Approval adds a record to the customer's history page without a later review or issuance step. This supersedes the previous staff sign-in and separate-reviewer model.
 - The customer-facing criteria above are the current FR-01 scope; the proposal review and history screens belong to later tickets.
 
-## UX handoff
-
-No current design. Create a fresh UX handoff when this draft is selected.
+## UX handoff references
+- [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-01/DESIGN.md)
+- [Behavior contract](../../_bmad-output/initiative-customer-authentication/ux-fr-01/EXPERIENCE.md)
+- [Browser mockup](../../design/page/sign-in.html) and [mockup index](../../design/page/index.html)
 
 ## Definition of Done
 

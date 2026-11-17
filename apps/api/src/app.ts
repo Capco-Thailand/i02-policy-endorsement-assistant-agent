@@ -1,0 +1,323 @@
+import Fastify from 'fastify';
+import { randomUUID } from 'node:crypto';
+import {
+  RequestBody,
+  RequestRecordSchema,
+  validAllocation,
+  validDate,
+  type RequestInput,
+  type RequestRecord,
+} from './endorsement/schema.js';
+import cookie from '@fastify/cookie';
+import cors from '@fastify/cors';
+import swagger from '@fastify/swagger';
+import { Type, type Static } from '@sinclair/typebox';
+import { authenticate, policies } from './auth/data.js';
+import { ownsPolicy } from './auth/guards.js';
+import { COOKIE_NAME, SESSION_LIFETIME_MS, Sessions } from './auth/session.js';
+
+const ErrorSchema = Type.Object({ error: Type.String() });
+const ActorSchema = Type.Object({
+  id: Type.String(),
+  accountId: Type.String(),
+  name: Type.String(),
+});
+const PolicySchema = Type.Object({
+  id: Type.String(),
+  label: Type.String(),
+  status: Type.Union([Type.Literal('ACTIVE'), Type.Literal('EXPIRED')]),
+});
+const PolicyDetailSchema = Type.Object({
+  ...PolicySchema.properties,
+  effectiveDate: Type.String({ format: 'date' }),
+  expiryDate: Type.String({ format: 'date' }),
+  paymentFrequency: Type.Union([
+    Type.Literal('MONTHLY'),
+    Type.Literal('ANNUAL'),
+  ]),
+  beneficiaries: Type.Array(
+    Type.Object({ name: Type.String(), allocationPercent: Type.Number() }),
+  ),
+});
+const SignInBody = Type.Object(
+  {
+    accountId: Type.String({ minLength: 1 }),
+    password: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false },
+);
+const PolicyParams = Type.Object({ policyId: Type.String() });
+type Credentials = Static<typeof SignInBody>;
+type Params = Static<typeof PolicyParams>;
+
+export interface AuditRecord {
+  actorId: string;
+  action: string;
+  at: number;
+}
+export interface AppOptions {
+  now?: () => number;
+  audit?: AuditRecord[];
+  requests?: RequestRecord[];
+}
+export async function buildApp(options: AppOptions = {}) {
+  const app = Fastify({ logger: process.env.NODE_ENV !== 'test' });
+  const now = options.now ?? Date.now;
+  const sessions = new Sessions(now);
+  const audit = options.audit ?? [];
+  const requests = options.requests ?? [];
+  await app.register(cookie);
+  await app.register(cors, {
+    origin: 'http://localhost:3001',
+    credentials: true,
+  });
+  await app.register(swagger, {
+    openapi: {
+      info: { title: 'Policy Endorsement Assistant API', version: '0.1.0' },
+    },
+  });
+  const unauthorized = { error: 'UNAUTHORIZED' };
+  const actorFor = (request: { cookies: Record<string, string | undefined> }) =>
+    sessions.get(request.cookies[COOKIE_NAME]);
+  const record = (actorId: string, action: string) => {
+    const event = { actorId, action, at: now() };
+    audit.push(event);
+    app.log.info(event, 'audit');
+  };
+  const cookieOptions = {
+    path: '/api',
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure: process.env.NODE_ENV === 'production',
+  };
+
+  app.post<{ Body: Credentials }>(
+    '/api/auth/sign-in',
+    {
+      schema: {
+        body: SignInBody,
+        response: {
+          200: Type.Object({ actor: ActorSchema, expiresAt: Type.Number() }),
+          401: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const customer = authenticate(
+        request.body.accountId,
+        request.body.password,
+      );
+      if (!customer) return reply.code(401).send(unauthorized);
+      const token = sessions.create(customer);
+      reply.setCookie(COOKIE_NAME, token, {
+        ...cookieOptions,
+        maxAge: SESSION_LIFETIME_MS / 1000,
+      });
+      record(customer.id, 'sign-in');
+      return {
+        actor: {
+          id: customer.id,
+          accountId: customer.accountId,
+          name: customer.name,
+        },
+        expiresAt: sessions.expiresAt(token),
+      };
+    },
+  );
+  app.get(
+    '/api/auth/session',
+    {
+      schema: {
+        response: {
+          200: Type.Object({ actor: ActorSchema, expiresAt: Type.Number() }),
+          401: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = actorFor(request);
+      if (!actor) return reply.code(401).send(unauthorized);
+      record(actor.id, 'session-read');
+      return {
+        actor: { id: actor.id, accountId: actor.accountId, name: actor.name },
+        expiresAt: sessions.expiresAt(request.cookies[COOKIE_NAME]),
+      };
+    },
+  );
+  app.post(
+    '/api/auth/sign-out',
+    { schema: { response: { 204: Type.Null(), 401: ErrorSchema } } },
+    async (request, reply) => {
+      const actor = actorFor(request);
+      if (!actor) return reply.code(401).send(unauthorized);
+      sessions.delete(request.cookies[COOKIE_NAME]);
+      reply.clearCookie(COOKIE_NAME, cookieOptions);
+      record(actor.id, 'sign-out');
+      return reply.code(204).send();
+    },
+  );
+  app.get(
+    '/api/policies',
+    {
+      schema: {
+        response: {
+          200: Type.Object({ policies: Type.Array(PolicySchema) }),
+          401: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = actorFor(request);
+      if (!actor) return reply.code(401).send(unauthorized);
+      record(actor.id, 'policies-list');
+      return {
+        policies: policies
+          .filter((policy) => ownsPolicy(actor, policy))
+          .map(({ id, label, status }) => ({ id, label, status })),
+      };
+    },
+  );
+  app.get<{ Params: Params }>(
+    '/api/policies/:policyId',
+    {
+      schema: {
+        params: PolicyParams,
+        response: {
+          200: Type.Object({ policy: PolicyDetailSchema }),
+          401: ErrorSchema,
+          404: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = actorFor(request);
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = policies.find(
+        (item) => item.id === request.params.policyId,
+      );
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      record(actor.id, 'policy-read');
+      return {
+        policy: {
+          id: policy.id,
+          label: policy.label,
+          status: policy.status,
+          effectiveDate: policy.effectiveDate,
+          expiryDate: policy.expiryDate,
+          paymentFrequency: policy.paymentFrequency,
+          beneficiaries: policy.beneficiaries,
+        },
+      };
+    },
+  );
+  app.post<{ Params: Params; Body: RequestInput }>(
+    '/api/policies/:policyId/requests',
+    {
+      schema: {
+        params: PolicyParams,
+        body: RequestBody,
+        response: {
+          200: Type.Object({ request: RequestRecordSchema }),
+          400: ErrorSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          409: ErrorSchema,
+        },
+      },
+      preValidation: (request, reply, done) => {
+        const actor = actorFor(request);
+        if (!actor) {
+          reply.code(401).send(unauthorized);
+          return;
+        }
+        const policy = policies.find(
+          (item) => item.id === request.params.policyId,
+        );
+        if (!ownsPolicy(actor, policy)) {
+          reply.code(404).send({ error: 'NOT_FOUND' });
+          return;
+        }
+        if (policy.status !== 'ACTIVE') {
+          reply.code(409).send({ error: 'POLICY_EXPIRED' });
+          return;
+        }
+        const body = request.body;
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+          reply.code(400).send({ error: 'INVALID_REQUEST' });
+          return;
+        }
+        const allowed: Record<string, string[]> = {
+          BENEFICIARY: [
+            'changeType',
+            'requestedEffectiveDate',
+            'beneficiaries',
+          ],
+          ADDRESS: [
+            'changeType',
+            'requestedEffectiveDate',
+            'correspondenceAddress',
+          ],
+          PAYMENT_FREQUENCY: [
+            'changeType',
+            'requestedEffectiveDate',
+            'paymentFrequency',
+          ],
+          ACCIDENTAL_DEATH_RIDER: [
+            'changeType',
+            'requestedEffectiveDate',
+            'riderAction',
+          ],
+        };
+        const selected =
+          typeof body.changeType === 'string' &&
+          Object.hasOwn(allowed, body.changeType)
+            ? allowed[body.changeType]
+            : undefined;
+        if (
+          !selected ||
+          Object.keys(body).some((key) => !selected.includes(key))
+        ) {
+          reply.code(400).send({ error: 'INVALID_REQUEST_FIELDS' });
+          return;
+        }
+        done();
+      },
+    },
+    async (request, reply) => {
+      const body = request.body;
+      if (body.changeType === 'ADDRESS' && !body.correspondenceAddress.trim())
+        return reply
+          .code(400)
+          .send({ error: 'INVALID_CORRESPONDENCE_ADDRESS' });
+      if (
+        body.changeType === 'BENEFICIARY' &&
+        body.beneficiaries.some((item) => !item.name.trim())
+      )
+        return reply.code(400).send({ error: 'INVALID_BENEFICIARIES' });
+      if (!validDate(body.requestedEffectiveDate))
+        return reply
+          .code(400)
+          .send({ error: 'INVALID_REQUESTED_EFFECTIVE_DATE' });
+      if (!validAllocation(body))
+        return reply.code(400).send({ error: 'INVALID_ALLOCATION' });
+      const actor = actorFor(request);
+      if (!actor) return reply.code(401).send(unauthorized);
+      const saved: RequestRecord = {
+        ...body,
+        id: randomUUID(),
+        requesterId: actor.id,
+        policyId: request.params.policyId,
+        createdAt: new Date(now()).toISOString(),
+      };
+      requests.push(saved);
+      record(actor.id, 'request-create');
+      return { request: saved };
+    },
+  );
+  app.get('/openapi.json', { schema: { hide: true } }, async () =>
+    app.swagger(),
+  );
+  await app.ready();
+  return app;
+}

@@ -1,12 +1,12 @@
 # FR-02 — Create Endorsement Request
 
 **Title:** [Story] Create an endorsement request for a customer's policy
-**Labels:** `type:story`
-**GitHub Issue:** Not filed
+**Labels:** `type:story`, `role:dev`
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/52
 **Feature ID:** FR-02
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a request against another customer's policy could disclose data or start an unauthorized workflow.
-**State:** Backlog draft; depends on FR-01 and FR-03
+**State:** Selected; ready for implementation after FR-01 and FR-03 merges
 
 ## Summary and objective
 
@@ -67,11 +67,12 @@ None.
 - Request capture is separate from downstream eligibility, quote, and draft work. FR-03 policy access is required first.
 - 2026-11-13: Only `ACTIVE` policies may start or submit an endorsement request. `EXPIRED` policies cannot create a request, including through direct API calls.
 - 2026-11-13: Beneficiary requests replace the complete beneficiary list; the submitted allocations must total 100%.
-- Status: Backlog draft. FR-01 and FR-03 dependency verification is pending; do not start implementation until they are usable.
+- 2026-11-16: FR-01 implementation [PR #54](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/54) and FR-03 implementation [PR #59](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/59) merged. Their session and policy-selection APIs/UI are available for FR-02. The ticket/UX handoff is merged and implementation may start.
 
-## UX handoff
-
-No current design. Create fresh `DESIGN.md`, `EXPERIENCE.md`, and browser mockups for request entry and expired policies when this draft is selected.
+## UX handoff references
+- [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-02/DESIGN.md)
+- [Behavior contract](../../_bmad-output/initiative-customer-authentication/ux-fr-02/EXPERIENCE.md)
+- [Browser mockup](../../design/page/create-endorsement-request.html) and [mockup index](../../design/page/index.html)
 
 ## Definition of Done
 

@@ -154,4 +154,4 @@ Actual: [Observed behavior.]
 
 [Copy the Definition of Done section from the story body.]
 
-Update **Progress & Handover** in the Issue before stopping or transferring work. Use `Not Started`, `In Progress`, `Blocked`, `In Review`, or `Done`; link evidence and date the update. Completing implementation does not itself record human approval.
+Update **Progress & Handover** in the Issue before stopping or transferring work. Use `Not Started`, `In Progress`, `Blocked`, or `In Review` while implementation is underway. After an implementation PR merges, automation sets the status to `Done` and records the merged PR.

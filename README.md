@@ -1,9 +1,13 @@
 # Policy Endorsement Assistant
 
-Prototype planning repository for synthetic insurance policy endorsements. FR-01 has a [requirement ticket](docs/tickets/fr-01-authenticate-customers.md); the API and web app await implementation. No live insurer system is connected and no coverage can be bound.
+Synthetic insurance endorsement prototype. FR-01 provides customer sign-in, expiring API sessions, and a minimal linked-policy landing page. No live insurer system is connected and no coverage can be bound.
 
-The root npm workspace retains `apps/ai` as a placeholder for future synthetic data and retrieval work. Install dependencies from the repository root with `npm ci`. There is currently no API or web runtime to start.
+## Run locally
+
+Install from the root with `npm ci`. Start `npm run dev:api` and `npm run dev:web` in separate terminals, then open `http://localhost:3001`. Demo accounts are `narin` / `NarinDemo123!` and `mali` / `MaliDemo123!`. They have separate synthetic policy links. See [API development](docs/API_DEVELOPMENT.md) for contracts, session settings, and configuration.
+
+Run `npm test`, `npm run typecheck`, `npm run build -w apps/web`, and `npm run format:check` to verify the implementation. The root lockfile covers the `apps/api`, `apps/web`, and placeholder `apps/ai` workspaces.
 
 ## Ticket workflow
 
-The local Markdown requirement is the build specification. Select a backlog item, complete a new ticket and UX handoff, and merge its review PR before building. See [ticket workflow](docs/TICKETING.md) for the process.
+The local Markdown [FR-01 requirement](docs/tickets/fr-01-authenticate-customers.md) is the build specification. See [ticket workflow](docs/TICKETING.md) for delivery tracking.

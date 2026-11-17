@@ -3,6 +3,7 @@
 QA/Sec works across the API, web app, and data/RAG code. Use synthetic policies, rules, requests, and rating data only. Tie each test case to a goal, workflow step, safety boundary, or success measure in [PRD.md](PRD.md), and record the expected state, tool calls, and audit result.
 
 ## Test-driven development
+
 For behavior-changing work, choose the public interfaces to test during planning and confirm those seams with the requester before writing tests. State what each seam can and cannot prove. Map the selected acceptance criterion to an observable result at that seam; prefer a known expected value from the requirement over one calculated by the implementation.
 
 Work in small vertical slices. Write one focused test first, run it, and confirm it fails because the required behavior is missing rather than because the test setup is broken. Implement only what makes that test pass, run it again, then take the next slice. Do not write a whole suite of speculative tests before implementation. Keep tests independent of private methods and internal collaborators; mock external boundaries such as an API, clock, or filesystem only when needed. Perform broader refactoring and rerun the affected tests during review, after the red-to-green implementation cycles.
@@ -20,6 +21,7 @@ Record the test name and red/green commands or results in the implementation han
 Keep component tests beside the code they cover. When a shared flow spans apps, keep one labeled scenario and its synthetic fixtures reusable across the relevant tests. Verify the audit trail contains request ID, cited rule versions, validation outcome, tool calls, and final status without unnecessary personal data.
 
 ## Browser E2E and visual checks
+
 Treat a request to "run E2E" as authorization to prepare and run the browser suite. If no ticket or feature is named, use the active ticket or feature evident from the current checkout and recent test evidence; if none is identifiable, run all implemented user-facing flows. Record the chosen scope in the report. Do not pause to confirm the target or ask permission to add the dependency, configuration, browser, fixtures, or runnable tests needed for the run. Ask only when the scope cannot be determined from the repository or an external decision is required.
 
 Before claiming browser coverage, check for a Playwright dependency, configuration, test command, and runnable browser tests. If any piece is missing, set up the Playwright runner, install the browser, configure API and web app startup, provide synthetic fixtures, and add at least one runnable browser test before running E2E or claiming browser coverage. An E2E request includes this setup work. Do not report a manual browser walkthrough or component test as automated E2E evidence.
@@ -30,9 +32,10 @@ Run browser E2E scenarios through the public UI against the API and web app when
 
 For a screen with a reviewed UX handoff, compare stable desktop and narrow viewport screenshots to baselines reviewed against its `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable mockup. A passing screenshot comparison proves the current UI matches that baseline; it does not prove exact pixel identity with the mockup or cover states and pages absent from the test. Remove development-only overlays from captures and review intended design changes before updating baselines. Attach both the reference and current images to the HTML result even when a visual test passes.
 
-Save each Playwright HTML result under `test-results/` with the local run date and time in the HTML filename. Keep its image and trace assets beside that file so older reports remain viewable. Keep `test-results/index.html` pointing to the latest run. Use Asia/Bangkok time for the timestamp. The harness must provide `npm run test:e2e`; after adding its dependency and configuration, install Chromium with `npx playwright install chromium` and run that command.
+Save each Playwright HTML result under a ticket-specific folder, `test-results/<ticket-id>/`, with the local run date and time in the HTML filename. Keep its image and trace assets beside that file so older reports remain viewable. Keep `test-results/index.html` pointing to the latest run across all ticket folders. Use the ticket ID from the active ticket (for example, `fr-01-authenticate-customers`) and Asia/Bangkok time for the timestamp. The harness must provide `npm run test:e2e`; after adding its dependency and configuration, install Chromium with `npx playwright install chromium` and run that command.
 
 ## Acceptance criteria traceability
+
 For each ticket, use its current acceptance criteria as the source for test planning. Before implementation, break each criterion into observable success, rejection, and boundary cases as applicable. Give each case a stable reference to the ticket and criterion; use the criterion's ID when it has one, otherwise a short identifying phrase that remains clear if bullets are reordered. Include that reference in the test name or in a nearby test comment. Build the mapping as each red-to-green slice lands.
 
 Maintain a traceability record with the ticket that contains, for every criterion: its reference, test file and scenario or manual check, verification layer (unit, component, API, integration, or browser), expected result, latest run result, and any uncovered behavior. Link to evidence rather than treating a test filename or a planned test as proof of a pass. Mark a criterion verified only when every part of it has applicable evidence and the relevant checks have passed.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { posix, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -121,11 +121,52 @@ function isHandoffFile(path, ticket) {
     || /^_bmad-output\/.+\/ux-[^/]+\/.+\.(?:md|html)$/.test(path)
     || (/^docs\/.+\.md$/.test(path) && !path.startsWith('docs/tickets/'));
 }
+function isAutoMergeCandidate(type, ticket, files) {
+  if (type === 'implementation') return files.length > 0;
+  return type === 'ticket/UX' && files.some((file) => file.filename === ticket)
+    && files.every((file) => isHandoffFile(file.filename, ticket));
+}
+function hasPassedImplementationChecks(jobs) {
+  const required = [
+    'Install implementation dependencies',
+    'Test implementation',
+    'Typecheck implementation',
+    'Check implementation formatting',
+    'Build implementation',
+    'Test browser E2E',
+  ];
+  return jobs.some((job) => job.name === 'check' && required.every((name) =>
+    job.steps?.some((step) => step.name === name && step.conclusion === 'success')));
+}
+function markIssueDone(body, { number, url, mergedAt }) {
+  const start = body.indexOf('## Progress & Handover');
+  if (start < 0) fail('Issue has no Progress & Handover section.');
+  const end = body.indexOf(`\n${sectionStart}`, start);
+  const stop = end < 0 ? body.length : end;
+  let handover = body.slice(start, stop);
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date(mergedAt)).map(({ type, value }) => [type, value]));
+  const date = `${parts.year}-${parts.month}-${parts.day}`;
+  const fields = {
+    Status: 'Done',
+    Completed: `Implementation PR #${number} merged on ${date}.`,
+    PR: `[#${number}](${url})`,
+    'Next Action': 'N/A',
+    'Last Updated': date,
+  };
+  for (const [label, value] of Object.entries(fields)) {
+    const field = new RegExp(`(^- \\*\\*${label}:\\*\\* ).*$`, 'm');
+    if (field.test(handover)) handover = handover.replace(field, `$1${value}`);
+    else handover += `\n- **${label}:** ${value}`;
+  }
+  return body.slice(0, start) + handover + body.slice(stop);
+}
 function activity(number, path) {
   const prs = relatedPrs(number, path);
   const mergedImplementation = prs.filter((item) => prType(item) === 'implementation' && item.mergedAt);
   const delivery = mergedImplementation.length
-    ? /^Revert\b/i.test(mergedImplementation.at(-1).title) ? 'Implementation reverted; review before rebuilding.' : 'Implementation merged; awaiting human acceptance.'
+    ? /^Revert\b/i.test(mergedImplementation.at(-1).title) ? 'Implementation reverted; review before rebuilding.' : 'Implementation merged; Issue marked Done.'
     : prs.some((item) => prType(item) === 'ticket/UX' && item.mergedAt) ? 'Requirements merged; implementation pending.' : 'Requirements pending.';
   const lines = prs.map((item) => {
     const type = prType(item);
@@ -197,22 +238,41 @@ function check() {
     const named = metadata.docs.split(',').map((part) => part.trim());
     if (named.some((path) => !files.some((file) => file.filename === path))) fail('Documentation line must name changed paths, or give No change: reason.');
   }
+  if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `implementation=${metadata.type === 'implementation'}\n`);
   console.log(`Checked PR #${pr.number}, ${metadata.number ? `Issue #${metadata.number}` : 'Issue pending merge'}, and ${metadata.path}`);
 }
 
 function autoMerge() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+  if (event.pull_request) {
+    const pr = event.pull_request;
+    if (pr.state !== 'open' || pr.draft || !['main', 'codex/main-backup'].includes(pr.base.ref)) return;
+    let metadata;
+    try { metadata = parsePr(pr.body ?? ''); } catch { return; }
+    if (metadata.type !== 'implementation' || !isAutoMergeCandidate(metadata.type, metadata.path, prFiles(pr.number))) return;
+    const ticket = prTicket(metadata.path, pr.head.sha);
+    if (issueNumber(ticket) !== metadata.number) return;
+    const issue = api(`repos/${repo}/issues/${metadata.number}`);
+    if (isLegacy(issue) || issue.state !== 'open' || !sameIssue(issue.body ?? '', metadata.path)) return;
+    gh('pr', 'merge', String(pr.number), '--repo', repo, '--auto', '--squash');
+    console.log(`Enabled auto-merge for implementation PR #${pr.number}`);
+    return;
+  }
   const run = event.workflow_run;
   if (run.name !== 'Ticket links' || run.conclusion !== 'success' || run.event !== 'pull_request') return;
   for (const candidate of run.pull_requests ?? []) {
     const pr = api(`repos/${repo}/pulls/${candidate.number}`);
     if (isLegacy(pr)) continue;
-    if (pr.state !== 'open' || pr.draft || pr.head.sha !== run.head_sha || pr.base.ref !== event.repository.default_branch) continue;
+    if (pr.state !== 'open' || pr.draft || pr.head.sha !== run.head_sha || !['main', 'codex/main-backup'].includes(pr.base.ref)) continue;
     let metadata;
     try { metadata = parsePr(pr.body ?? ''); } catch { continue; }
-    if (metadata.type !== 'ticket/UX') continue;
     const files = prFiles(pr.number);
-    if (!files.some((file) => file.filename === metadata.path) || files.some((file) => !isHandoffFile(file.filename, metadata.path))) continue;
+    if (!isAutoMergeCandidate(metadata.type, metadata.path, files)) continue;
+    if (metadata.type === 'implementation' && pr.auto_merge) continue;
+    if (metadata.type === 'implementation') {
+      const jobs = api(`repos/${repo}/actions/runs/${run.id}/jobs?per_page=100`).jobs ?? [];
+      if (!hasPassedImplementationChecks(jobs)) continue;
+    }
     const ticket = prTicket(metadata.path, pr.head.sha);
     if (metadata.number) {
       if (issueNumber(ticket) !== metadata.number) continue;
@@ -220,7 +280,7 @@ function autoMerge() {
       if (isLegacy(issue) || issue.state !== 'open' || !sameIssue(issue.body ?? '', metadata.path)) continue;
     } else if (issueNumber(ticket)) continue;
     gh('pr', 'merge', String(pr.number), '--repo', repo, '--auto', '--squash');
-    console.log(`Enabled auto-merge for ticket/UX PR #${pr.number}`);
+    console.log(`Enabled auto-merge for ${metadata.type} PR #${pr.number}`);
   }
 }
 
@@ -260,8 +320,11 @@ function sync() {
   const pr = event.pull_request;
   if (isLegacy(pr)) return;
   const metadata = optionalPrMetadata(pr.body ?? '');
-  if (!metadata) return;
-  if (metadata.number) syncIssue(metadata.path, metadata.number);
+  if (!metadata || !metadata.number) return;
+  const completion = event.pull_request?.merged && metadata.type === 'implementation'
+    ? { number: event.pull_request.number, url: event.pull_request.html_url, mergedAt: event.pull_request.merged_at }
+    : null;
+  syncIssue(metadata.path, metadata.number, completion);
 }
 async function publishMerged() {
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
@@ -302,12 +365,13 @@ async function publishMerged() {
     }
   }
 }
-function syncIssue(path, number = issueNumber(readTicket(path))) {
+function syncIssue(path, number = issueNumber(readTicket(path)), completion = null) {
   if (!number) fail('Ticket has no linked GitHub Issue.');
   const issue = api(`repos/${repo}/issues/${number}`);
   if (isLegacy(issue)) fail(`Issue #${number} is labeled LEGACY.`);
   if (!sameIssue(issue.body ?? '', path)) fail('Issue and ticket paths disagree.');
-  const body = replaceAutomation(replaceTicket(issue.body ?? '', path, readTicket(path)), activity(number, path));
+  let body = replaceAutomation(replaceTicket(issue.body ?? '', path, readTicket(path)), activity(number, path));
+  if (completion) body = markIssueDone(body, completion);
   if (body !== issue.body) api(`repos/${repo}/issues/${number}`, 'PATCH', [['body', body]]);
   console.log(`Updated Issue #${number} requirements and automation section`);
 }
@@ -348,7 +412,7 @@ function preflight(path) {
   if (/\*\*Status:\*\*\s*(Blocked|In Review|Done)/i.test(handover)) fail('Issue handover does not show a ticket ready for a new build.');
 }
 
-export { isHandoffFile, issueBody, issueLabels, issueNumber, issueTicket, parsePr, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink };
+export { hasPassedImplementationChecks, isAutoMergeCandidate, isHandoffFile, issueBody, issueLabels, issueNumber, issueTicket, parsePr, replaceTicket, sameIssue, waivesHandoffMerge, withIssueLink };
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) try {
   if (!repo) fail('GITHUB_REPOSITORY is required.');
   if (command === 'create') await create(ticketPath(arg));

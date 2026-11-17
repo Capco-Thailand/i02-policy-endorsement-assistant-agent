@@ -78,7 +78,7 @@ body:
     id: handover
     attributes:
       label: Progress & Handover
-      description: Edit this section in the Issue body before stopping or transferring work. Use Status values Not Started, In Progress, Blocked, In Review, or Done. Link evidence and record the update date; use N/A where a field does not apply.
+      description: Edit this section before stopping or transferring work. Use Not Started, In Progress, Blocked, or In Review before implementation merge; automation sets Done and records the merged implementation PR. Link evidence and record the update date; use N/A where a field does not apply.
       value: |
         - **Status:** Not Started
         - **Completed:** N/A
