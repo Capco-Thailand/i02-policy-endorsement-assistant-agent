@@ -2,7 +2,7 @@ import { expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RequestForm } from './RequestForm';
-import { usePolicy, useCreateRequest } from '../lib/queries';
+import { usePolicy, useCreateRequest, useDocumentBypass } from '../lib/queries';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock('../lib/queries', () => ({
@@ -13,6 +13,12 @@ vi.mock('../lib/queries', () => ({
     isError: false,
     data: null,
     mutate: vi.fn(),
+  })),
+  useDocumentBypass: vi.fn(() => ({
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+    data: null,
   })),
 }));
 
@@ -98,6 +104,13 @@ it('keeps entered address on service failure and confirms only a recorded pendin
     .fn()
     .mockRejectedValueOnce(new Error('API_UNAVAILABLE'))
     .mockResolvedValueOnce({ request: { id: 'REQ-1' } });
+  const bypass = vi.fn();
+  vi.mocked(useDocumentBypass).mockReturnValue({
+    mutate: bypass,
+    isPending: false,
+    isError: false,
+    data: null,
+  } as unknown as ReturnType<typeof useDocumentBypass>);
   vi.mocked(useCreateRequest).mockReturnValue({
     mutateAsync,
     isPending: false,
@@ -137,6 +150,16 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   expect(screen.getByRole('status')).toHaveTextContent(
     /No policy coverage has changed/,
   );
+  expect(
+    screen.getByText(/No real document verification is performed/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Record mock document bypass' }),
+  ).toBeInTheDocument();
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Record mock document bypass' }),
+  );
+  expect(bypass).toHaveBeenCalledWith('REQ-1');
   expect(mutateAsync).toHaveBeenCalledTimes(2);
 });
 

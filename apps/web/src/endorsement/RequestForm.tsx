@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import type { RequestBody } from '../lib/api';
-import { useCreateRequest, usePolicy } from '../lib/queries';
+import { useCreateRequest, useDocumentBypass, usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { FocusHeading } from '../policies/FocusHeading';
 import { MockIdentityCheck } from './MockIdentityCheck';
@@ -23,6 +23,7 @@ const validDate = (value: string) => {
 export function RequestForm({ policyId }: { policyId: string }) {
   const query = usePolicy(policyId);
   const mutation = useCreateRequest(policyId);
+  const documentBypass = useDocumentBypass(policyId);
   const client = useQueryClient();
   const router = useRouter();
   const errorRef = useRef<HTMLParagraphElement>(null);
@@ -257,6 +258,31 @@ export function RequestForm({ policyId }: { policyId: string }) {
             No policy coverage has changed.
           </p>
           <MockIdentityCheck policyId={policyId} />
+          <h3>Document check</h3>
+          <p>
+            This is a simulation. No real document verification is performed.
+          </p>
+          {documentBypass.data ? (
+            <p aria-live="polite">
+              <strong>{documentBypass.data.status}</strong> —{' '}
+              {documentBypass.data.explanation}
+            </p>
+          ) : (
+            <>
+              <button
+                type="button"
+                disabled={documentBypass.isPending}
+                onClick={() => void documentBypass.mutate(saved.id)}
+              >
+                {documentBypass.isPending
+                  ? 'Recording mock bypass…'
+                  : 'Record mock document bypass'}
+              </button>
+              {documentBypass.isError && (
+                <p role="alert">Could not record the mock bypass. Try again.</p>
+              )}
+            </>
+          )}
           <Link href={routes.policy(policyId)}>Return to policy</Link>
         </section>
       ) : (
