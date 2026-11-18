@@ -1,5 +1,7 @@
 # AI-powered ADLC — five-slide reference
 
+Superseded by the [six-slide presentation](adlc-sprint-1-six-slides.md).
+
 [PowerPoint deck](../../artifacts/adlc-sprint-1-five-slides-ready.pptx)
 
 **Audience:** Customer stakeholders
