@@ -46,7 +46,7 @@ jobs:
         run: npm ci
       - name: Migrate and seed synthetic database
         if: steps.ticket.outputs.implementation == 'true'
-        run: npm run db:migrate -w apps/api && npm run db:seed -w apps/api
+        run: npm run db:migrate -w apps/api && npm run db:seed -w apps/api && npm run db:corpus -w apps/api
       - name: Test implementation
         if: steps.ticket.outputs.implementation == 'true'
         run: npm test

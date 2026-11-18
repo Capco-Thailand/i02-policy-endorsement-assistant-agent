@@ -287,6 +287,96 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/policies/{policyId}/evidence': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          query?: string;
+        };
+        header?: never;
+        path: {
+          policyId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Default Response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              evidence:
+                | {
+                    /** @enum {string} */
+                    status: 'available';
+                    citations: {
+                      documentId: string;
+                      version: string;
+                      sectionId: string;
+                      title: string;
+                      excerpt: string;
+                    }[];
+                  }
+                | {
+                    /** @enum {string} */
+                    status: 'unresolved';
+                    reason:
+                      | 'missing'
+                      | 'stale'
+                      | 'conflicting'
+                      | 'no_relevant_section';
+                    citations: {
+                      documentId: string;
+                      version: string;
+                      sectionId: string;
+                      title: string;
+                      excerpt: string;
+                    }[];
+                  };
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/policies/{policyId}/document-upload': {
     parameters: {
       query?: never;

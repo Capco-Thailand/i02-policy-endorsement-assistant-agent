@@ -2,13 +2,16 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PolicyDetail } from './PolicyDetail';
-import { usePolicy } from '../lib/queries';
+import { usePolicy, useEvidence } from '../lib/queries';
 
 const replace = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace }) }));
-vi.mock('../lib/queries', () => ({ usePolicy: vi.fn() }));
+vi.mock('../lib/queries', () => ({ usePolicy: vi.fn(), useEvidence: vi.fn() }));
 
 const show = (state: object) => {
+  vi.mocked(useEvidence).mockReturnValue({ isPending: true } as ReturnType<
+    typeof useEvidence
+  >);
   vi.mocked(usePolicy).mockReturnValue(state as ReturnType<typeof usePolicy>);
   const client = new QueryClient();
   client.setQueryData(['policies'], { policies: [{ id: 'POL-NARIN-001' }] });
@@ -21,6 +24,29 @@ const show = (state: object) => {
 };
 
 describe('FR-03 policy detail', () => {
+  it('FR-04 shows a labeled synthetic evidence section alongside policy facts', () => {
+    show({
+      isPending: false,
+      isError: false,
+      data: {
+        policy: {
+          id: 'POL-NARIN-001',
+          label: 'Family Protection Plan',
+          status: 'ACTIVE',
+          effectiveDate: '2025-01-01',
+          expiryDate: '2035-12-31',
+          paymentFrequency: 'MONTHLY',
+          beneficiaries: [],
+        },
+      },
+    });
+    expect(
+      screen.getByRole('heading', { name: 'Synthetic policy evidence' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /Start a change request/i }),
+    ).toBeInTheDocument();
+  });
   it('shows status, facts, allocations, and a return link without a request action', () => {
     show({
       isPending: false,

@@ -1,0 +1,110 @@
+[
+  {
+    "policyId": "POL-NARIN-001",
+    "productId": "FAMILY_PROTECTION",
+    "documentId": "DOC-FAMILY-001",
+    "version": "1.0.0",
+    "title": "Family Protection Plan mock policy",
+    "sections": [
+      {
+        "id": "status",
+        "topic": "status",
+        "text": "This synthetic Family Protection Plan policy is active.",
+        "fields": { "status": "ACTIVE" }
+      },
+      {
+        "id": "dates",
+        "topic": "dates",
+        "text": "The effective date is 2025-01-01 and the expiry date is 2035-12-31.",
+        "fields": { "effectiveDate": "2025-01-01", "expiryDate": "2035-12-31" }
+      },
+      {
+        "id": "payment",
+        "topic": "payment",
+        "text": "Premium payment frequency is monthly.",
+        "fields": { "paymentFrequency": "MONTHLY" }
+      },
+      {
+        "id": "beneficiaries",
+        "topic": "beneficiaries",
+        "text": "Current beneficiaries are Arisa K. at 60% and Decha K. at 40%.",
+        "fields": {
+          "beneficiaries": [
+            { "name": "Arisa K.", "allocationPercent": 60 },
+            { "name": "Decha K.", "allocationPercent": 40 }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "policyId": "POL-MALI-001",
+    "productId": "SECURE_FUTURE",
+    "documentId": "DOC-SECURE-001",
+    "version": "1.0.0",
+    "title": "Secure Future Plan mock policy",
+    "sections": [
+      {
+        "id": "status",
+        "topic": "status",
+        "text": "This synthetic Secure Future Plan policy is active.",
+        "fields": { "status": "ACTIVE" }
+      },
+      {
+        "id": "dates",
+        "topic": "dates",
+        "text": "The effective date is 2024-06-01 and the expiry date is 2034-05-31.",
+        "fields": { "effectiveDate": "2024-06-01", "expiryDate": "2034-05-31" }
+      },
+      {
+        "id": "payment",
+        "topic": "payment",
+        "text": "Premium payment frequency is annual.",
+        "fields": { "paymentFrequency": "ANNUAL" }
+      },
+      {
+        "id": "beneficiaries",
+        "topic": "beneficiaries",
+        "text": "The current beneficiary is Pim S. at 100%.",
+        "fields": {
+          "beneficiaries": [{ "name": "Pim S.", "allocationPercent": 100 }]
+        }
+      }
+    ]
+  },
+  {
+    "policyId": "POL-NARIN-002",
+    "productId": "CLASSIC_LIFE",
+    "documentId": "DOC-CLASSIC-001",
+    "version": "1.0.0",
+    "title": "Classic Life Plan mock policy",
+    "sections": [
+      {
+        "id": "status",
+        "topic": "status",
+        "text": "This synthetic Classic Life Plan policy is expired.",
+        "fields": { "status": "EXPIRED" }
+      },
+      {
+        "id": "dates",
+        "topic": "dates",
+        "text": "The effective date was 2015-01-01 and the expiry date was 2025-01-01.",
+        "fields": { "effectiveDate": "2015-01-01", "expiryDate": "2025-01-01" }
+      },
+      {
+        "id": "payment",
+        "topic": "payment",
+        "text": "Premium payment frequency was annual.",
+        "fields": { "paymentFrequency": "ANNUAL" }
+      },
+      {
+        "id": "beneficiaries",
+        "topic": "beneficiaries",
+        "text": "The current beneficiary is Arisa K. at 100%.",
+        "fields": {
+          "beneficiaries": [{ "name": "Arisa K.", "allocationPercent": 100 }]
+        }
+      }
+    ]
+  }
+]

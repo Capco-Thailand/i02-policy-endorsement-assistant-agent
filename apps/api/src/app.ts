@@ -14,6 +14,7 @@ import swagger from '@fastify/swagger';
 import multipart from '@fastify/multipart';
 import { Type, type Static } from '@sinclair/typebox';
 import { database } from './db.js';
+import { evidenceFor } from './evidence.js';
 import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
 
@@ -262,6 +263,58 @@ export async function buildApp(options: AppOptions = {}) {
           paymentFrequency: policy.paymentFrequency,
           beneficiaries: policy.beneficiaries,
         },
+      };
+    },
+  );
+  const EvidenceQuery = Type.Object(
+    { query: Type.Optional(Type.String({ maxLength: 120 })) },
+    { additionalProperties: false },
+  );
+  const CitationSchema = Type.Object({
+    documentId: Type.String(),
+    version: Type.String(),
+    sectionId: Type.String(),
+    title: Type.String(),
+    excerpt: Type.String(),
+  });
+  const EvidenceSchema = Type.Union([
+    Type.Object({
+      status: Type.Literal('available'),
+      citations: Type.Array(CitationSchema),
+    }),
+    Type.Object({
+      status: Type.Literal('unresolved'),
+      reason: Type.Union([
+        Type.Literal('missing'),
+        Type.Literal('stale'),
+        Type.Literal('conflicting'),
+        Type.Literal('no_relevant_section'),
+      ]),
+      citations: Type.Array(CitationSchema, { maxItems: 0 }),
+    }),
+  ]);
+  app.get<{ Params: Params; Querystring: Static<typeof EvidenceQuery> }>(
+    '/api/policies/:policyId/evidence',
+    {
+      schema: {
+        params: PolicyParams,
+        querystring: EvidenceQuery,
+        response: {
+          200: Type.Object({ evidence: EvidenceSchema }),
+          401: ErrorSchema,
+          404: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const session = await actorFor(request);
+      if (!session) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(session.actor.id, request.params.policyId);
+      if (!ownsPolicy(session.actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      const document = await db.sourceDocument(policy.id);
+      return {
+        evidence: evidenceFor(policy, document, request.query.query ?? ''),
       };
     },
   );

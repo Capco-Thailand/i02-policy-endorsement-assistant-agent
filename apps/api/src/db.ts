@@ -11,6 +11,7 @@ import { Pool } from 'pg';
 import type { Customer, Policy } from './auth/data.js';
 import type { RequestRecord } from './endorsement/schema.js';
 import { SESSION_LIFETIME_MS } from './auth/session.js';
+import type { SourceDocument, SourceSection } from '../../ai/retrieval.js';
 
 const digest = (token: string) =>
   createHash('sha256').update(token).digest('hex');
@@ -26,11 +27,13 @@ export function database(url = process.env.DATABASE_URL) {
       await pool.end();
     },
     async migrate() {
-      const sql = await readFile(
-        fileURLToPath(new URL('../sql/001_initial.sql', import.meta.url)),
-        'utf8',
-      );
-      await pool.query(sql);
+      for (const name of ['001_initial.sql', '002_policy_corpus.sql']) {
+        const sql = await readFile(
+          fileURLToPath(new URL(`../sql/${name}`, import.meta.url)),
+          'utf8',
+        );
+        await pool.query(sql);
+      }
     },
     async seed() {
       const client = await pool.connect();
@@ -108,6 +111,35 @@ export function database(url = process.env.DATABASE_URL) {
       } finally {
         client.release();
       }
+    },
+    async sourceDocument(
+      policyId: string,
+    ): Promise<SourceDocument | undefined> {
+      const documents = await pool.query(
+        'SELECT document_id,version,title,product_id,is_current FROM policy_documents WHERE policy_id=$1 ORDER BY is_current DESC,version DESC LIMIT 1',
+        [policyId],
+      );
+      const row = documents.rows[0];
+      if (!row) return undefined;
+      const sections = await pool.query(
+        'SELECT section_id,topic,excerpt,fields FROM policy_sections WHERE document_id=$1 AND version=$2 ORDER BY section_id',
+        [row.document_id, row.version],
+      );
+      return {
+        documentId: row.document_id,
+        version: row.version,
+        title: row.title,
+        productId: row.product_id,
+        current: row.is_current,
+        sections: sections.rows.map(
+          (section): SourceSection => ({
+            sectionId: section.section_id,
+            topic: section.topic,
+            excerpt: section.excerpt,
+            fields: section.fields,
+          }),
+        ),
+      };
     },
     async authenticate(
       accountId: string,

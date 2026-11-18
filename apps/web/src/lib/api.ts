@@ -61,6 +61,13 @@ export const getPolicies = () => request<PoliciesResult>('/api/policies');
 export const getPolicy = (policyId: string) =>
   request<PolicyResult>(`/api/policies/${encodeURIComponent(policyId)}`);
 
+export type EvidenceResult =
+  paths['/api/policies/{policyId}/evidence']['get']['responses'][200]['content']['application/json'];
+export const getEvidence = (policyId: string, query = '') =>
+  request<EvidenceResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/evidence?query=${encodeURIComponent(query)}`,
+  );
+
 export const createRequest = (policyId: string, body: RequestBody) =>
   request<RequestResult>(
     `/api/policies/${encodeURIComponent(policyId)}/requests`,

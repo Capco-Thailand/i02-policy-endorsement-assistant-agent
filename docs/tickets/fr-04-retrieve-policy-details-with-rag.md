@@ -5,7 +5,7 @@
 **Feature ID:** FR-04
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a retrieval mistake could expose another customer's policy text or present contradictory policy facts as evidence.
-**State:** Ticket/UX handoff in review
+**State:** Implementation in review
 
 ## Summary and objective
 Provide versioned mock policy documents for the existing demo policies and retrieve relevant cited sections for the signed-in policy owner. Show the evidence on the policy detail page while treating Neon structured policy facts as authoritative.
@@ -46,7 +46,7 @@ None. Keep the corpus, API, and detail-page evidence together as one reviewable 
 ## Accepted decisions and readiness
 - 2026-11-18: FR-04 includes mock policy documents for the existing seeded policies. FR-05 owns mock endorsement rules and uses the same product identifiers. These sources are synthetic RAG fixtures, not a customer-facing creation workflow.
 - 2026-11-18: The policy detail page shows citations beside the existing structured facts; unresolved evidence is visible but cannot authorize later quote or draft creation.
-- Ready for ticket/UX review. Implementation starts after the handoff PR merges, the linked Issue exists, and preflight passes.
+- Ticket/UX handoff merged in PR #96; Issue #97 exists and preflight passed. Implementation evidence is recorded in the [plan](../implementation-plan/fr-04-policy-rag.md).
 
 ## UX handoff references
 - [Visual design](../../_bmad-output/initiative-customer-authentication/ux-fr-04/DESIGN.md)

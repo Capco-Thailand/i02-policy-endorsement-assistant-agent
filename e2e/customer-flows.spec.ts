@@ -80,8 +80,11 @@ test('FR-03 AC1-AC2: linked policy selection shows facts and returns to the list
     page.getByRole('heading', { name: 'Family Protection Plan' }),
   ).toBeVisible();
   await expect(page.getByText('1 January 2025')).toBeVisible();
-  await expect(page.getByText('Arisa K.')).toBeVisible();
-  await expect(page.getByText('60%')).toBeVisible();
+  const beneficiaries = page.getByRole('region', {
+    name: 'Current beneficiaries',
+  });
+  await expect(beneficiaries.getByText('Arisa K.')).toBeVisible();
+  await expect(beneficiaries.getByText('60%')).toBeVisible();
   await page.getByRole('link', { name: /Back to policies/ }).click();
   await expect(
     page.getByRole('heading', { name: 'Your policies' }),

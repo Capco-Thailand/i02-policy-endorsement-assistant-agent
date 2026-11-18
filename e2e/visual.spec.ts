@@ -41,6 +41,7 @@ for (const width of [1280, 375]) {
     await expect(
       page.getByRole('heading', { name: 'Family Protection Plan' }),
     ).toBeVisible();
+    await expect(page.getByText('Matches policy facts.')).toBeVisible();
     await compare(page, testInfo, `policy-detail-${width}.png`);
     await page.getByRole('link', { name: 'Start a change request' }).click();
     await expect(
@@ -49,3 +50,18 @@ for (const width of [1280, 375]) {
     await compare(page, testInfo, `request-form-${width}.png`);
   });
 }
+
+test('FR-04 evidence visual baseline at 320px', async ({ page }, testInfo) => {
+  test.skip(
+    process.platform !== 'darwin',
+    'Reviewed Chromium baseline is recorded on macOS',
+  );
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/');
+  await page.getByLabel('Account ID').fill('narin');
+  await page.getByLabel('Password').fill('NarinDemo123!');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await expect(page.getByText('Matches policy facts.')).toBeVisible();
+  await compare(page, testInfo, 'policy-evidence-320.png');
+});
