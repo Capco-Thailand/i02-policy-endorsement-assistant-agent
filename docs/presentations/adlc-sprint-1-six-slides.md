@@ -22,12 +22,12 @@ The five stages are **Frame → Design → Build → Verify → Learn**. A featu
 
 ## 4. What our ADLC gives customers
 
-- **Less ambiguity:** The ticket and screen mockups are reviewed together before coding. Measure requirement changes after build starts.
-- **Reviewable progress:** A linked implementation PR produces a working increment to demo. Measure days from accepted ticket to working demo.
-- **Evidence of quality:** CI and browser E2E show which acceptance criteria pass. Measure criteria covered and defects found at acceptance.
-- **Feedback taken forward:** Accepted feedback updates the ticket and shapes the next build. Measure days from feedback to the next demo.
+- **Closer to customer needs:** We review the ticket and screen mockups together before coding.
+- **Safe to explore:** Reviews and tests preserve the rule that no live policy is updated and no coverage is bound.
+- **Confidence in use:** Browser tests check sign-in, own-policy access, and change requests.
+- **Feedback acted on:** Accepted customer feedback updates the ticket for the next build.
 
-These are expected customer benefits tied to this project's workflow. The pilot baseline has not been recorded, so the deck makes no measured savings claim.
+These benefits come from the handoffs and checks used in this project.
 
 ## 5. App progress today
 
