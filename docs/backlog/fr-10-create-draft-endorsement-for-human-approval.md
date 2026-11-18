@@ -24,7 +24,7 @@ System requirement: Save a non-binding `DRAFT` with proposed changes, quote, and
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] Save proposed changes, mock premium impact, verification outcomes, and cited policy/rule evidence as non-binding `DRAFT` with `binding=false`.
+- [ ] Save proposed changes, mock premium impact, FR-07 `RECEIVED_MOCK` status, and cited policy/rule evidence as non-binding `DRAFT` with `binding=false`. Do not present upload receipt as document or health verification.
 - [ ] Submission changes status to `PENDING_APPROVAL` and shows the current and proposed synthetic policy values and mock premium impact before the customer decides. Neither action changes live policy coverage.
 
 ## Scope and out of scope
@@ -45,6 +45,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
+- 2026-11-18: Include mock upload receipt and the unverified-document disclosure in the proposal; omit FR-06 results.
 
 - 2026-11-12: Prepare a proposed updated-policy view for the customer to review before approval; keep the draft non-binding.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.

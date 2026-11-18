@@ -19,6 +19,8 @@ Passwords are hashed with scrypt in process memory. Sessions are random 32-byte 
 
 `GET /openapi.json` publishes the Fastify schema-derived OpenAPI contract. The checked-in `apps/web/src/lib/api-types.ts` is generated from that contract with `openapi-typescript`; regenerate it after route schema changes. JSON requests and responses:
 
+FR-06 mock eKYC is outside the MVP. The revised FR-07 synthetic upload and `RECEIVED_MOCK` response are planned requirements, not implemented routes on this branch. When implemented, update the route schema and regenerate the web API types; upload receipt is not document verification.
+
 | Route                                   | Request                                       | Success                                                                                                                          | Authentication failure                                                                                                                |
 | --------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | `POST /api/auth/sign-in`                | `{ "accountId": string, "password": string }` | `200 { "actor": { "id", "accountId", "name" }, "expiresAt": number }` and session cookie                                         | `401 { "error": "UNAUTHORIZED" }` for invalid credentials                                                                             |
