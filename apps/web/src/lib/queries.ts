@@ -1,14 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import type { MockIdentityScenario, RequestBody } from './api';
+import type { RequestBody } from './api';
 import {
-  bypassDocumentCheck,
+  uploadDocument,
   createRequest,
   getPolicies,
   getPolicy,
   getSession,
   signIn,
   signOut,
-  runMockIdentity,
 } from './api';
 
 export const queryKeys = {
@@ -47,12 +46,8 @@ export const useCreateRequest = (policyId: string) =>
     mutationFn: (body: RequestBody) => createRequest(policyId, body),
   });
 
-export const useMockIdentity = (policyId: string) =>
+export const useDocumentUpload = (policyId: string) =>
   useMutation({
-    mutationFn: (scenario: MockIdentityScenario) =>
-      runMockIdentity(policyId, scenario),
-  });
-export const useDocumentBypass = (policyId: string) =>
-  useMutation({
-    mutationFn: (requestId: string) => bypassDocumentCheck(policyId, requestId),
+    mutationFn: ({ requestId, file }: { requestId: string; file: File }) =>
+      uploadDocument(policyId, requestId, file),
   });

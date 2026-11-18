@@ -7,7 +7,7 @@
 **Risk:** High — a mock pass could be mistaken for real identity verification.
 **State:** Removed from MVP scope; existing implementation is not an endorsement workflow gate
 
-> 2026-11-18 scope decision: FR-06 is removed from the MVP journey. Retain this ticket and its Issue as the record of the earlier requirement. No later ticket may require a mock eKYC result to quote or draft. The existing mock endpoint and UI are implementation follow-up work, not evidence that FR-06 remains in scope.
+> 2026-11-18 scope decision: FR-06 is removed from the MVP journey. Retain this ticket and its Issue as the record of the earlier requirement. No later ticket may require a mock eKYC result to quote or draft. The mock endpoint and UI have been removed from the current implementation.
 
 ## Summary and objective
 Evaluate deterministic synthetic identity scenarios for a signed-in customer's own active policy. Return `VERIFIED`, `FAILED`, or `REVIEW_REQUIRED` with a reason and a visible mock disclosure.

@@ -287,7 +287,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/policies/{policyId}/mock-identity': {
+  '/api/policies/{policyId}/document-upload': {
     parameters: {
       query?: never;
       header?: never;
@@ -307,105 +307,11 @@ export interface paths {
       };
       requestBody: {
         content: {
-          'application/json': {
-            scenario:
-              | 'all-pass'
-              | 'identity-mismatch'
-              | 'id-expired'
-              | 'liveness-failed'
-              | 'liveness-inconclusive';
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              status: 'VERIFIED' | 'FAILED' | 'REVIEW_REQUIRED';
-              reason: string;
-              disclosure: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              error: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              error: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              error: string;
-            };
-          };
-        };
-        /** @description Default Response */
-        409: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              error: string;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/policies/{policyId}/document-bypass': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          policyId: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
+          'multipart/form-data': {
             /** Format: uuid */
             requestId: string;
+            /** Format: binary */
+            document: string;
           };
         };
       };
@@ -418,9 +324,8 @@ export interface paths {
           content: {
             'application/json': {
               /** @enum {string} */
-              status: 'BYPASSED_MOCK';
-              /** @enum {string} */
-              explanation: 'Document verification was skipped for this demonstration. No document was uploaded or inspected.';
+              status: 'RECEIVED_MOCK';
+              explanation: string;
             };
           };
         };
@@ -459,6 +364,28 @@ export interface paths {
         };
         /** @description Default Response */
         409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        413: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        415: {
           headers: {
             [name: string]: unknown;
           };

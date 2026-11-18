@@ -5,7 +5,7 @@
 **Feature ID:** FR-07
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a mock receipt presented as verification could mislead customers or expose uploaded data.
-**State:** Requirements revised; UX and implementation need updating
+**State:** Mock upload implemented with synthetic guidance; FR-05 citation integration pending
 
 ## Summary and objective
 Let a signed-in customer upload a synthetic file for their own active-policy endorsement request. Show applicable document requirements retrieved by FR-05, acknowledge mock receipt, and state that the file's contents and suitability were not checked.
@@ -42,7 +42,9 @@ None.
 - 2026-11-18: Replace bypass with synthetic upload and `RECEIVED_MOCK`; do not validate business contents. Keep upload bytes out of storage and RAG. Review revised UX and API contract before implementation.
 
 ## UX handoff references
-- Previous mock-verification handoff is obsolete for this scope. Create revised `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable upload mockup before implementation.
+- [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-mock-document-upload/DESIGN.md)
+- [Behavior contract](../../_bmad-output/initiative-customer-authentication/ux-mock-document-upload/EXPERIENCE.md)
+- [Mock upload page](../../design/page/mock-document-upload.html)
 
 ## Definition of Done
 - [ ] Acceptance criteria satisfied
