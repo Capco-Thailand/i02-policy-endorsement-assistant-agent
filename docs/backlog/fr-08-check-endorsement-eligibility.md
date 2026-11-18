@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Validate required inputs, authorization, active status, applicable rules, and mock eKYC; explain blocked/referred cases.
+Validate required inputs, authorization, active status, applicable rules, and mock upload receipt; explain blocked/referred cases.
 
 ## User story or requirement
 
-System requirement: Validate required inputs, authorization, active status, applicable rules, and mock eKYC; explain blocked/referred cases.
+System requirement: Validate required inputs, authorization, active status, applicable rules, and mock upload receipt; explain blocked/referred cases.
 
 ## Business or technical context
 
@@ -24,8 +24,8 @@ System requirement: Validate required inputs, authorization, active status, appl
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] Check required inputs, authorization, `ACTIVE` policy status, applicable rules, and mock eKYC before quotation or drafting.
-- [ ] Explain ineligible, failed-eKYC, missing-rule, conflicting-rule, and referral outcomes without automatic quote or draft creation.
+- [ ] Check required inputs, authorization, `ACTIVE` policy status, applicable rules, and FR-07 `RECEIVED_MOCK` receipt for the same request before quotation or drafting. Do not require FR-06 mock eKYC.
+- [ ] Explain ineligible, missing/failed upload, missing-rule, conflicting-rule, and referral outcomes without automatic quote or draft creation. Receipt does not establish document suitability or override a rule gate.
 
 ## Scope and out of scope
 
@@ -45,6 +45,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
+- 2026-11-18: FR-06 is outside MVP; FR-07 mock receipt replaces the document-bypass step, while rule eligibility remains deterministic.
 
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.

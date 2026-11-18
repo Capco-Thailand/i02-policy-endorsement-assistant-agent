@@ -24,7 +24,7 @@ System requirement: Show estimated before/after premium and change amount from m
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] For eligible requests with successful mock eKYC, calculate estimated before and after premiums from deterministic mock rating data.
+- [ ] For eligible requests with an FR-07 mock upload receipt, calculate estimated before and after premiums from deterministic mock rating data. No FR-06 eKYC result is required.
 - [ ] Support zero-premium-impact changes and show the change amount.
 
 ## Scope and out of scope
@@ -45,6 +45,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
+- 2026-11-18: The quote gate uses FR-08 eligibility and mock upload receipt, not mock eKYC.
 
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.
