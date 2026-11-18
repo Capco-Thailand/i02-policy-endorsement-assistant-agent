@@ -6,7 +6,9 @@
 **Feature ID:** FR-06
 **Product context:** [PRD](../PRD.md)
 **Risk:** Proposed High — an incorrect mock identity result could let an ineligible request advance.
-**State:** Backlog draft
+**State:** Removed from MVP scope
+
+> 2026-11-18 scope decision: Keep this draft as a record of the earlier mock eKYC idea. No MVP quote or draft gate depends on FR-06.
 
 ## Summary and objective
 
@@ -45,6 +47,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
+- 2026-11-18: Removed from MVP; FR-01 session and FR-03 policy ownership remain required.
 
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.
