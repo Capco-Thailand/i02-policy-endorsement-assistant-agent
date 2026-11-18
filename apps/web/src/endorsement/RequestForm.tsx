@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import type { RequestBody } from '../lib/api';
-import { useCreateRequest, useDocumentBypass, usePolicy } from '../lib/queries';
+import { useCreateRequest, usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { FocusHeading } from '../policies/FocusHeading';
-import { MockIdentityCheck } from './MockIdentityCheck';
+import { DocumentUpload } from './DocumentUpload';
 
 type ChangeType = RequestBody['changeType'];
 type Row = { id: number; name: string; allocationPercent: string };
@@ -23,7 +23,6 @@ const validDate = (value: string) => {
 export function RequestForm({ policyId }: { policyId: string }) {
   const query = usePolicy(policyId);
   const mutation = useCreateRequest(policyId);
-  const documentBypass = useDocumentBypass(policyId);
   const client = useQueryClient();
   const router = useRouter();
   const errorRef = useRef<HTMLParagraphElement>(null);
@@ -257,32 +256,11 @@ export function RequestForm({ policyId }: { policyId: string }) {
             Your request was recorded and is pending checks. Request {saved.id}.
             No policy coverage has changed.
           </p>
-          <MockIdentityCheck policyId={policyId} />
-          <h3>Document check</h3>
-          <p>
-            This is a simulation. No real document verification is performed.
-          </p>
-          {documentBypass.data ? (
-            <p aria-live="polite">
-              <strong>{documentBypass.data.status}</strong> —{' '}
-              {documentBypass.data.explanation}
-            </p>
-          ) : (
-            <>
-              <button
-                type="button"
-                disabled={documentBypass.isPending}
-                onClick={() => void documentBypass.mutate(saved.id)}
-              >
-                {documentBypass.isPending
-                  ? 'Recording mock bypass…'
-                  : 'Record mock document bypass'}
-              </button>
-              {documentBypass.isError && (
-                <p role="alert">Could not record the mock bypass. Try again.</p>
-              )}
-            </>
-          )}
+          <DocumentUpload
+            policyId={policyId}
+            requestId={saved.id}
+            changeType={saved.changeType}
+          />
           <Link href={routes.policy(policyId)}>Return to policy</Link>
         </section>
       ) : (

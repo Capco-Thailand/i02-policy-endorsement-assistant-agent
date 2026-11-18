@@ -1,5 +1,5 @@
 ---
-title: FR-07 document bypass
+title: FR-07 document bypass (superseded by mock upload)
 type: feature
 ticket: fr-07-bypass-document-verification-mock
 created: 2026-11-17

@@ -2,19 +2,13 @@ import { expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RequestForm } from './RequestForm';
-import { usePolicy, useCreateRequest, useDocumentBypass } from '../lib/queries';
+import { usePolicy, useCreateRequest, useDocumentUpload } from '../lib/queries';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock('../lib/queries', () => ({
   usePolicy: vi.fn(),
   useCreateRequest: vi.fn(),
-  useMockIdentity: vi.fn(() => ({
-    isPending: false,
-    isError: false,
-    data: null,
-    mutate: vi.fn(),
-  })),
-  useDocumentBypass: vi.fn(() => ({
+  useDocumentUpload: vi.fn(() => ({
     mutate: vi.fn(),
     isPending: false,
     isError: false,
@@ -103,14 +97,14 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   const mutateAsync = vi
     .fn()
     .mockRejectedValueOnce(new Error('API_UNAVAILABLE'))
-    .mockResolvedValueOnce({ request: { id: 'REQ-1' } });
-  const bypass = vi.fn();
-  vi.mocked(useDocumentBypass).mockReturnValue({
-    mutate: bypass,
+    .mockResolvedValueOnce({ request: { id: 'REQ-1', changeType: 'ADDRESS' } });
+  const upload = vi.fn();
+  vi.mocked(useDocumentUpload).mockReturnValue({
+    mutate: upload,
     isPending: false,
     isError: false,
     data: null,
-  } as unknown as ReturnType<typeof useDocumentBypass>);
+  } as unknown as ReturnType<typeof useDocumentUpload>);
   vi.mocked(useCreateRequest).mockReturnValue({
     mutateAsync,
     isPending: false,
@@ -151,15 +145,26 @@ it('keeps entered address on service failure and confirms only a recorded pendin
     /No policy coverage has changed/,
   );
   expect(
-    screen.getByText(/No real document verification is performed/),
+    screen.getByText(
+      /This demonstration does not check whether the file meets any requirement/,
+    ),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('button', { name: 'Record mock document bypass' }),
+    screen.getByRole('button', { name: 'Upload synthetic file' }),
   ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Upload synthetic file' }),
+  ).toBeDisabled();
+  const file = new File(['%PDF-demo'], 'fixture.pdf', {
+    type: 'application/pdf',
+  });
+  fireEvent.change(screen.getByLabelText(/Synthetic document/), {
+    target: { files: [file] },
+  });
   fireEvent.click(
-    screen.getByRole('button', { name: 'Record mock document bypass' }),
+    screen.getByRole('button', { name: 'Upload synthetic file' }),
   );
-  expect(bypass).toHaveBeenCalledWith('REQ-1');
+  expect(upload).toHaveBeenCalledWith({ requestId: 'REQ-1', file });
   expect(mutateAsync).toHaveBeenCalledTimes(2);
 });
 

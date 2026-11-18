@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getPolicy, signOut } from './api';
+import { getPolicy, signOut, uploadDocument } from './api';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -13,6 +13,34 @@ describe('FR-01 API client', () => {
     expect(init.method).toBe('POST');
     expect(init.credentials).toBe('include');
     expect(new Headers(init.headers).has('content-type')).toBe(false);
+  });
+});
+
+describe('FR-07 upload client', () => {
+  it('sends the request ID before the synthetic file as multipart without a JSON header', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        status: 'RECEIVED_MOCK',
+        explanation: 'Mock receipt only.',
+      }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const file = new File(['%PDF-fixture'], 'fixture.pdf', {
+      type: 'application/pdf',
+    });
+    await uploadDocument('POL-NARIN-001', 'request-id', file);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(
+      'http://localhost:3000/api/policies/POL-NARIN-001/document-upload',
+    );
+    expect(init.credentials).toBe('include');
+    expect(new Headers(init.headers).has('content-type')).toBe(false);
+    expect([...init.body.entries()]).toEqual([
+      ['requestId', 'request-id'],
+      ['document', file],
+    ]);
   });
 });
 

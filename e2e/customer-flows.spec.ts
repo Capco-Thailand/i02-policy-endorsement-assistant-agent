@@ -174,7 +174,7 @@ for (const change of [
   });
 }
 
-test('FR-06: customer sees the simulated identity result after recording a request', async ({
+test('FR-07: customer uploads a synthetic file and sees mock receipt', async ({
   page,
 }) => {
   await signIn(page);
@@ -190,35 +190,17 @@ test('FR-06: customer sees the simulated identity result after recording a reque
     .fill('100 Demo Road');
   await page.getByRole('button', { name: 'Record request' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Simulated identity check' }),
+    page.getByText(/Example guidance from a synthetic fixture/),
   ).toBeVisible();
-  await page.getByLabel('Synthetic scenario').selectOption('id-expired');
-  await page.getByRole('button', { name: 'Run mock check' }).click();
-  await expect(page.getByText(/FAILED.*Synthetic ID is expired/)).toBeVisible();
-  await expect(page.getByText(/No real identity was verified/)).toBeVisible();
-});
-
-test('FR-07: customer sees the recorded document-check bypass', async ({
-  page,
-}) => {
-  await signIn(page);
-  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
-  await page.getByRole('link', { name: 'Start a change request' }).click();
-  await page
-    .getByLabel('Change type')
-    .selectOption({ label: 'Correspondence address' });
-  await page.getByLabel('Requested effective date').fill('2027-01-01');
-  await page
-    .getByLabel('Correspondence address', { exact: true })
-    .last()
-    .fill('100 Demo Road');
-  await page.getByRole('button', { name: 'Record request' }).click();
-  await page
-    .getByRole('button', { name: 'Record mock document bypass' })
-    .click();
-  await expect(page.getByText('BYPASSED_MOCK')).toBeVisible();
+  await page.getByLabel(/Synthetic document/).setInputFiles({
+    name: 'fixture.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-synthetic-fixture'),
+  });
+  await page.getByRole('button', { name: 'Upload synthetic file' }).click();
+  await expect(page.getByText('RECEIVED_MOCK')).toBeVisible();
   await expect(
-    page.getByText(/Document verification was skipped for this demonstration/),
+    page.getByText(/contents and suitability were not verified/),
   ).toBeVisible();
 });
 

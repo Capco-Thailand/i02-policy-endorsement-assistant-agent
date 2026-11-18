@@ -1,5 +1,5 @@
 ---
-title: FR-06 simulated identity check
+title: FR-06 simulated identity check (superseded)
 type: feature
 ticket: fr-06-verify-customer-identity-mock-ekyc
 created: 2026-11-17

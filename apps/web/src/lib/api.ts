@@ -27,7 +27,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     credentials: 'include',
     headers:
-      init?.body == null
+      init?.body == null || init.body instanceof FormData
         ? init?.headers
         : { 'Content-Type': 'application/json', ...init.headers },
   });
@@ -42,6 +42,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       throw new Error(body.error ?? 'INVALID_REQUEST');
     }
     if (response.status === 409) throw new Error('POLICY_EXPIRED');
+    if (response.status === 413) throw new Error('FILE_TOO_LARGE');
+    if (response.status === 415) throw new Error('UNSUPPORTED_FILE');
     throw new Error('API_UNAVAILABLE');
   }
   if (response.status === 204) return undefined as T;
@@ -65,31 +67,18 @@ export const createRequest = (policyId: string, body: RequestBody) =>
     { method: 'POST', body: JSON.stringify(body) },
   );
 
-export type MockIdentityResult =
-  paths['/api/policies/{policyId}/mock-identity']['post']['responses'][200]['content']['application/json'];
-type MockIdentityBody =
-  paths['/api/policies/{policyId}/mock-identity']['post']['requestBody']['content']['application/json'];
-export type MockIdentityScenario = MockIdentityBody['scenario'];
-export const runMockIdentity = (
+export type DocumentUploadResult =
+  paths['/api/policies/{policyId}/document-upload']['post']['responses'][200]['content']['application/json'];
+export const uploadDocument = (
   policyId: string,
-  scenario: MockIdentityScenario,
-) =>
-  request<MockIdentityResult>(
-    `/api/policies/${encodeURIComponent(policyId)}/mock-identity`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ scenario } satisfies MockIdentityBody),
-    },
+  requestId: string,
+  file: File,
+) => {
+  const body = new FormData();
+  body.append('requestId', requestId);
+  body.append('document', file);
+  return request<DocumentUploadResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/document-upload`,
+    { method: 'POST', body },
   );
-type DocumentBypassBody =
-  paths['/api/policies/{policyId}/document-bypass']['post']['requestBody']['content']['application/json'];
-export type DocumentBypassResult =
-  paths['/api/policies/{policyId}/document-bypass']['post']['responses'][200]['content']['application/json'];
-export const bypassDocumentCheck = (policyId: string, requestId: string) =>
-  request<DocumentBypassResult>(
-    `/api/policies/${encodeURIComponent(policyId)}/document-bypass`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ requestId } satisfies DocumentBypassBody),
-    },
-  );
+};
