@@ -5,7 +5,9 @@
 **Feature ID:** FR-06
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a mock pass could be mistaken for real identity verification.
-**State:** Selected for ticket/UX handoff
+**State:** Removed from MVP scope; existing implementation is not an endorsement workflow gate
+
+> 2026-11-18 scope decision: FR-06 is removed from the MVP journey. Retain this ticket and its Issue as the record of the earlier requirement. No later ticket may require a mock eKYC result to quote or draft. The existing mock endpoint and UI are implementation follow-up work, not evidence that FR-06 remains in scope.
 
 ## Summary and objective
 Evaluate deterministic synthetic identity scenarios for a signed-in customer's own active policy. Return `VERIFIED`, `FAILED`, or `REVIEW_REQUIRED` with a reason and a visible mock disclosure.
@@ -14,7 +16,7 @@ Evaluate deterministic synthetic identity scenarios for a signed-in customer's o
 As a customer requesting a policy change, I can see the simulated identity result and understand whether this demonstration can continue.
 
 ## Business and technical context
-- [PRD](../PRD.md) requires mock eKYC. FR-01 supplies session identity; FR-03 supplies ownership checks; FR-02 supplies request context.
+- Historical requirement: the earlier [PRD](../PRD.md) required mock eKYC. The current MVP PRD removes it. FR-01 still supplies session identity and FR-03 still supplies ownership checks.
 - The API derives identity from the session. The check does not establish a session or grant policy access. Only synthetic scenario IDs are accepted; no real identity documents, biometric data, or provider calls.
 
 ## Acceptance criteria

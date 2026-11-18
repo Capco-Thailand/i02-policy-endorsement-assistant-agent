@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Log access, RAG sources, eKYC result, document bypass, quotes, draft creation, and customer decisions. Show each customer the approved changes to their own synthetic policies in a history page.
+Log access, RAG sources, mock upload receipt, quotes, draft creation, and customer decisions. Show each customer the approved changes to their own synthetic policies in a history page.
 
 ## User story or requirement
 
-System requirement: Log access, RAG sources, eKYC result, document bypass, quotes, draft creation, and customer decisions; show approved change records in the owning customer's history page.
+System requirement: Log access, RAG sources, mock upload receipt, quotes, draft creation, and customer decisions; show approved change records in the owning customer's history page.
 
 ## Business or technical context
 
@@ -24,7 +24,7 @@ System requirement: Log access, RAG sources, eKYC result, document bypass, quote
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] Audit authenticated actor and action, policy access, RAG sources and versions, mock eKYC result, document bypass, quotes, draft creation, and customer decisions.
+- [ ] Audit authenticated actor and action, policy access, RAG sources and versions, FR-07 mock upload receipt and safe file metadata, quotes, draft creation, and customer decisions; never store uploaded bytes in the audit trail.
 - [ ] After approval, the owning customer can see the proposed change, approval decision, and time in their history page; another customer cannot access the record.
 - [ ] Exclude credentials, session secrets, and unnecessary personal data.
 
@@ -47,6 +47,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
+- 2026-11-18: Audit mock upload receipt in place of FR-06 and bypass outcomes for the MVP workflow.
 
 - 2026-11-12: Customer approval adds the proposed change to that customer's history page with no further processing.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.

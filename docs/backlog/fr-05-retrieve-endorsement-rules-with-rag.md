@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Fetch change-specific rules and requirements with citations and effective dates.
+Fetch change-specific rules and document requirements with citations and effective dates.
 
 ## User story or requirement
 
-System requirement: Fetch change-specific rules and requirements with citations and effective dates.
+System requirement: Fetch change-specific rules and document requirements with citations and effective dates.
 
 ## Business or technical context
 
@@ -26,6 +26,8 @@ Draft checks from the known product rules; refine inputs, failure paths, and evi
 
 - [ ] Select applicable rules by product, change type, and effective date; return rule citations and versions.
 - [ ] Missing or conflicting rules require human referral.
+- [ ] Return any applicable document guidance for the change with source citation, version, and effective date; distinguish a source that says no document is required from missing or conflicting guidance. FR-07 presents this guidance without using it to validate uploaded content.
+- [ ] For accidental-death rider additions, surface any rule calling for health disclosure or underwriting as a real-world follow-up; do not request medical evidence in the MVP or claim the mock upload satisfies underwriting.
 
 ## Scope and out of scope
 
@@ -46,6 +48,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
+- 2026-11-18: Include cited document guidance for FR-07, but keep uploaded bytes outside the RAG corpus and do not infer document verification from retrieval.
 
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.
