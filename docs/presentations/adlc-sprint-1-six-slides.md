@@ -6,11 +6,11 @@
 
 **Visual identity:** Policy Endorsement Assistant — Inter, #F6F9FC canvas, #0A2540 ink, and #635BFF accent.
 
-## 1. AI Assistant and AI-powered ADLC
+## 1. AI Assistant vs AI-powered ADLC
 
-The AI Assistant is the customer-facing product. It is designed to help a customer request and review a change to a synthetic life insurance policy. Sign-in, own-policy access, change request, and mock upload are built; guidance, proposal, and a non-binding approval record are planned.
+**AI Assistant** means BA, Dev, and QA use AI in their own roles. BA drafts analysis, Dev drafts code through AI or vibe coding, and QA drafts tests. People still pass context and decisions between those separate tasks.
 
-The AI-powered ADLC is the team's delivery workflow. It connects requirements, screen design, implementation, tests, and feedback. People approve scope, design, and merge decisions. The ADLC is how the team builds and improves the Assistant.
+**AI-powered ADLC** links the roles into an end-to-end loop. A shared ticket and screen design carry decisions through build, tests, review, and merge. Agents and automation use the same artifacts and return validated feedback to the backlog. People approve scope, design, and merge decisions. A fully agentic feedback loop remains the next ambition.
 
 ## 2. Policy Endorsement Assistant
 
@@ -20,14 +20,14 @@ The customer journey is select policy → request change → review guidance →
 
 The five stages are **Frame → Design → Build → Verify → Learn**. A feature starts with product requirements and backlog, moves through a reviewed ticket and screen design, receives an implementation plan and build, and is checked against acceptance criteria before pull request review. Test results and customer feedback shape the next ticket. Automated checks cover ticket readiness, CI, browser tests, and Issue updates.
 
-## 4. What the ADLC gives us
+## 4. What customers gain from this workflow
 
-- **Clearer scope:** The ticket, screen design, and build plan share one accepted requirement.
-- **Smoother handoffs:** Each role starts from reviewed work and a linked GitHub Issue.
-- **Earlier evidence:** CI and browser tests check acceptance criteria before merge.
-- **Traceable decisions:** The requirement links to its Issue, pull request, and test report.
+- **Clear expectations:** The customer can review scope and screen design before build.
+- **Visible progress:** A linked Issue and pull request show what is being built and what changed.
+- **Proof before acceptance:** Browser tests show whether agreed customer journeys work.
+- **Feedback carried forward:** Findings become the next ticket after review or demo.
 
-These are workflow benefits, not measured savings. A pilot can track lead time, rework, and acceptance defects.
+These are expected workflow benefits, not measured savings. A pilot can track time to demo, rework after review, and acceptance defects.
 
 ## 5. App progress today
 
