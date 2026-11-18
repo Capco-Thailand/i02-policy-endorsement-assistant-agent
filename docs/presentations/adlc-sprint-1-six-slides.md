@@ -20,14 +20,14 @@ The customer journey is select policy → request change → review guidance →
 
 The five stages are **Frame → Design → Build → Verify → Learn**. A feature starts with product requirements and backlog, moves through a reviewed ticket and screen design, receives an implementation plan and build, and is checked against acceptance criteria before pull request review. Test results and customer feedback shape the next ticket. Automated checks cover ticket readiness, CI, browser tests, and Issue updates.
 
-## 4. What customers gain from the ADLC
+## 4. What our ADLC gives customers
 
-- **Earlier review:** Customers can try working features before the full journey is complete.
-- **A better fit:** Screen designs and demos let customers correct the journey early.
-- **More confidence:** Browser tests check key journeys before the next version is shown.
-- **Continuous improvement:** Customer feedback shapes the next product increment.
+- **Less ambiguity:** The ticket and screen mockups are reviewed together before coding. Measure requirement changes after build starts.
+- **Reviewable progress:** A linked implementation PR produces a working increment to demo. Measure days from accepted ticket to working demo.
+- **Evidence of quality:** CI and browser E2E show which acceptance criteria pass. Measure criteria covered and defects found at acceptance.
+- **Feedback taken forward:** Accepted feedback updates the ticket and shapes the next build. Measure days from feedback to the next demo.
 
-These are expected customer benefits, not measured results. A pilot can track time to review, issues found by customers, and acceptance defects.
+These are expected customer benefits tied to this project's workflow. The pilot baseline has not been recorded, so the deck makes no measured savings claim.
 
 ## 5. App progress today
 
