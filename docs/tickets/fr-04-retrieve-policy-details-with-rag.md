@@ -1,7 +1,7 @@
 # FR-04 — Retrieve Policy Details with RAG
 **Title:** [Story] Retrieve cited synthetic policy evidence
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/97
 **Feature ID:** FR-04
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a retrieval mistake could expose another customer's policy text or present contradictory policy facts as evidence.
