@@ -17,7 +17,7 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 - Define request and response schemas at Fastify route boundaries. Derive OpenAPI documentation and frontend client types from those schemas so runtime validation and TypeScript contracts stay aligned.
 - Keep RAG retrieval behind the API. Authorize policy access before retrieval; verify decision fields against structured records. The browser does not access RAG or storage directly.
 - Use hosted Neon PostgreSQL for synthetic customers, policies, sessions, endorsement requests, and audit events. The API workspace owns database connections, migrations, and seeding; Fastify owns application reads, authorization, and writes. The browser never connects directly.
-- Keep the synthetic FR-04 corpus and fixed domain encoder in `apps/ai`; `apps/api` owns corpus loading, filtered vector queries, reconciliation, and the public evidence route. FR-05 rule retrieval remains separately scoped.
+- Keep the synthetic FR-04 policy corpus and fixed encoder in `apps/ai`; `apps/api` owns corpus loading, filtered vector queries, reconciliation, and the public evidence route. FR-05 uses separate versioned rule tables, a fixed change/section encoder, and an immutable loader. The API resolves the selected FR-04 document's product after ownership, filters exact product/change/date, resolves numeric versions, then ranks bounded sections with pgvector. Missing evidence, cross-rule contradictions, stale encoder data, and unavailable evidence require referral; retrieval never makes eligibility or coverage decisions.
 
 ## Consequences
 
