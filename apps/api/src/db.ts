@@ -12,6 +12,8 @@ import type { Customer, Policy } from './auth/data.js';
 import type { RequestRecord } from './endorsement/schema.js';
 import { SESSION_LIFETIME_MS } from './auth/session.js';
 import { ENCODER_VERSION } from '../../ai/retrieval.js';
+import { RULE_ENCODER_VERSION } from '../../ai/rule-retrieval.js';
+import type { ChangeType, RuleSource } from './rules.js';
 
 const digest = (token: string) =>
   createHash('sha256').update(token).digest('hex');
@@ -27,7 +29,11 @@ export function database(url = process.env.DATABASE_URL) {
       await pool.end();
     },
     async migrate() {
-      for (const filename of ['001_initial.sql', '002_policy_corpus.sql']) {
+      for (const filename of [
+        '001_initial.sql',
+        '002_policy_corpus.sql',
+        '003_endorsement_rules.sql',
+      ]) {
         const sql = await readFile(
           fileURLToPath(new URL(`../sql/${filename}`, import.meta.url)),
           'utf8',
@@ -270,6 +276,47 @@ export function database(url = process.env.DATABASE_URL) {
         excerpt: string;
         concept: string;
         fact_value: unknown;
+      }[];
+    },
+    async selectedRuleProduct(policyId: string) {
+      const result = await pool.query(
+        `SELECT d.product_id, (SELECT count(DISTINCT product_id)::int FROM policy_documents WHERE policy_id=$1) AS product_count
+        FROM policy_document_selection x JOIN policy_documents d ON d.id=x.document_id AND d.policy_id=x.policy_id
+        WHERE x.policy_id=$1`,
+        [policyId],
+      );
+      return result.rows[0] as
+        | { product_id: string; product_count: number }
+        | undefined;
+    },
+    async ruleSources(productId: string, changeType: ChangeType, date: string) {
+      const result = await pool.query(
+        `SELECT s.id AS "sourceId",s.rule_id AS "ruleId",s.version,s.product_id AS "productId",s.change_type AS "changeType",s.effective_from::text AS "effectiveFrom",s.effective_to::text AS "effectiveTo",s.encoder_version AS "encoderVersion",
+        COALESCE(json_agg(json_build_object('sectionId',x.section_id,'role',x.role,'text',x.text,'value',x.value,'encoderVersion',x.encoder_version) ORDER BY x.section_id) FILTER (WHERE x.section_id IS NOT NULL),'[]') AS sections
+        FROM endorsement_rule_sources s LEFT JOIN endorsement_rule_sections x ON x.source_id=s.id
+        WHERE s.product_id=$1 AND s.change_type=$2 AND s.effective_from <= $3::date AND s.effective_to >= $3::date
+        GROUP BY s.id ORDER BY s.rule_id,s.version DESC,s.id LIMIT 65`,
+        [productId, changeType, date],
+      );
+      return result.rows as RuleSource[];
+    },
+    async rankedRuleSections(
+      sourceIds: string[],
+      vector: number[],
+      limit: number,
+    ) {
+      const result = await pool.query(
+        `SELECT source_id,section_id,role,text,value FROM endorsement_rule_sections
+        WHERE source_id = ANY($1::text[]) AND encoder_version=$2
+        ORDER BY embedding <=> $3::vector, source_id, CASE role WHEN 'RULE' THEN 0 ELSE 1 END, section_id LIMIT $4`,
+        [sourceIds, RULE_ENCODER_VERSION, `[${vector.join(',')}]`, limit],
+      );
+      return result.rows as {
+        source_id: string;
+        section_id: string;
+        role: 'RULE' | 'GUIDANCE';
+        text: string;
+        value: { kind: string };
       }[];
     },
     async ownsRequest(customerId: string, policyId: string, requestId: string) {

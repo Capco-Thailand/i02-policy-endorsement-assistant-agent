@@ -17,6 +17,7 @@ import { database } from './db.js';
 import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
 import { encodeQuery, ENCODER_VERSION } from '../../ai/retrieval.js';
+import { retrieveRules, type RuleStore } from './rules.js';
 import {
   equalFact,
   policyFacts,
@@ -58,6 +59,86 @@ const PolicyParams = Type.Object({ policyId: Type.String() });
 const EvidenceQuery = Type.Object({
   query: Type.String({ minLength: 1, maxLength: 200 }),
 });
+const RuleChange = Type.Union([
+  Type.Literal('BENEFICIARY'),
+  Type.Literal('ADDRESS'),
+  Type.Literal('PAYMENT_FREQUENCY'),
+  Type.Literal('ACCIDENTAL_DEATH_RIDER'),
+]);
+const RulesQuery = Type.Object(
+  {
+    changeType: RuleChange,
+    requestedEffectiveDate: Type.String({ format: 'date' }),
+  },
+  { additionalProperties: false },
+);
+const RuleCitationBase = {
+  sourceId: Type.String(),
+  ruleId: Type.String(),
+  version: Type.Integer(),
+  productId: Type.String(),
+  changeType: RuleChange,
+  effectiveFrom: Type.String(),
+  effectiveTo: Type.String(),
+  sectionId: Type.String(),
+  text: Type.String(),
+};
+const RuleValue = Type.Union([
+  Type.Object({
+    kind: Type.Literal('CHECK'),
+    field: Type.Literal('beneficiaries'),
+    requirement: Type.String(),
+  }),
+  Type.Object({
+    kind: Type.Literal('CHECK'),
+    field: Type.Literal('address'),
+    requirement: Type.String(),
+  }),
+  Type.Object({
+    kind: Type.Literal('CHECK'),
+    field: Type.Literal('paymentFrequency'),
+    allowedValues: Type.Array(
+      Type.Union([Type.Literal('MONTHLY'), Type.Literal('ANNUAL')]),
+    ),
+  }),
+  Type.Object({ kind: Type.Literal('REFERRAL'), reason: Type.String() }),
+]);
+const GuidanceValue = Type.Union([
+  Type.Object({ kind: Type.Literal('NONE') }),
+  Type.Object({
+    kind: Type.Literal('DOCUMENT'),
+    documentType: Type.String(),
+    handling: Type.Literal('mock receipt only'),
+  }),
+]);
+const RuleCitation = Type.Union([
+  Type.Object({
+    ...RuleCitationBase,
+    role: Type.Literal('RULE'),
+    value: RuleValue,
+  }),
+  Type.Object({
+    ...RuleCitationBase,
+    role: Type.Literal('GUIDANCE'),
+    value: GuidanceValue,
+  }),
+]);
+const RulesResult = Type.Object({
+  status: Type.Union([
+    Type.Literal('AVAILABLE'),
+    Type.Literal('MISSING'),
+    Type.Literal('CONFLICTING'),
+  ]),
+  requiresHumanReferral: Type.Boolean(),
+  sourceIds: Type.Array(Type.String()),
+  citations: Type.Array(RuleCitation),
+});
+const RuleUnavailable = Type.Object({
+  status: Type.Literal('UNAVAILABLE'),
+  requiresHumanReferral: Type.Literal(true),
+  sourceIds: Type.Array(Type.String(), { maxItems: 0 }),
+  citations: Type.Array(RuleCitation, { maxItems: 0 }),
+});
 const EvidenceCitation = Type.Object({
   sourceId: Type.String(),
   title: Type.String(),
@@ -87,6 +168,7 @@ const EvidenceResult = Type.Union([
 type Credentials = Static<typeof SignInBody>;
 type Params = Static<typeof PolicyParams>;
 type EvidenceQueryInput = Static<typeof EvidenceQuery>;
+type RulesQueryInput = Static<typeof RulesQuery>;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MockUploadResult = Type.Object({
   status: Type.Literal('RECEIVED_MOCK'),
@@ -115,6 +197,7 @@ export interface AppOptions {
     ReturnType<typeof database>,
     'evidenceDocument' | 'rankedEvidence'
   >;
+  ruleStore?: RuleStore;
 }
 export async function buildApp(options: AppOptions = {}) {
   if (!options.schemaOnly && !process.env.DATABASE_URL)
@@ -125,6 +208,7 @@ export async function buildApp(options: AppOptions = {}) {
     options.schemaOnly ? 'postgresql://localhost/schema-only' : undefined,
   );
   const evidenceStore = options.evidenceStore ?? db;
+  const ruleStore = options.ruleStore ?? db;
   try {
     if (!options.schemaOnly) await db.ready();
   } catch (error) {
@@ -370,6 +454,47 @@ export async function buildApp(options: AppOptions = {}) {
       } catch (error) {
         app.log.error({ err: error }, 'Evidence storage failed');
         return reply.code(503).send({ error: 'EVIDENCE_UNAVAILABLE' });
+      }
+    },
+  );
+  app.get<{ Params: Params; Querystring: RulesQueryInput }>(
+    '/api/policies/:policyId/rules',
+    {
+      schema: {
+        params: PolicyParams,
+        querystring: RulesQuery,
+        response: {
+          200: RulesResult,
+          400: ErrorSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          503: RuleUnavailable,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(actor.id, request.params.policyId);
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      if (!validDate(request.query.requestedEffectiveDate))
+        return reply.code(400).send({ error: 'BAD_REQUEST' });
+      try {
+        return await retrieveRules(
+          ruleStore,
+          policy.id,
+          request.query.changeType,
+          request.query.requestedEffectiveDate,
+        );
+      } catch (error) {
+        app.log.error({ err: error }, 'Rule retrieval failed');
+        return reply.code(503).send({
+          status: 'UNAVAILABLE',
+          requiresHumanReferral: true,
+          sourceIds: [],
+          citations: [],
+        });
       }
     },
   );
