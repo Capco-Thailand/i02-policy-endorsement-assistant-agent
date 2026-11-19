@@ -1,7 +1,7 @@
 # FR-05 — Retrieve Endorsement Rules with RAG
 **Title:** [Story] Retrieve cited synthetic endorsement rules and document guidance
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/110
 **Feature ID:** FR-05
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an incorrect or missing rule could lead to an invalid eligibility decision.
