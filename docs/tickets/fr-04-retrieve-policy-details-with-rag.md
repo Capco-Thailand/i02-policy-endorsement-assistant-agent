@@ -17,6 +17,7 @@ As a customer viewing my synthetic policy, I can see which mock policy document 
 - The [PRD](../PRD.md) requires cited, versioned RAG evidence and authorization before retrieval. The [ADR](../ADR.md) keeps retrieval behind Fastify. FR-01 and FR-03 supply sessions and owner-only policy access; the [Neon migration ticket](chore-migrate-persistence-to-neon.md) owns structured policy records.
 - The normal synthetic corpus covers the three seeded policies: `POL-NARIN-001`, `POL-NARIN-002`, and `POL-MALI-001`. Assign stable product identifiers `FAMILY_PROTECTION`, `CLASSIC_LIFE`, and `SECURE_FUTURE` respectively. FR-05 uses these identifiers for rule lookup. These are identifiers for existing demo policies, not new customer policies.
 - The corpus contains authored mock policy sections, document IDs, versions, and section IDs. It may explain facts, but structured Neon fields remain the source for ownership, status, dates, payment frequency, and beneficiaries. The fixture documents and structured facts must agree in the normal case.
+- RAG retrieval includes indexing the versioned corpus for semantic search: split documents into stable sections, create embeddings, and store searchable vectors with their policy/document/version/section metadata. Retrieval must filter to the authorized policy and selected document version before returning passages. This is retrieval infrastructure, not a second source of structured policy facts.
 - FR-04 retrieves source passages; it does not decide eligibility, generate a quote or draft, inspect uploaded files, or bind coverage. FR-08 owns deterministic eligibility and must treat missing or contradictory evidence as unresolved.
 
 ## Acceptance criteria
@@ -31,6 +32,7 @@ As a customer viewing my synthetic policy, I can see which mock policy document 
 ## Scope and out of scope
 In scope:
 - Synthetic policy-document authoring and repeatable corpus load, versioned retrieval behind the API, safe comparison with structured facts, and cited evidence on the existing policy detail page.
+- Embedding generation and vector indexing for the synthetic policy corpus, with metadata needed for policy-scoped retrieval and citations.
 
 Out of scope:
 - New customer accounts or structured policies, a policy or document authoring UI, real insurer data, identity or uploaded-document indexing, eligibility/quote/draft decisions, policy mutation, and coverage binding.
@@ -39,6 +41,7 @@ Out of scope:
 ## Dependencies
 - FR-01, FR-03, and the [Neon migration ticket](chore-migrate-persistence-to-neon.md) provide authentication, owner-only policy access, and structured policy facts. FR-02 owns the request action already shown on the detail page.
 - FR-05 uses the product identifiers defined here. Retrieval storage and any pgvector use are implementation choices; no live insurer or policy system is required.
+- FR-04 requires semantic vector retrieval, but does not mandate a separate vector database or pgvector. The implementation may use pgvector or another suitable store; document the selected store, repeatable index/load behavior, and how policy/version filters are enforced in the implementation plan. Neon application persistence alone does not imply vector storage is available.
 
 ## Related subtasks
 None. Keep the corpus, API, and detail-page evidence together as one reviewable vertical slice.
@@ -46,6 +49,7 @@ None. Keep the corpus, API, and detail-page evidence together as one reviewable 
 ## Accepted decisions and readiness
 - 2026-11-18: FR-04 includes mock policy documents for the existing seeded policies. FR-05 owns mock endorsement rules and uses the same product identifiers. These sources are synthetic RAG fixtures, not a customer-facing creation workflow.
 - 2026-11-18: The policy detail page shows citations beside the existing structured facts; unresolved evidence is visible but cannot authorize later quote or draft creation.
+- 2026-11-19: FR-04 includes embedding and vector indexing for semantic retrieval. A dedicated vector database or pgvector is not prescribed; the implementation plan records the selected storage and policy/version isolation approach.
 - Ready for ticket/UX review. Implementation starts after the handoff PR merges, the linked Issue exists, and preflight passes.
 
 ## UX handoff references
