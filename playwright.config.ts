@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const apiPort = Number(process.env.E2E_API_PORT ?? 3000);
+const webPort = Number(process.env.E2E_WEB_PORT ?? 3001);
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -18,7 +21,7 @@ export default defineConfig({
   ],
   outputDir: 'test-results/artifacts',
   use: {
-    baseURL: 'http://localhost:3001',
+    baseURL: `http://localhost:${webPort}`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
@@ -26,13 +29,14 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run start -w apps/api',
-      url: 'http://localhost:3000/openapi.json',
+      url: `http://localhost:${apiPort}/openapi.json`,
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },
     {
-      command: 'npm run start -w apps/web',
-      url: 'http://localhost:3001',
+      command: `npx next start -p ${webPort}`,
+      cwd: 'apps/web',
+      url: `http://localhost:${webPort}`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

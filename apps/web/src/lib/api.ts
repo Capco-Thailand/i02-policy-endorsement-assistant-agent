@@ -20,6 +20,8 @@ export type RequestResult =
   paths['/api/policies/{policyId}/requests']['post']['responses'][200]['content']['application/json'];
 type PolicyResult =
   paths['/api/policies/{policyId}']['get']['responses'][200]['content']['application/json'];
+export type EvidenceResult =
+  paths['/api/policies/{policyId}/evidence']['get']['responses'][200]['content']['application/json'];
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -60,6 +62,10 @@ export const signOut = () =>
 export const getPolicies = () => request<PoliciesResult>('/api/policies');
 export const getPolicy = (policyId: string) =>
   request<PolicyResult>(`/api/policies/${encodeURIComponent(policyId)}`);
+export const getEvidence = (policyId: string, query: string) =>
+  request<EvidenceResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/evidence?query=${encodeURIComponent(query)}`,
+  );
 
 export const createRequest = (policyId: string, body: RequestBody) =>
   request<RequestResult>(

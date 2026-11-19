@@ -6,7 +6,14 @@ import { usePolicy } from '../lib/queries';
 
 const replace = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace }) }));
-vi.mock('../lib/queries', () => ({ usePolicy: vi.fn() }));
+vi.mock('../lib/queries', () => ({
+  usePolicy: vi.fn(),
+  useEvidence: vi.fn(() => ({
+    isPending: false,
+    isError: false,
+    data: { status: 'unresolved', reason: 'MISSING_DOCUMENT', citations: [] },
+  })),
+}));
 
 const show = (state: object) => {
   vi.mocked(usePolicy).mockReturnValue(state as ReturnType<typeof usePolicy>);

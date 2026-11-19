@@ -8,6 +8,7 @@ import type { PolicyDetail as Policy } from '../lib/api';
 import { usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { FocusHeading } from './FocusHeading';
+import { EvidenceSection } from './EvidenceSection';
 
 const date = (value: string) =>
   new Intl.DateTimeFormat('en-GB', {
@@ -122,6 +123,9 @@ export function PolicyDetail({ policyId }: { policyId: string }) {
           {policy.status}
         </span>
       </div>
+      <PolicyFacts policy={policy} />
+      <Beneficiaries policy={policy} />
+      <EvidenceSection policyId={policy.id} />
       {policy.status === 'ACTIVE' ? (
         <Link className="request-action" href={routes.request(policy.id)}>
           Start a change request
@@ -131,8 +135,6 @@ export function PolicyDetail({ policyId }: { policyId: string }) {
           This policy is expired. Change requests are unavailable.
         </p>
       )}
-      <PolicyFacts policy={policy} />
-      <Beneficiaries policy={policy} />
       <p className="policy-note">
         Synthetic policy data for this prototype. Viewing a policy does not
         change coverage.

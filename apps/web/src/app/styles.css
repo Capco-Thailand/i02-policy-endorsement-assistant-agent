@@ -179,6 +179,34 @@ textarea:focus-visible,
 .policy-list li {
   min-width: 0;
 }
+.evidence-section > p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.evidence-list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.evidence-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  overflow-wrap: anywhere;
+}
+.evidence-card p {
+  margin: 8px 0 0;
+}
+.evidence-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+.evidence-match {
+  font-weight: 650;
+}
 .policy-card {
   display: block;
   height: 100%;

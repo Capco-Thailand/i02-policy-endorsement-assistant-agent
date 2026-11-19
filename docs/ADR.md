@@ -17,7 +17,7 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 - Define request and response schemas at Fastify route boundaries. Derive OpenAPI documentation and frontend client types from those schemas so runtime validation and TypeScript contracts stay aligned.
 - Keep RAG retrieval behind the API. Authorize policy access before retrieval; verify decision fields against structured records. The browser does not access RAG or storage directly.
 - Use hosted Neon PostgreSQL for synthetic customers, policies, sessions, endorsement requests, and audit events. The API workspace owns database connections, migrations, and seeding; Fastify owns application reads, authorization, and writes. The browser never connects directly.
-- Keep retrieval work in `apps/ai`, behind the API. FR-04 and FR-05 will define their retrieval storage and any pgvector use separately; Neon application persistence does not imply that RAG is implemented.
+- Keep the synthetic FR-04 corpus and fixed domain encoder in `apps/ai`; `apps/api` owns corpus loading, filtered vector queries, reconciliation, and the public evidence route. FR-05 rule retrieval remains separately scoped.
 
 ## Consequences
 
@@ -40,3 +40,5 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 This record captures the stack decision. Product behavior and safety boundaries remain in [PRD.md](PRD.md); implementation rules remain in [CODING_STANDARDS.md](CODING_STANDARDS.md).
 
 The API uses the `pg` server-side client, explicit SQL migration, and synthetic seed commands. The browser receives data only through Fastify. Session token digests, requests, and audit events persist in PostgreSQL.
+
+2026-11-19: FR-04 uses pgvector in the same PostgreSQL database as the structured synthetic policy records. A versioned document selection and B-tree document filter precede exact cosine ranking over eight-dimensional, normalized `policy-concepts-v1` vectors. The small corpus does not warrant an approximate index. The API authorizes the policy before reading corpus tables and reconciles status, dates, payment frequency, and beneficiaries with structured records before issuing a citation. Unknown queries, missing or stale documents, and contradictions remain unresolved. Storage errors return a separate service failure. No external embedding service or additional retrieval server is used for FR-04.

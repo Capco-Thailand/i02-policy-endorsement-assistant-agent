@@ -41,6 +41,7 @@ for (const width of [1280, 375]) {
     await expect(
       page.getByRole('heading', { name: 'Family Protection Plan' }),
     ).toBeVisible();
+    await expect(page.getByText('Matches policy facts')).toBeVisible();
     await compare(page, testInfo, `policy-detail-${width}.png`);
     await page.getByRole('link', { name: 'Start a change request' }).click();
     await expect(
