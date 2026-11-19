@@ -27,7 +27,7 @@ context:
 
 **Problem:** An owner cannot inspect cited synthetic evidence for policy facts. Retrieval must not expose another owner's content, and policy evidence must support semantic vector queries.
 
-**Approach:** Add a versioned synthetic corpus, owner-checked API, and detail-page evidence section. Create local domain-semantic embeddings stored alongside versioned sections; filter authorized policy and selected document version in SQL before bounded vector scoring, then reconcile all decision fields with structured policy facts.
+**Approach:** Add a versioned synthetic corpus, owner-checked API, and detail-page evidence section. Create local domain-semantic embeddings and store them as `pgvector` values in the application PostgreSQL database. Filter authorized policy and selected document version in SQL, rank with pgvector cosine distance, then reconcile all decision fields with structured policy facts.
 
 ## Boundaries & Constraints
 
@@ -49,8 +49,8 @@ context:
 
 ## Code Map
 
-- `apps/api/src/app.ts`, `db.ts`, `sql/`: owner-check route, corpus migration and filtered vector reads.
-- `apps/ai/`: versioned synthetic documents, deterministic domain-semantic embedding and cosine scoring. The four supported fact concepts are the bounded retrieval domain; no external model or network call is needed.
+- `apps/api/src/app.ts`, `db.ts`, `sql/`: owner-check route, `CREATE EXTENSION IF NOT EXISTS vector`, corpus migration and filtered pgvector cosine query.
+- `apps/ai/`: versioned synthetic documents and deterministic domain-semantic embedding. The four supported fact concepts are the bounded retrieval domain; no external model or network call is needed.
 - `apps/api/src/evidence.ts`: reconcile every decision field before returning citations.
 - `apps/web/src/lib/`, `apps/web/src/policies/`: typed API read, query states, citations and retry.
 - `e2e/`, API integration and component tests: public boundary checks and browser report.
@@ -59,7 +59,7 @@ context:
 
 **Execution:**
 - [ ] `apps/api/src/evidence.integration.test.ts`: write and run failing tests for owner-first access, cited paraphrase retrieval, selected-version isolation, idempotent load, stale/missing/conflicting evidence, hostile text and storage failure.
-- [ ] `apps/ai/corpus/policies.json`, `apps/ai/retrieval.ts`, `apps/api/sql/002_policy_corpus.sql`, `apps/api/src/load-corpus.ts`, `apps/api/src/db.ts`, `apps/api/src/evidence.ts`, `apps/api/src/app.ts`: implement the corpus, versioned embeddings, filtered vector retrieval, reconciliation and validated route; rerun focused tests green after each slice.
+- [ ] `apps/ai/corpus/policies.json`, `apps/ai/retrieval.ts`, `apps/api/sql/002_policy_corpus.sql`, `apps/api/src/load-corpus.ts`, `apps/api/src/db.ts`, `apps/api/src/evidence.ts`, `apps/api/src/app.ts`: enable pgvector, implement the corpus, versioned embeddings in a `vector(n)` column, SQL policy/version filtering and cosine ranking, reconciliation and validated route; rerun focused tests green after each slice.
 - [ ] `apps/web/src/policies/EvidenceSection.test.tsx`: write and run failing tests for available, loading, unresolved, failure, retry and session-ended states.
 - [ ] `apps/web/src/lib/api.ts`, `apps/web/src/lib/queries.ts`, `apps/web/src/policies/EvidenceSection.tsx`, `apps/web/src/policies/PolicyDetail.tsx`: add typed evidence reads and accessible citation display; rerun component tests green.
 - [ ] `e2e/policy-evidence.spec.ts`: add browser cases for owner access, foreign-policy rejection, unresolved, failure/retry, expired display and 320px screenshots.
@@ -74,7 +74,7 @@ context:
 
 ## Implementation Notes
 
-Use a fixed, versioned policy-domain concept encoder (status, dates, payment, beneficiaries, plus context dimensions) to produce normalized vectors from text. Store vectors as PostgreSQL `real[]` with a B-tree filter on policy/document/version. The corpus is tiny and the SQL predicate reduces candidates to one document before in-process cosine ranking; no pgvector extension is assumed. This supports semantic paraphrases within the documented policy domain, not arbitrary-language retrieval. Record the encoder version with each vector and reject a mismatched index instead of ranking stale embeddings.
+Use a fixed, versioned policy-domain concept encoder (status, dates, payment, beneficiaries, plus context dimensions) to produce normalized vectors from text. Enable `pgvector` in the migration and store each embedding in a `vector(n)` column with policy/document/version/section metadata. Use a B-tree index for the policy and version filter, then exact pgvector cosine ordering (`<=>`) and a fixed limit within that filtered set. Exact search keeps recall predictable for the tiny corpus; an approximate HNSW index is unnecessary. This supports semantic paraphrases within the documented policy domain, not arbitrary-language retrieval. Record the encoder version with each vector and reject a mismatched index instead of ranking stale embeddings. Migration and integration tests must fail clearly if the test or target PostgreSQL instance lacks pgvector.
 
 ## Plan Change Log
 
