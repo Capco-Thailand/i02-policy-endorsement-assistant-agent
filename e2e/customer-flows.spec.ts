@@ -15,7 +15,9 @@ async function signIn(
   await expect
     .poll(async () =>
       (
-        await page.request.get('http://localhost:3000/api/auth/session')
+        await page.request.get(
+          `http://localhost:${process.env.E2E_API_PORT ?? 3000}/api/auth/session`,
+        )
       ).status(),
     )
     .toBe(200);
@@ -157,7 +159,9 @@ for (const change of [
     await signIn(page);
     await page.getByRole('link', { name: /Family Protection Plan/ }).click();
     await page.getByRole('link', { name: 'Start a change request' }).click();
-    await expect(page.getByText('POL-NARIN-001')).toBeVisible();
+    await expect(
+      page.getByText('POL-NARIN-001', { exact: true }),
+    ).toBeVisible();
     await page.getByLabel('Change type').selectOption({ label: change.label });
     await page.getByLabel('Requested effective date').fill('2027-01-01');
     await change.fill(page);

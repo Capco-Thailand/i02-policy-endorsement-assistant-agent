@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const api = 'http://localhost:3000';
+const api = `http://localhost:${process.env.E2E_API_PORT ?? 3000}`;
 const validAddress = {
   changeType: 'ADDRESS',
   requestedEffectiveDate: '2027-01-01',

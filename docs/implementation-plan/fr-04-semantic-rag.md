@@ -3,14 +3,14 @@ title: 'FR-04 semantic policy evidence'
 type: feature
 ticket: fr-04-retrieve-policy-details-with-rag
 created: '2026-11-19'
-status: draft
+status: built
 baseline_revision: 824476927f537014121443d64d2848ad28591b66
 route: full
 route_source: auto
 risk: high
-review: thorough
+review: quick
 review_source: pinned
-lenses_ran: []
+lenses_ran: [quick]
 review_loop_iteration: 0
 context:
   - docs/CODING_STANDARDS.md
@@ -58,12 +58,12 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `apps/api/src/evidence.integration.test.ts`: write and run failing tests for owner-first access, cited paraphrase retrieval, selected-version isolation, idempotent load, stale/missing/conflicting evidence, hostile text and storage failure.
-- [ ] `apps/ai/corpus/policies.json`, `apps/ai/retrieval.ts`, `apps/api/sql/002_policy_corpus.sql`, `apps/api/src/load-corpus.ts`, `apps/api/src/db.ts`, `apps/api/src/evidence.ts`, `apps/api/src/app.ts`: enable pgvector, implement the corpus, versioned embeddings in a `vector(n)` column, SQL policy/version filtering and cosine ranking, reconciliation and validated route; rerun focused tests green after each slice.
-- [ ] `apps/web/src/policies/EvidenceSection.test.tsx`: write and run failing tests for available, loading, unresolved, failure, retry and session-ended states.
-- [ ] `apps/web/src/lib/api.ts`, `apps/web/src/lib/queries.ts`, `apps/web/src/policies/EvidenceSection.tsx`, `apps/web/src/policies/PolicyDetail.tsx`: add typed evidence reads and accessible citation display; rerun component tests green.
-- [ ] `e2e/policy-evidence.spec.ts`: add browser cases for owner access, foreign-policy rejection, unresolved, failure/retry, expired display and 320px screenshots.
-- [ ] `docs/API_DEVELOPMENT.md`, `docs/ADR.md`, `README.md`, this plan: document the vector store, loading, API contract, verification and uncovered checks.
+- [x] `apps/api/src/evidence.integration.test.ts`: write and run failing tests for owner-first access, cited paraphrase retrieval, selected-version isolation, idempotent load, stale/missing/conflicting evidence, hostile text and storage failure.
+- [x] `apps/ai/corpus/policies.json`, `apps/ai/retrieval.ts`, `apps/api/sql/002_policy_corpus.sql`, `apps/api/src/load-corpus.ts`, `apps/api/src/db.ts`, `apps/api/src/evidence.ts`, `apps/api/src/app.ts`: enable pgvector, implement the corpus, versioned embeddings in a `vector(n)` column, SQL policy/version filtering and cosine ranking, reconciliation and validated route; rerun focused tests green after each slice.
+- [x] `apps/web/src/policies/EvidenceSection.test.tsx`: write and run failing tests for available, loading, unresolved, failure, retry and session-ended states.
+- [x] `apps/web/src/lib/api.ts`, `apps/web/src/lib/queries.ts`, `apps/web/src/policies/EvidenceSection.tsx`, `apps/web/src/policies/PolicyDetail.tsx`: add typed evidence reads and accessible citation display; rerun component tests green.
+- [x] `e2e/policy-evidence.spec.ts`: add browser cases for owner access, foreign-policy rejection, unresolved, failure/retry, expired display and 320px screenshots.
+- [x] `docs/API_DEVELOPMENT.md`, `docs/ADR.md`, `README.md`, this plan: document the vector store, loading, API contract, verification and uncovered checks.
 
 **Acceptance Criteria:**
 - Given three seeded policies, when the corpus loads twice, then each has one current immutable version with indexed vectors and no structured or historical record changes.
@@ -80,6 +80,11 @@ Use a fixed, versioned policy-domain concept encoder (status, dates, payment, be
 
 ## Review Triage Log
 
+- `medium / patch` `apps/ai/retrieval.ts`: `end\w*` also matches “endorsement,” so an unsupported question can receive a dates citation. Narrow the date vocabulary and test the unsupported question.
+- `high / patch` `apps/api/src/evidence.ts`: an excerpt that negates the correct date strings passes the current date check and can be labeled matching. Reject a demonstrated negated source and test unresolved output.
+- `high / patch` `apps/api/src/evidence.ts`: the same negation defect also affects status excerpts; a source saying “not active” still yielded an available citation. Reject negation across all four supported fact concepts; the focused test failed before and passed after the fix.
+- `high / patch` `apps/api/src/app.ts` and `db.ts`: selection can change between document reconciliation and ranking because the second read selects by policy again. Bind ranking to the reconciled document ID and return no citation if that ID is no longer selected; test the intervening change.
+
 ## Design Notes
 
 Keep the evidence section after structured facts and before the request action per the reviewed UX handoff. Evidence is plain text data. Keep the existing active/expired action gate.
@@ -90,14 +95,16 @@ Keep the evidence section after structured facts and before the request action p
 
 **Manual checks:** Compare the generated HTML report's desktop and 320px screenshots to the reviewed mockup, and record any uncovered deployment checks.
 
+**2026-11-19 result:** `npm test`, `npm run typecheck`, `npm run format:check`, `npm run build`, and the full `npm run test:e2e` passed against an isolated local PostgreSQL 17 database with pgvector. Browser: 21/21 Chromium cases passed; [dated HTML report](../../test-results/fr-04-semantic-rag/report-20261119111326/e2e-20261119111326.html). Desktop and 320px captures were inspected against the reviewed evidence mockup; no horizontal overflow at 320px. Red/green additions covered missing product metadata (`product_id` absent), unsupported endorsement query (dates citation), negated source facts (available citation), and selected-version change between reads (unreconciled citation). Hosted Neon deployment and extension provisioning remain unchecked.
+
 ## FR-04 acceptance traceability
 
 | Criterion | Planned evidence | Latest result / gap |
 | --- | --- | --- |
-| Corpus | API integration: load twice, immutable versions and vectors, unchanged policy/activity tables | Pending |
-| Retrieval | API integration: known citation, semantically related paraphrase, different concept, bound and selected version | Pending |
-| Authorization | API integration and browser: `401`, same `404`, corpus spy/read count zero | Pending |
-| Reconciliation | API integration: missing, stale, conflicting, expired, unchanged structured record | Pending |
-| Hostile text / failure | API integration: prompt-like source and query; failed storage; no audit or fact change | Pending |
-| UI states | Component and browser: loading, available, unresolved, service failure, session ended, retry, 320px | Pending |
-| Coverage | Commands and dated browser HTML report with criterion mapping | Pending |
+| Corpus | API integration: load twice, immutable versions and vectors, stable product IDs, unchanged policy/activity tables | Passed: `evidence.integration.test.ts` validates three current versions with the required product IDs, four indexed sections each, immutable reload, and unchanged preexisting policy/activity rows. |
+| Retrieval | API integration: known citation, semantically related paraphrase, different concept, bound and selected version | Passed: dates and beneficiary paraphrases rank the expected section; one citation from the selected version. |
+| Authorization | API integration and browser: `401`, same `404`, corpus spy/read count zero | Passed: missing session `401`, foreign and unknown `404` identical, both corpus methods uncalled; browser confirms foreign page unavailable. |
+| Reconciliation | API integration: missing, stale, conflicting, expired, unchanged structured record | Passed: missing document, stale snapshot or encoder, contradictory fact or excerpt, and expired read; no citation on unresolved results. |
+| Hostile text / failure | API integration: prompt-like source and query; failed storage; no audit or fact change | Passed: hostile source remains text, unsupported query unresolved, storage exception `503`; structured policy row unchanged. No evidence-read audit writes occur. |
+| UI states | Component and browser: loading, available, unresolved, service failure, session ended, retry, 320px | Passed: component 4/4 and browser 3/3; 320px evidence screenshot attached to the report. |
+| Coverage | Commands and dated browser HTML report with criterion mapping | Passed: all five commands; full Chromium 21/21. Hosted Neon provisioning is not covered locally. |

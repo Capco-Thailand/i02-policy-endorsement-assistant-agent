@@ -16,6 +16,13 @@ import { Type, type Static } from '@sinclair/typebox';
 import { database } from './db.js';
 import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
+import { encodeQuery, ENCODER_VERSION } from '../../ai/retrieval.js';
+import {
+  equalFact,
+  policyFacts,
+  reconcileEvidence,
+  type UnresolvedReason,
+} from './evidence.js';
 
 const ErrorSchema = Type.Object({ error: Type.String() });
 const ActorSchema = Type.Object({
@@ -48,8 +55,38 @@ const SignInBody = Type.Object(
   { additionalProperties: false },
 );
 const PolicyParams = Type.Object({ policyId: Type.String() });
+const EvidenceQuery = Type.Object({
+  query: Type.String({ minLength: 1, maxLength: 200 }),
+});
+const EvidenceCitation = Type.Object({
+  sourceId: Type.String(),
+  title: Type.String(),
+  version: Type.String(),
+  sectionId: Type.String(),
+  excerpt: Type.String(),
+});
+const EvidenceResult = Type.Union([
+  Type.Object({
+    status: Type.Literal('available'),
+    match: Type.Literal('Matches policy facts'),
+    citations: Type.Array(EvidenceCitation),
+  }),
+  Type.Object({
+    status: Type.Literal('unresolved'),
+    reason: Type.Union([
+      Type.Literal('UNKNOWN_QUERY'),
+      Type.Literal('MISSING_DOCUMENT'),
+      Type.Literal('MISSING_SECTION'),
+      Type.Literal('STALE_DOCUMENT'),
+      Type.Literal('STALE_ENCODER'),
+      Type.Literal('CONFLICTING_EVIDENCE'),
+    ]),
+    citations: Type.Array(EvidenceCitation, { maxItems: 0 }),
+  }),
+]);
 type Credentials = Static<typeof SignInBody>;
 type Params = Static<typeof PolicyParams>;
+type EvidenceQueryInput = Static<typeof EvidenceQuery>;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MockUploadResult = Type.Object({
   status: Type.Literal('RECEIVED_MOCK'),
@@ -74,6 +111,10 @@ export interface AuditRecord {
 export interface AppOptions {
   now?: () => number;
   schemaOnly?: boolean;
+  evidenceStore?: Pick<
+    ReturnType<typeof database>,
+    'evidenceDocument' | 'rankedEvidence'
+  >;
 }
 export async function buildApp(options: AppOptions = {}) {
   if (!options.schemaOnly && !process.env.DATABASE_URL)
@@ -83,6 +124,7 @@ export async function buildApp(options: AppOptions = {}) {
   const db = database(
     options.schemaOnly ? 'postgresql://localhost/schema-only' : undefined,
   );
+  const evidenceStore = options.evidenceStore ?? db;
   try {
     if (!options.schemaOnly) await db.ready();
   } catch (error) {
@@ -97,7 +139,7 @@ export async function buildApp(options: AppOptions = {}) {
     limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 1, parts: 2 },
   });
   await app.register(cors, {
-    origin: 'http://localhost:3001',
+    origin: process.env.WEB_ORIGIN ?? 'http://localhost:3001',
     credentials: true,
   });
   await app.register(swagger, {
@@ -263,6 +305,72 @@ export async function buildApp(options: AppOptions = {}) {
           beneficiaries: policy.beneficiaries,
         },
       };
+    },
+  );
+  app.get<{ Params: Params; Querystring: EvidenceQueryInput }>(
+    '/api/policies/:policyId/evidence',
+    {
+      schema: {
+        params: PolicyParams,
+        querystring: EvidenceQuery,
+        response: {
+          200: EvidenceResult,
+          400: ErrorSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(actor.id, request.params.policyId);
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      const unresolved = (reason: UnresolvedReason) => ({
+        status: 'unresolved' as const,
+        reason,
+        citations: [],
+      });
+      const embedding = encodeQuery(request.query.query);
+      if (!embedding) return unresolved('UNKNOWN_QUERY');
+      try {
+        const document = await evidenceStore.evidenceDocument(policy.id);
+        if (!document) return unresolved('MISSING_DOCUMENT');
+        if (
+          document.encoder_version !== ENCODER_VERSION ||
+          document.sections.some(
+            (section) => section.encoderVersion !== ENCODER_VERSION,
+          )
+        )
+          return unresolved('STALE_ENCODER');
+        if (!equalFact(document.facts_snapshot, policyFacts(policy)))
+          return unresolved('STALE_DOCUMENT');
+        const reason = reconcileEvidence(policy, document.sections);
+        if (reason) return unresolved(reason);
+        const ranked = await evidenceStore.rankedEvidence(
+          policy.id,
+          document.id,
+          embedding,
+          1,
+        );
+        if (ranked.length === 0) return unresolved('STALE_DOCUMENT');
+        return {
+          status: 'available',
+          match: 'Matches policy facts',
+          citations: ranked.map((section) => ({
+            sourceId: section.document_id,
+            title: section.title,
+            version: section.version,
+            sectionId: section.section_id,
+            excerpt: section.excerpt,
+          })),
+        };
+      } catch (error) {
+        app.log.error({ err: error }, 'Evidence storage failed');
+        return reply.code(503).send({ error: 'EVIDENCE_UNAVAILABLE' });
+      }
     },
   );
   app.post<{ Params: Params }>(

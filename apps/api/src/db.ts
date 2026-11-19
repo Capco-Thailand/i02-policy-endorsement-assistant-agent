@@ -11,6 +11,7 @@ import { Pool } from 'pg';
 import type { Customer, Policy } from './auth/data.js';
 import type { RequestRecord } from './endorsement/schema.js';
 import { SESSION_LIFETIME_MS } from './auth/session.js';
+import { ENCODER_VERSION } from '../../ai/retrieval.js';
 
 const digest = (token: string) =>
   createHash('sha256').update(token).digest('hex');
@@ -26,11 +27,13 @@ export function database(url = process.env.DATABASE_URL) {
       await pool.end();
     },
     async migrate() {
-      const sql = await readFile(
-        fileURLToPath(new URL('../sql/001_initial.sql', import.meta.url)),
-        'utf8',
-      );
-      await pool.query(sql);
+      for (const filename of ['001_initial.sql', '002_policy_corpus.sql']) {
+        const sql = await readFile(
+          fileURLToPath(new URL(`../sql/${filename}`, import.meta.url)),
+          'utf8',
+        );
+        await pool.query(sql);
+      }
     },
     async seed() {
       const client = await pool.connect();
@@ -212,6 +215,62 @@ export function database(url = process.env.DATABASE_URL) {
       policyId: string,
     ): Promise<Policy | undefined> {
       return (await this.policies(customerId)).find((p) => p.id === policyId);
+    },
+    async evidenceDocument(policyId: string) {
+      const result = await pool.query(
+        `SELECT d.id, d.version, d.title, d.encoder_version, d.facts_snapshot,
+          COALESCE(json_agg(json_build_object('sectionId',s.section_id,'concept',s.concept,'value',s.fact_value,'excerpt',s.excerpt,'encoderVersion',s.encoder_version) ORDER BY s.section_id)
+          FILTER (WHERE s.section_id IS NOT NULL),'[]') AS sections
+         FROM policy_document_selection x
+         JOIN policy_documents d ON d.id=x.document_id AND d.policy_id=x.policy_id
+         LEFT JOIN policy_sections s ON s.document_id=d.id
+         WHERE x.policy_id=$1 GROUP BY d.id`,
+        [policyId],
+      );
+      return result.rows[0] as
+        | {
+            id: string;
+            version: string;
+            title: string;
+            encoder_version: string;
+            facts_snapshot: unknown;
+            sections: {
+              sectionId: string;
+              concept: string;
+              value: unknown;
+              excerpt: string;
+              encoderVersion: string;
+            }[];
+          }
+        | undefined;
+    },
+    async rankedEvidence(
+      policyId: string,
+      documentId: string,
+      embedding: number[],
+      limit = 4,
+    ) {
+      const vector = `[${embedding.join(',')}]`;
+      const result = await pool.query(
+        `SELECT d.id AS document_id,d.version,d.title,s.section_id,s.excerpt,
+          s.concept,s.fact_value
+         FROM policy_document_selection x
+         JOIN policy_documents d ON d.id=x.document_id AND d.policy_id=x.policy_id
+         JOIN policy_sections s ON s.document_id=d.id
+         WHERE x.policy_id=$1 AND x.document_id=$2 AND d.id=$2
+           AND d.encoder_version=$3 AND s.encoder_version=$3
+         ORDER BY s.embedding <=> $4::vector, s.section_id LIMIT $5`,
+        [policyId, documentId, ENCODER_VERSION, vector, limit],
+      );
+      return result.rows as {
+        document_id: string;
+        version: string;
+        title: string;
+        section_id: string;
+        excerpt: string;
+        concept: string;
+        fact_value: unknown;
+      }[];
     },
     async ownsRequest(customerId: string, policyId: string, requestId: string) {
       const result = await pool.query(

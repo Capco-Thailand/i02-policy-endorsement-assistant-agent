@@ -5,7 +5,7 @@
 
 This is a prototype for synthetic insurance policy endorsements. Read `docs/PRD.md` for business scope and product boundaries, [TICKETING.md](docs/TICKETING.md) for detailed requirement locations and GitHub tracking, and [ADR.md](docs/ADR.md) for the application stack and API boundary. The four roles share the repository; folder routes indicate the usual work area, not exclusive ownership.
 
-Use the root npm workspace and keep the root lockfile. `apps/api` and `apps/web` implement FR-01 through FR-03; `apps/ai` remains a placeholder. See [README.md](README.md) for current commands.
+Use the root npm workspace and keep the root lockfile. `apps/api` and `apps/web` implement FR-01 through FR-04; `apps/ai` contains the versioned FR-04 synthetic corpus and fixed domain encoder. See [README.md](README.md) for current commands.
 The target application database is hosted Neon PostgreSQL for synthetic customers, policies, sessions, endorsement requests, and audit events. The API uses server-side PostgreSQL via `DATABASE_URL`; migrations and synthetic seed are explicit commands. The browser accesses data only through Fastify.
 
 For code or infrastructure changes, read [CODING_STANDARDS.md](docs/CODING_STANDARDS.md). For tests or security checks, read [TESTING_STANDARD.md](docs/TESTING_STANDARD.md). For UX design files, read [DESIGN_STANDARD.md](docs/DESIGN_STANDARD.md) and [VISUAL_UX_CONSTRAINTS.md](docs/VISUAL_UX_CONSTRAINTS.md).

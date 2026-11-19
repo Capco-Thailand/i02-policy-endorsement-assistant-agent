@@ -1,0 +1,104 @@
+[
+  {
+    "policyId": "POL-NARIN-001",
+    "productId": "FAMILY_PROTECTION",
+    "documentId": "POL-NARIN-001:v1",
+    "version": "v1",
+    "title": "Family Protection Plan synthetic policy",
+    "sections": [
+      {
+        "id": "status",
+        "concept": "status",
+        "excerpt": "This Family Protection Plan is active.",
+        "value": "ACTIVE"
+      },
+      {
+        "id": "dates",
+        "concept": "dates",
+        "excerpt": "Protection begins on 2025-01-01 and ends on 2035-12-31.",
+        "value": { "effectiveDate": "2025-01-01", "expiryDate": "2035-12-31" }
+      },
+      {
+        "id": "payment",
+        "concept": "payment",
+        "excerpt": "Premiums are paid monthly.",
+        "value": "MONTHLY"
+      },
+      {
+        "id": "beneficiaries",
+        "concept": "beneficiaries",
+        "excerpt": "Arisa K. receives 60% and Decha K. receives 40% of the benefit.",
+        "value": [
+          { "name": "Arisa K.", "allocationPercent": 60 },
+          { "name": "Decha K.", "allocationPercent": 40 }
+        ]
+      }
+    ]
+  },
+  {
+    "policyId": "POL-MALI-001",
+    "productId": "SECURE_FUTURE",
+    "documentId": "POL-MALI-001:v1",
+    "version": "v1",
+    "title": "Secure Future Plan synthetic policy",
+    "sections": [
+      {
+        "id": "status",
+        "concept": "status",
+        "excerpt": "This Secure Future Plan is active.",
+        "value": "ACTIVE"
+      },
+      {
+        "id": "dates",
+        "concept": "dates",
+        "excerpt": "Protection begins on 2024-06-01 and ends on 2034-05-31.",
+        "value": { "effectiveDate": "2024-06-01", "expiryDate": "2034-05-31" }
+      },
+      {
+        "id": "payment",
+        "concept": "payment",
+        "excerpt": "Premiums are paid annually.",
+        "value": "ANNUAL"
+      },
+      {
+        "id": "beneficiaries",
+        "concept": "beneficiaries",
+        "excerpt": "Pim S. receives 100% of the benefit.",
+        "value": [{ "name": "Pim S.", "allocationPercent": 100 }]
+      }
+    ]
+  },
+  {
+    "policyId": "POL-NARIN-002",
+    "productId": "CLASSIC_LIFE",
+    "documentId": "POL-NARIN-002:v1",
+    "version": "v1",
+    "title": "Classic Life Plan synthetic policy",
+    "sections": [
+      {
+        "id": "status",
+        "concept": "status",
+        "excerpt": "This Classic Life Plan has expired.",
+        "value": "EXPIRED"
+      },
+      {
+        "id": "dates",
+        "concept": "dates",
+        "excerpt": "Protection began on 2015-01-01 and ended on 2025-01-01.",
+        "value": { "effectiveDate": "2015-01-01", "expiryDate": "2025-01-01" }
+      },
+      {
+        "id": "payment",
+        "concept": "payment",
+        "excerpt": "Premiums were paid annually.",
+        "value": "ANNUAL"
+      },
+      {
+        "id": "beneficiaries",
+        "concept": "beneficiaries",
+        "excerpt": "Arisa K. receives 100% of the benefit.",
+        "value": [{ "name": "Arisa K.", "allocationPercent": 100 }]
+      }
+    ]
+  }
+]
