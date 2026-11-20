@@ -178,7 +178,7 @@ for (const change of [
   });
 }
 
-test('FR-07: customer uploads a synthetic file and sees mock receipt', async ({
+test('FR-07 cited DOCUMENT guidance and mock receipt remain separate', async ({
   page,
 }) => {
   await signIn(page);
@@ -194,8 +194,81 @@ test('FR-07: customer uploads a synthetic file and sees mock receipt', async ({
     .fill('100 Demo Road');
   await page.getByRole('button', { name: 'Record request' }).click();
   await expect(
-    page.getByText(/Example guidance from a synthetic fixture/),
+    page.getByText(/Address proof may be supplied for a mock receipt/),
   ).toBeVisible();
+  await expect(
+    page.getByText(
+      /Source FAMILY_PROTECTION:ADDRESS:v1 · version 1 · section guidance/,
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Example guidance from a synthetic fixture/),
+  ).toHaveCount(0);
+  await page.getByLabel(/Synthetic document/).setInputFiles({
+    name: 'fixture.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-synthetic-fixture'),
+  });
+  await page.getByRole('button', { name: 'Upload synthetic file' }).click();
+  await expect(page.getByText('RECEIVED_MOCK')).toBeVisible();
+  await expect(
+    page.getByText(/contents and suitability were not verified/),
+  ).toBeVisible();
+});
+
+test('FR-07 cited NONE guidance leaves mock upload available', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await signIn(page);
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page.getByLabel('Change type').selectOption('PAYMENT_FREQUENCY');
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await expect(
+    page.getByText(/No document required: No supporting document is required/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      /Source FAMILY_PROTECTION:PAYMENT_FREQUENCY:v1 · version 1 · section guidance/,
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Upload synthetic file' }),
+  ).toBeDisabled();
+});
+
+test('FR-07 service failure leaves guidance unresolved and mock upload usable', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.route('**/api/policies/*/rules?*', (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 'UNAVAILABLE',
+        requiresHumanReferral: true,
+        sourceIds: [],
+        citations: [],
+      }),
+    }),
+  );
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page.getByLabel('Change type').selectOption('ADDRESS');
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page
+    .getByLabel('Correspondence address', { exact: true })
+    .last()
+    .fill('100 Demo Road');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await expect(page.getByText(/Document guidance is unresolved/)).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Retry guidance' }),
+  ).toBeVisible();
+  await expect(page.getByText(/Address proof may be supplied/)).toHaveCount(0);
   await page.getByLabel(/Synthetic document/).setInputFiles({
     name: 'fixture.pdf',
     mimeType: 'application/pdf',

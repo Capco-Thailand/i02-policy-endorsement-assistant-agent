@@ -6,6 +6,7 @@ import {
   getPolicies,
   getPolicy,
   getEvidence,
+  getRules,
   getSession,
   signIn,
   signOut,
@@ -21,6 +22,11 @@ export const queryKeys = {
     'evidence',
     query,
   ],
+  rules: (
+    policyId: string,
+    changeType: RequestBody['changeType'],
+    requestedEffectiveDate: string,
+  ) => ['policies', policyId, 'rules', changeType, requestedEffectiveDate],
 } as const;
 export const useSession = () =>
   useQuery({ queryKey: queryKeys.session, queryFn: getSession, retry: false });
@@ -40,6 +46,16 @@ export const useEvidence = (policyId: string, query: string) =>
   useQuery({
     queryKey: queryKeys.evidence(policyId, query),
     queryFn: () => getEvidence(policyId, query),
+    retry: false,
+  });
+export const useRules = (
+  policyId: string,
+  changeType: RequestBody['changeType'],
+  requestedEffectiveDate: string,
+) =>
+  useQuery({
+    queryKey: queryKeys.rules(policyId, changeType, requestedEffectiveDate),
+    queryFn: () => getRules(policyId, changeType, requestedEffectiveDate),
     retry: false,
   });
 export const useSignIn = () =>

@@ -2,7 +2,12 @@ import { expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RequestForm } from './RequestForm';
-import { usePolicy, useCreateRequest, useDocumentUpload } from '../lib/queries';
+import {
+  usePolicy,
+  useCreateRequest,
+  useDocumentUpload,
+  useRules,
+} from '../lib/queries';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock('../lib/queries', () => ({
@@ -13,6 +18,11 @@ vi.mock('../lib/queries', () => ({
     isPending: false,
     isError: false,
     data: null,
+  })),
+  useRules: vi.fn(() => ({
+    isPending: false,
+    isError: false,
+    data: { status: 'MISSING', citations: [] },
   })),
 }));
 
@@ -97,7 +107,13 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   const mutateAsync = vi
     .fn()
     .mockRejectedValueOnce(new Error('API_UNAVAILABLE'))
-    .mockResolvedValueOnce({ request: { id: 'REQ-1', changeType: 'ADDRESS' } });
+    .mockResolvedValueOnce({
+      request: {
+        id: 'REQ-1',
+        changeType: 'ADDRESS',
+        requestedEffectiveDate: '2026-12-01',
+      },
+    });
   const upload = vi.fn();
   vi.mocked(useDocumentUpload).mockReturnValue({
     mutate: upload,
@@ -138,6 +154,11 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   expect(
     await screen.findByRole('heading', { name: 'Pending checks' }),
   ).toBeInTheDocument();
+  expect(useRules).toHaveBeenCalledWith(
+    'POL-NARIN-001',
+    'ADDRESS',
+    '2026-12-01',
+  );
   expect(
     screen.getByRole('heading', { level: 1, name: 'Request recorded' }),
   ).toHaveFocus();

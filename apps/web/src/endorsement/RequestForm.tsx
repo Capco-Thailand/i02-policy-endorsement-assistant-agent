@@ -260,6 +260,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
             policyId={policyId}
             requestId={saved.id}
             changeType={saved.changeType}
+            requestedEffectiveDate={saved.requestedEffectiveDate}
           />
           <Link href={routes.policy(policyId)}>Return to policy</Link>
         </section>

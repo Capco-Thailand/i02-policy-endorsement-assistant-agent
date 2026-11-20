@@ -5,7 +5,7 @@
 **Feature ID:** FR-07
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a mock receipt presented as verification could mislead customers or expose uploaded data.
-**State:** Mock upload implemented with synthetic guidance; FR-05 citation integration pending
+**State:** Mock upload and FR-05 cited guidance implemented
 
 ## Summary and objective
 Let a signed-in customer upload a synthetic file for their own active-policy endorsement request. Show applicable document requirements retrieved by FR-05, acknowledge mock receipt, and state that the file's contents and suitability were not checked.
@@ -15,11 +15,11 @@ As a customer, I can see which documents may be relevant, upload a synthetic fil
 
 ## Business and technical context
 - [PRD](../PRD.md) requires a mock upload, not an authenticity or completeness check. FR-01 session identity, FR-03 ownership, and FR-02 request context provide the access boundary.
-- FR-05 returns cited, versioned document requirements for the product, change type, and effective date. Those requirements are displayed as guidance, not used to inspect uploaded content. FR-07 may be built before FR-05 with clearly labeled synthetic fixture guidance; replace it with FR-05 results when available.
+- FR-05 returns cited, versioned document requirements for the product, change type, and effective date. Those requirements are displayed as guidance, not used to inspect uploaded content. The browser displays `GUIDANCE` citations only when the result is `AVAILABLE`; `DOCUMENT` and `NONE` stay explicit. Missing, conflicting, and failed retrieval remain unresolved.
 - Existing `/document-bypass` behavior and its `BYPASSED_MOCK` result belong to the prior scope and must be replaced as part of implementation. No production upload integration is claimed by this requirement edit.
 
 ## Acceptance criteria
-- [ ] For an owned `ACTIVE` policy and its submitted request, the UI shows FR-05's applicable document guidance with source/version citation, or a clearly labeled synthetic fallback until FR-05 exists. Missing or conflicting guidance is shown as unresolved, never as a verified requirement.
+- [ ] For an owned `ACTIVE` policy and its submitted request, the UI shows FR-05's applicable `DOCUMENT` or `NONE` guidance with source/version/section citation. Missing, conflicting, absent, or failed guidance is shown as unresolved, never as a verified requirement.
 - [ ] The customer can select and upload one synthetic file for the request. Accept PDF, PNG, or JPEG up to 10 MiB; reject empty, unsupported, or oversized uploads with a clear technical error. Any accepted file passes the **mock business check** regardless of name or contents. Do not run OCR, authenticity, health assessment, or matching against RAG requirements. Tell customers to use synthetic files only and never upload real identity or health records.
 - [ ] A completed upload returns `RECEIVED_MOCK` and plainly says the document was received for demonstration only and was not verified. The UI distinguishes selected, uploading, received, and failed states. RAG never indexes or reads uploaded bytes.
 - [ ] The API derives actor and request ownership from the session, rejects missing sessions with `401`, unknown/unowned policy or request with the same non-disclosing `404`, and expired policies with `409`. Rejected calls do not record successful receipt.
@@ -32,7 +32,7 @@ In scope: authenticated synthetic upload API and UI, mock receipt, cited require
 Out of scope: real document verification, OCR, medical evidence collection, identity checks, underwriting, eligibility decision, quote, and draft creation.
 
 ## Dependencies
-FR-01, FR-02, and FR-03 supply session, ownership, and request context. FR-05 supplies final document guidance; a labeled fixture can support the initial vertical slice. FR-08 consumes the mock receipt, not an FR-06 result.
+FR-01, FR-02, and FR-03 supply session, ownership, and request context. FR-05 supplies cited document guidance. FR-08 consumes the mock receipt, not an FR-06 result.
 
 ## Related subtasks
 None.
@@ -40,6 +40,13 @@ None.
 ## Accepted decisions and readiness
 - 2026-11-17: `BYPASSED_MOCK` never means verified.
 - 2026-11-18: Replace bypass with synthetic upload and `RECEIVED_MOCK`; do not validate business contents. Keep upload bytes out of storage and RAG. Review revised UX and API contract before implementation.
+- 2026-11-20: Replace the temporary fixture display with FR-05 `GUIDANCE` citations for the recorded effective date. Keep mock receipt independent of guidance status.
+
+## FR-05 integration verification
+- Guidance and citation: `apps/web/src/endorsement/DocumentUpload.test.tsx` covers `DOCUMENT`, `NONE`, missing, conflicting, and rule-only responses; `apps/web/src/lib/api.test.ts` checks the dated credentialed request. Chromium scenarios `FR-07 cited DOCUMENT` and `FR-07 cited NONE` exercise the real synthetic API.
+- Upload and disclosure: `DocumentUpload.test.tsx` covers upload during service failure and the `RECEIVED_MOCK` disclosure; Chromium scenarios `FR-07 cited DOCUMENT` and `FR-07 service failure` cover the upload path.
+- Session and unavailable policy: `DocumentUpload.test.tsx` covers `401` sign-in and `404` unavailable UI. API ownership and upload boundaries remain covered by the existing API tests; this follow-up does not change those routes.
+- Latest follow-up browser run: Chromium, 2026-11-20 Asia/Bangkok, 23/23 passed. Local HTML report: `test-results/fr-07-fr-05-guidance/report-20261120104910/e2e-20261120104910.html` (ignored by Git; CI publishes the report artifact). The service-failure browser scenario simulates the FR-05 `503` response; component tests cover `MISSING`, `CONFLICTING`, and failed refetch with cached guidance. The report includes rendered screenshots for desktop `DOCUMENT` and 375px `NONE` states; the recorded-request upload section has no approved pixel-diff baseline.
 
 ## UX handoff references
 - [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-mock-document-upload/DESIGN.md)
