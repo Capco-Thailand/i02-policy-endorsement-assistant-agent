@@ -326,11 +326,36 @@ export function database(url = process.env.DATABASE_URL) {
       );
       return result.rowCount === 1;
     },
+    async requestFor(
+      customerId: string,
+      policyId: string,
+      requestId: string,
+    ): Promise<unknown | undefined> {
+      const result = await pool.query(
+        'SELECT payload FROM endorsement_requests WHERE id=$1 AND requester_id=$2 AND policy_id=$3',
+        [requestId, customerId, policyId],
+      );
+      return result.rows[0]?.payload;
+    },
+    async hasMockReceipt(
+      customerId: string,
+      policyId: string,
+      requestId: string,
+    ): Promise<boolean> {
+      const result = await pool.query(
+        `SELECT 1 FROM audit_events WHERE actor_id=$1 AND action='document-upload' AND metadata @> $2::jsonb LIMIT 1`,
+        [
+          customerId,
+          JSON.stringify({ policyId, requestId, status: 'RECEIVED_MOCK' }),
+        ],
+      );
+      return result.rowCount === 1;
+    },
     async audit(
       actorId: string,
       action: string,
       now: number,
-      metadata: Record<string, string> = {},
+      metadata: Record<string, unknown> = {},
     ) {
       await pool.query(
         'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',

@@ -100,3 +100,10 @@ export const uploadDocument = (
     { method: 'POST', body },
   );
 };
+export type EligibilityResult =
+  paths['/api/policies/{policyId}/requests/{requestId}/eligibility']['post']['responses'][200]['content']['application/json'];
+export const checkEligibility = (policyId: string, requestId: string) =>
+  request<EligibilityResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/requests/${encodeURIComponent(requestId)}/eligibility`,
+    { method: 'POST' },
+  );

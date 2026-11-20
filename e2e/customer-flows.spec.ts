@@ -299,3 +299,109 @@ test('FR-02 AC3: invalid beneficiary allocation stays editable and creates no re
     page.getByRole('heading', { name: 'Request recorded' }),
   ).toHaveCount(0);
 });
+
+test('FR-08 recorded address request checks eligibility after its mock upload', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page.getByLabel('Change type').selectOption('ADDRESS');
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page
+    .getByLabel('Correspondence address', { exact: true })
+    .last()
+    .fill('100 Synthetic Road');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await page.getByLabel(/Synthetic document/).setInputFiles({
+    name: 'synthetic.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-synthetic'),
+  });
+  await page.getByRole('button', { name: 'Upload synthetic file' }).click();
+  await expect(page.getByText('RECEIVED_MOCK')).toBeVisible();
+  await page.getByRole('button', { name: 'Check eligibility' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Eligible to continue to a mock quote' }),
+  ).toBeVisible();
+  await expect(page.getByText(/rule.*version.*section/)).toBeVisible();
+  await expect(
+    page.getByText(/A mock receipt does not verify document suitability/),
+  ).toBeVisible();
+});
+
+test('FR-08 payment needs its own receipt, then a fresh check can pass on narrow UI', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await signIn(page);
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page.getByLabel('Change type').selectOption('PAYMENT_FREQUENCY');
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await page.getByRole('button', { name: 'Check eligibility' }).click();
+  await expect(
+    page.getByText(/Upload a synthetic file for this request/),
+  ).toBeVisible();
+  await page.getByLabel(/Synthetic document/).setInputFiles({
+    name: 'synthetic.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-synthetic'),
+  });
+  await page.getByRole('button', { name: 'Upload synthetic file' }).click();
+  await page.getByRole('button', { name: 'Check eligibility' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Eligible to continue to a mock quote' }),
+  ).toBeVisible();
+});
+
+test('FR-08 rider check refers without asking for health details', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page.getByLabel('Change type').selectOption('ACCIDENTAL_DEATH_RIDER');
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await page.getByRole('button', { name: 'Check eligibility' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Needs human review' }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/health disclosure may be needed outside this prototype/),
+  ).toBeVisible();
+});
+
+test('FR-08 eligibility service failure hides any result and offers retry', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+  await page.getByRole('link', { name: 'Start a change request' }).click();
+  await page.getByLabel('Change type').selectOption('ADDRESS');
+  await page.getByLabel('Requested effective date').fill('2027-01-01');
+  await page
+    .getByLabel('Correspondence address', { exact: true })
+    .last()
+    .fill('100 Synthetic Road');
+  await page.getByRole('button', { name: 'Record request' }).click();
+  await page.route('**/api/policies/*/requests/*/eligibility', (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'ELIGIBILITY_UNAVAILABLE' }),
+    }),
+  );
+  await page.getByRole('button', { name: 'Check eligibility' }).click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: /Could not complete the check/ }),
+  ).toHaveText(/Could not complete the check/);
+  await expect(
+    page.getByRole('heading', { name: 'Eligible to continue to a mock quote' }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Check eligibility' }),
+  ).toBeEnabled();
+});
