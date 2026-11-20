@@ -1,7 +1,7 @@
 # FR-08 — Check Endorsement Eligibility
 **Title:** [Story] Explain whether an endorsement request can proceed
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/116
 **Feature ID:** FR-08
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a false eligible decision could permit an invalid quote or proposal.
