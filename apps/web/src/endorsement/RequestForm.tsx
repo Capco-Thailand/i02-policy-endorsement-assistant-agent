@@ -254,8 +254,9 @@ export function RequestForm({ policyId }: { policyId: string }) {
         <section className="request-panel" role="status">
           <h2>Pending checks</h2>
           <p>
-            Your request was recorded and is pending checks. Request {saved.id}.
-            No policy coverage has changed.
+            Your request was recorded and is pending checks. Request{' '}
+            <span className="request-id">{saved.id}</span>. No policy coverage
+            has changed.
           </p>
           <DocumentUpload
             policyId={policyId}

@@ -395,9 +395,9 @@ test('FR-08 eligibility service failure hides any result and offers retry', asyn
     }),
   );
   await page.getByRole('button', { name: 'Check eligibility' }).click();
-  await expect(page.getByRole('alert')).toHaveText(
-    /Could not complete the check/,
-  );
+  await expect(
+    page.getByRole('alert').filter({ hasText: /Could not complete the check/ }),
+  ).toHaveText(/Could not complete the check/);
   await expect(
     page.getByRole('heading', { name: 'Eligible to continue to a mock quote' }),
   ).toHaveCount(0);

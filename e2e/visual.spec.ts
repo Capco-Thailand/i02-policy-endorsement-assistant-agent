@@ -19,6 +19,7 @@ async function compare(
     animations: 'disabled' as const,
     style: 'nextjs-portal { display: none !important; }',
     mask: mask ? [mask] : [],
+    maskColor: '#ffffff',
   };
   const current = await page.screenshot(screenshot);
   if (!existsSync(testInfo.snapshotPath(name))) {
@@ -115,7 +116,7 @@ for (const width of [1280, 375]) {
       page,
       testInfo,
       `eligibility-${width}.png`,
-      page.getByText(/Your request was recorded and is pending checks/),
+      page.locator('.request-id'),
     );
   });
 }
