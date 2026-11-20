@@ -18,6 +18,8 @@ import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
 import { encodeQuery, ENCODER_VERSION } from '../../ai/retrieval.js';
 import { retrieveRules, type RuleStore } from './rules.js';
+import { decideEligibility } from './endorsement/eligibility.js';
+import { Value } from '@sinclair/typebox/value';
 import {
   equalFact,
   policyFacts,
@@ -56,6 +58,29 @@ const SignInBody = Type.Object(
   { additionalProperties: false },
 );
 const PolicyParams = Type.Object({ policyId: Type.String() });
+const EligibilityParams = Type.Object({
+  policyId: Type.String(),
+  requestId: Type.String(),
+});
+const EligibilityResultSchema = Type.Object({
+  outcome: Type.Union([
+    Type.Literal('ELIGIBLE'),
+    Type.Literal('INELIGIBLE'),
+    Type.Literal('REFERRED'),
+  ]),
+  reasonCodes: Type.Array(Type.String()),
+  reasons: Type.Array(Type.String()),
+  nextStep: Type.String(),
+  sourceIds: Type.Array(Type.String()),
+  citations: Type.Array(
+    Type.Object({
+      sourceId: Type.String(),
+      ruleId: Type.String(),
+      version: Type.Integer(),
+      sectionId: Type.String(),
+    }),
+  ),
+});
 const EvidenceQuery = Type.Object({
   query: Type.String({ minLength: 1, maxLength: 200 }),
 });
@@ -692,6 +717,93 @@ export async function buildApp(options: AppOptions = {}) {
       };
       await db.saveRequest(saved, now());
       return { request: saved };
+    },
+  );
+  app.post<{ Params: Static<typeof EligibilityParams> }>(
+    '/api/policies/:policyId/requests/:requestId/eligibility',
+    {
+      schema: {
+        params: EligibilityParams,
+        response: {
+          200: EligibilityResultSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      try {
+        const policy = await db.policy(actor.id, request.params.policyId);
+        if (!ownsPolicy(actor, policy))
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const saved = await db.requestFor(
+          actor.id,
+          policy.id,
+          request.params.requestId,
+        );
+        if (!saved) return reply.code(404).send({ error: 'NOT_FOUND' });
+        let rules;
+        if (
+          Value.Check(RequestRecordSchema, saved) &&
+          validDate(saved.requestedEffectiveDate)
+        ) {
+          try {
+            rules = await retrieveRules(
+              ruleStore,
+              policy.id,
+              saved.changeType,
+              saved.requestedEffectiveDate,
+            );
+          } catch (error) {
+            app.log.error({ err: error }, 'Rule retrieval failed');
+            rules = {
+              status: 'UNAVAILABLE' as const,
+              sourceIds: [],
+              citations: [],
+            };
+          }
+        } else
+          rules = { status: 'MISSING' as const, sourceIds: [], citations: [] };
+        const receipt = await db.hasMockReceipt(
+          actor.id,
+          policy.id,
+          request.params.requestId,
+        );
+        const decision = decideEligibility(policy, saved, rules, receipt);
+        const ruleVersions: { ruleId: string; version: number }[] = [];
+        for (const citation of rules.citations) {
+          if (
+            citation.role === 'RULE' &&
+            typeof citation.ruleId === 'string' &&
+            citation.ruleId.length > 0 &&
+            Number.isInteger(citation.version) &&
+            citation.version > 0 &&
+            !ruleVersions.some(
+              (item) =>
+                item.ruleId === citation.ruleId &&
+                item.version === citation.version,
+            )
+          )
+            ruleVersions.push({
+              ruleId: citation.ruleId,
+              version: citation.version,
+            });
+        }
+        await db.audit(actor.id, 'eligibility-check', now(), {
+          policyId: policy.id,
+          requestId: request.params.requestId,
+          outcome: decision.outcome,
+          reasonCodes: decision.reasonCodes,
+          ruleVersions,
+        });
+        return decision;
+      } catch (error) {
+        app.log.error({ err: error }, 'Eligibility storage failed');
+        return reply.code(503).send({ error: 'ELIGIBILITY_UNAVAILABLE' });
+      }
     },
   );
   app.get('/openapi.json', { schema: { hide: true } }, async () =>
