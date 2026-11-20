@@ -3,7 +3,7 @@ title: 'FR-08 check endorsement eligibility'
 type: feature
 ticket: 'fr-08-check-endorsement-eligibility'
 created: '2026-11-20'
-status: in-review
+status: built
 baseline_revision: 'd8b0b886b74d5a658e62e6234804a919f83519e0'
 route: full
 route_source: auto
@@ -60,10 +60,10 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Add focused failing tests in `apps/api/src/endorsement/eligibility.test.ts` for all four change types, malformed persisted values, allowed/failed `CHECK`, unknown values, referral, and receipt precedence; run red, then implement pure decision code in `eligibility.ts` and run green. This seam proves deterministic outcomes, not persistence or authorization.
-- [ ] Add failing Fastify route tests in `apps/api/src/eligibility.test.ts` for `401`, equal `404`, access order, schema, audit/read failures, and no writes; run red, then add filtered DB readers, route, audit, and OpenAPI contract; run green. Add a PostgreSQL integration test for request → upload → check and cross-request isolation. These seams prove API and durable record behavior.
-- [ ] Add failing `EligibilityCheck.test.tsx` and API-client tests for idle, pending, three outcomes, retry, `401`, `404`, citation, and disclosure; run red, then add client type, hook, focused section, and `RequestForm` composition; run green. This seam proves presentation under controlled responses, not server decisions.
-- [ ] Extend browser scenarios for address success, payment without and with receipt, rider referral, service failure, session/cross-account boundaries, and desktop/narrow UI. Update `docs/API_DEVELOPMENT.md`, ticket-level scope only if changed, and criterion traceability in this plan.
+- [x] Add focused failing tests in `apps/api/src/endorsement/eligibility.test.ts` for all four change types, malformed persisted values, allowed/failed `CHECK`, unknown values, referral, and receipt precedence; run red, then implement pure decision code in `eligibility.ts` and run green. This seam proves deterministic outcomes, not persistence or authorization.
+- [x] Add failing Fastify route tests in `apps/api/src/eligibility.test.ts` for `401`, equal `404`, access order, schema, audit/read failures, and no writes; run red, then add filtered DB readers, route, audit, and OpenAPI contract; run green. Add a PostgreSQL integration test for request → upload → check and cross-request isolation. These seams prove API and durable record behavior.
+- [x] Add failing `EligibilityCheck.test.tsx` and API-client tests for idle, pending, three outcomes, retry, `401`, `404`, citation, and disclosure; run red, then add client type, hook, focused section, and `RequestForm` composition; run green. This seam proves presentation under controlled responses, not server decisions.
+- [x] Extend browser scenarios for address success, payment without and with receipt, rider referral, service failure, session/cross-account boundaries, and desktop/narrow UI. Update `docs/API_DEVELOPMENT.md`, ticket-level scope only if changed, and criterion traceability in this plan.
 
 **Acceptance Criteria:**
 - Given an authorized saved request, when eligibility runs, then only structured policy/request values, applicable cited rule values, and its own mock receipt determine `ELIGIBLE`, `INELIGIBLE`, or `REFERRED` with stable safe reasons.
@@ -72,7 +72,7 @@ context:
 
 ## Implementation Notes
 
-The first Linux CI browser run will attach candidate FR-08 screenshots and fail the visual comparison until desktop and 375px baselines are reviewed against the UX contracts and checked in. Do not treat a candidate screenshot as a passing baseline.
+Linux CI captured the FR-08 desktop and 375px candidates. Both were inspected against the UX contracts and mockup, then checked in as `e2e/visual.spec.ts-snapshots/eligibility-1280-chromium-linux.png` and `eligibility-375-chromium-linux.png`. The PR check now enforces comparison with those baselines.
 
 ## Plan Change Log
 
@@ -113,12 +113,14 @@ The existing recorded-request panel appears immediately after request creation a
 
 | Ticket criterion | Evidence | Latest result and gap |
 | --- | --- | --- |
-| Session, policy, request access | `apps/api/src/eligibility.test.ts`; `e2e/api-boundaries.spec.ts` | Fastify pass; browser unrun |
-| Persisted values, dates, active policy, four changes | `apps/api/src/endorsement/eligibility.test.ts` | Domain pass; database integration unrun |
-| Cited checks, unresolved rules, referral | Domain and Fastify tests | Pass at those seams; browser unrun |
-| Same-request mock receipt and precedence | Domain tests; `apps/api/src/eligibility.integration.test.ts` | Domain pass; PostgreSQL unrun |
-| UI results, citation, retry, disclosure | `apps/web/src/endorsement/EligibilityCheck.test.tsx`; `e2e/customer-flows.spec.ts` | Component pass; browser unrun |
-| No quote, proposal, policy mutation, or binding | Fastify route tests; integration unchanged-policy assertion | Route pass; PostgreSQL unrun; FR-09/10 recheck is future work |
-| Durable decision audit and storage failures | Fastify route tests; PostgreSQL audit assertion | Fastify pass; PostgreSQL unrun |
+| Session, policy, request access | `apps/api/src/eligibility.test.ts`; `e2e/api-boundaries.spec.ts` | Fastify and CI browser passed |
+| Persisted values, dates, active policy, four changes | `apps/api/src/endorsement/eligibility.test.ts` | Domain and CI API suite passed |
+| Cited checks, unresolved rules, referral | Domain, Fastify, and rider browser tests | Passed; missing/conflicting browser fixtures remain outside current browser scenarios |
+| Same-request mock receipt and precedence | Domain tests; `apps/api/src/eligibility.integration.test.ts` | Domain and isolated PostgreSQL integration passed |
+| UI results, citation, retry, disclosure | `apps/web/src/endorsement/EligibilityCheck.test.tsx`; `e2e/customer-flows.spec.ts` | Component and CI browser passed; visual comparison enforced by reviewed baselines |
+| No quote, proposal, policy mutation, or binding | Fastify route tests; integration unchanged-policy assertion | Route and PostgreSQL passed; FR-09/10 recheck is future work |
+| Durable decision audit and storage failures | Fastify route tests; PostgreSQL audit assertion | Fastify and PostgreSQL passed |
 
 **Follow-up verification (supersedes earlier counts):** A referred result with no citation omitted its safe source ID; `EligibilityCheck.test.tsx` failed, then passed after rendering `sourceIds`. A `401` redirect test and saved-request composition test also passed. The Fastify route test now asserts audited `ruleVersions`. The mocked `503` browser service-failure scenario is added but remains unrun locally. Full web suite: 48/48 passed. Focused web tests: 15/15 passed. Fastify route tests: 4/4 passed. Root typecheck and focused Prettier check passed. Root `npm run format:check` still fails on 74 unrelated baseline files. The styled result panel has a flat border, status-specific left rule, and narrow citation wrapping; browser screenshot comparison remains unrun without the isolated database.
+
+**Isolated CI evidence:** Run 44706022890 on 2026-11-20 Asia/Bangkok passed database migration/seed, API tests (74/74, including FR-08 PostgreSQL integration), web tests (49/49), typecheck, formatting, and production build. Chromium passed 26 functional browser scenarios; its only two failures were the intentionally absent FR-08 visual baselines. Dated HTML report: `test-results/fr-08-check-endorsement-eligibility/report-20261120155427/e2e-20261120155427.html` in the CI artifact. The reviewed baselines above were added afterward; their comparison is the remaining PR check.
