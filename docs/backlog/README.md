@@ -12,7 +12,7 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 | 6 | FR-05 Retrieve Endorsement Rules with RAG | [Ticket](../tickets/fr-05-retrieve-endorsement-rules-with-rag.md) | Ticket handoff in review |
 | — | FR-06 Verify Customer Identity | [Ticket](../tickets/fr-06-verify-customer-identity-mock-ekyc.md) | Removed from MVP scope; existing implementation is not a workflow gate |
 | 7 | FR-07 Mock Document Upload | [Ticket](../tickets/fr-07-bypass-document-verification-mock.md) | Mock upload and FR-05 cited guidance implemented |
-| 8 | FR-08 Check Endorsement Eligibility | [Draft](fr-08-check-endorsement-eligibility.md) | Backlog |
+| 8 | FR-08 Check Endorsement Eligibility | [Ticket](../tickets/fr-08-check-endorsement-eligibility.md) | Ticket/UX handoff ready for review |
 | 9 | FR-09 Calculate Premium Impact | [Draft](fr-09-calculate-premium-impact-mock-quote.md) | Backlog |
 | 10 | FR-10 Prepare Updated-Policy Proposal | [Draft](fr-10-create-draft-endorsement-for-human-approval.md) | Backlog |
 | 11 | FR-11 Customer Review and Decision | [Draft](fr-11-review-approve-reject-endorsement-draft.md) | Backlog |
