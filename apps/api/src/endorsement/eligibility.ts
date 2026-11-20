@@ -282,7 +282,7 @@ export function decideEligibility(
     'ELIGIBLE',
     '',
     '',
-    'Eligible to continue to a mock quote. No policy has changed.',
+    'Review the mock premium impact when that step is available.',
     rules.sourceIds,
     citations,
   );

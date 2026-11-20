@@ -59,7 +59,11 @@ it('FR-08 address: an owned active saved request with cited CHECK and own receip
       },
       true,
     ),
-  ).toMatchObject({ outcome: 'ELIGIBLE', reasonCodes: [] });
+  ).toMatchObject({
+    outcome: 'ELIGIBLE',
+    reasonCodes: [],
+    nextStep: 'Review the mock premium impact when that step is available.',
+  });
 });
 
 it('FR-08 unknown values: extra structured rule fields require referral', () => {
