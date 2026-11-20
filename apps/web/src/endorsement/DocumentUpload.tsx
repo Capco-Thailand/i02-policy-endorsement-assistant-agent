@@ -1,37 +1,76 @@
 'use client';
 
-import { useState } from 'react';
-import { useDocumentUpload } from '../lib/queries';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDocumentUpload, useRules } from '../lib/queries';
 import type { RequestBody } from '../lib/api';
-
-const guidance: Record<RequestBody['changeType'], string> = {
-  BENEFICIARY:
-    'A real insurer may request beneficiary and relationship evidence.',
-  ADDRESS:
-    'A real insurer may request proof of the new correspondence address.',
-  PAYMENT_FREQUENCY: 'A real insurer may request payment-method information.',
-  ACCIDENTAL_DEATH_RIDER:
-    'Adding a rider may require health disclosure or underwriting by a real insurer. Do not upload real health records here.',
-};
+import { routes } from '../lib/routes';
 
 export function DocumentUpload({
   policyId,
   requestId,
   changeType,
+  requestedEffectiveDate,
 }: {
   policyId: string;
   requestId: string;
   changeType: RequestBody['changeType'];
+  requestedEffectiveDate: string;
 }) {
   const [file, setFile] = useState<File>();
   const upload = useDocumentUpload(policyId);
+  const rules = useRules(policyId, changeType, requestedEffectiveDate);
+  const router = useRouter();
+  const client = useQueryClient();
+  useEffect(() => {
+    if (rules.error?.message === 'UNAUTHORIZED') {
+      client.clear();
+      router.replace(`${routes.signIn}?ended=1`);
+    }
+  }, [rules.error, client, router]);
+  if (rules.error?.message === 'UNAUTHORIZED') return null;
+  if (rules.error?.message === 'NOT_FOUND')
+    return <p role="alert">This policy is unavailable.</p>;
+  const citations =
+    !rules.isError && rules.data?.status === 'AVAILABLE'
+      ? rules.data.citations.filter((item) => item.role === 'GUIDANCE')
+      : [];
   return (
     <section aria-labelledby="document-upload-heading">
       <h3 id="document-upload-heading">Mock document upload</h3>
-      <p>
-        Example guidance from a synthetic fixture, pending cited FR-05 rules:{' '}
-        {guidance[changeType]}
-      </p>
+      <div aria-live="polite">
+        {rules.isPending ? (
+          <p>Loading document guidance…</p>
+        ) : citations.length ? (
+          citations.map((item) => (
+            <div key={`${item.sourceId}:${item.sectionId}`}>
+              <p>
+                {item.value.kind === 'NONE'
+                  ? 'No document required: '
+                  : 'Document guidance: '}
+                {item.text}
+              </p>
+              <p>
+                Source {item.sourceId} · version {item.version} · section{' '}
+                {item.sectionId}
+              </p>
+            </div>
+          ))
+        ) : (
+          <div>
+            <p>
+              Document guidance is unresolved. No document requirement is
+              verified.
+            </p>
+            {rules.isError && rules.error.message === 'API_UNAVAILABLE' && (
+              <button type="button" onClick={() => void rules.refetch()}>
+                Retry guidance
+              </button>
+            )}
+          </div>
+        )}
+      </div>
       <p>
         Use a synthetic file only. Never upload real identity or health records.
         This demonstration does not check whether the file meets any
