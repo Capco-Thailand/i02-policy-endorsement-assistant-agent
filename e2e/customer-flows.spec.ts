@@ -160,7 +160,7 @@ for (const change of [
     await page.getByRole('link', { name: /Family Protection Plan/ }).click();
     await page.getByRole('link', { name: 'Start a change request' }).click();
     await expect(
-      page.getByText('POL-NARIN-001', { exact: true }),
+      page.getByText('Family Protection Plan · POL-NARIN-001'),
     ).toBeVisible();
     await page.getByLabel('Change type').selectOption({ label: change.label });
     await page.getByLabel('Requested effective date').fill('2027-01-01');

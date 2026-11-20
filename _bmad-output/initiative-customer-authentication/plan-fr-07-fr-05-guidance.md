@@ -88,7 +88,7 @@ API client test failed with `getRules is not a function`, then passed after addi
 Only the guidance text and its status inside the existing upload section change. No new page or wrapper component is needed. Display citation metadata as text, not an external link; the source is a synthetic corpus entry. Keep `NONE` explicit even though the demo upload control remains available.
 
 ## Verification
-Web tests 38/38, typecheck, format check, build, and Chromium E2E 23/23 passed on 2026-11-20 using disposable `pea_fr07_guidance_test`. Latest local report: `test-results/fr-07-fr-05-guidance/report-20261120104910/e2e-20261120104910.html`. The review fix was rerun through all checks.
+Web tests 38/38, typecheck, format check, build, and Chromium E2E 23/23 passed on 2026-11-20 using disposable `pea_fr07_guidance_test`. Latest local report: `test-results/fr-07-fr-05-guidance/report-20261120105549/e2e-20261120105549.html`. The review fix was rerun through all checks. The first CI run exposed an existing FR-02 E2E assertion that waited for a standalone policy ID after navigating to a page that renders the plan name and ID together; the assertion now targets the visible combined label, and the full browser suite passed again.
 
 
 **Commands:**
