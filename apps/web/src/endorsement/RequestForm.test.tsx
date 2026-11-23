@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RequestForm } from './RequestForm';
 import {
@@ -141,9 +141,11 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   expect(
     await screen.findByRole('heading', { name: 'Pending checks' }),
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole('heading', { level: 1, name: 'Request recorded' }),
-  ).toHaveFocus();
+  await waitFor(() =>
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Request recorded' }),
+    ).toHaveFocus(),
+  );
   expect(screen.getByRole('status')).toHaveTextContent(
     /No policy coverage has changed/,
   );
