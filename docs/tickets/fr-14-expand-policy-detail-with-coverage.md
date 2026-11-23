@@ -1,7 +1,7 @@
 # FR-14 — Expand Policy Detail with Product and Coverage Information
 **Title:** [Story] Show product details and coverage summary on policy detail
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/127
 **Feature ID:** FR-14
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — incomplete or incorrect coverage details could mislead a customer about synthetic policy terms.
