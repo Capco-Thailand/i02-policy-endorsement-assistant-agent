@@ -1,40 +1,42 @@
 ---
+name: Policy Endorsement Assistant
 status: final
-updated: 2026-11-20
+updated: 2026-11-23
 ---
 
 # FR-08 eligibility — behavior contract
 
 ## Foundation
-Responsive customer web flow using the existing Next.js and shadcn UI conventions. [DESIGN.md](DESIGN.md) owns visual tokens. The API owns the decision; the browser displays its typed outcome and reasons.
+Responsive customer web flow using the existing Next.js and shadcn UI conventions. [DESIGN.md](DESIGN.md) owns visual decisions. The API owns the assessment; the browser displays its typed outcome, reasons, and citations.
 
 ## Information Architecture
-The recorded-request view places request summary, FR-05 guidance, FR-07 mock upload, and then an eligibility section in that order. The section shows the latest completed check and its citations. A customer can rerun the check after uploading or correcting a request through the supported request flow.
+The recorded-request view shows request summary followed by the latest assessment result and citations. The customer can run or retry the check on an authorized, active request. FR-05 supplies rule evidence and FR-04 supplies policy wording. FR-07 upload is outside this flow.
 
 ## Voice and Tone
-Use plain, specific explanations: “Upload a synthetic file for this request,” “Payment frequency is not allowed by the cited rule,” or “Rules need human review.” Do not use “approved,” “verified document,” or “coverage updated.”
+Use specific explanations such as “The cited rule does not allow this payment frequency” or “The policy wording and rule could not be reconciled.” Do not say “approved,” “verified document,” or “coverage updated.”
 
 ## Component Patterns
-The check action is available on a recorded request. It remains disabled during a check to prevent duplicate clicks. A result has a heading, reason list, optional citation, and a next step. Cite only evidence the API marks applicable. Do not calculate or override the API result in the client.
+The check action remains disabled during a check to prevent duplicate requests. A result contains a status heading, customer-readable reason, relevant policy and rule citations, and a next step. Show only citations the API marks applicable. Do not calculate or override the API result in the client.
 
 ## State Patterns
 - Before check: explain that the customer can check whether the recorded request can proceed.
-- Loading: “Checking this request…” in the result region; retain request context.
-- `ELIGIBLE`: show “Eligible to continue to a mock quote,” the cited rule, and that no policy has changed. The later quote action is owned by FR-09.
-- `INELIGIBLE`: name each failed input, policy, rule, or missing-upload condition and provide the relevant action. A mock receipt never says the file was suitable.
-- `REFERRED`: explain unavailable, conflicting, unknown, or underwriting evidence and that automatic quote and proposal creation are paused. For rider addition, state that real underwriting or health disclosure may be needed outside this prototype; never ask for medical evidence here.
-- Service failure: show “Could not complete the check” and a retry action, without a prior successful result appearing current.
-- Session expiry: return to sign-in. Unknown or unowned policy/request: show the same unavailable message. Never reveal another customer's data.
+- Loading: “Checking this request…”; retain request context.
+- `CAN_PROCEED`: show “Can proceed to a proposal,” both policy wording and rule citations, and that no policy has changed. FR-09 calculation and FR-10 proposal creation are later steps.
+- `CANNOT_PROCEED`: explain the unmet policy or rule condition and a useful next step, with supporting citations.
+- `NEEDS_REVIEW`: name missing, stale, conflicting, unavailable, or unresolved evidence; explain what remains unresolved and include relevant citations when available. Do not suggest a reviewer has been assigned.
+- Service failure: say “Could not complete the check,” offer retry, and do not present a prior result as current.
+- Session expiry: return to sign-in. Unknown or unowned policy/request: show a non-disclosing unavailable message.
+- Rider addition: if sources mention real underwriting or health disclosure, explain that this may be needed outside the prototype. Do not collect medical evidence.
 
 ## Interaction Primitives
-Keep the action keyboard reachable. Announce a new result in a polite live region, and use an alert for service failure. Preserve the customer's place in the recorded-request page after a check.
+Keep the action keyboard reachable. Announce new results in a polite live region and use an alert for service failure. Preserve the customer's place on the recorded-request page after a check.
 
 ## Accessibility Floor
-Use semantic headings, a real button, visible focus styles, and text labels for every status. Reasons are a list. Citation text wraps on narrow screens. Status meaning cannot rely on color. Reduced-motion preference is respected by the shared styles.
+Use semantic headings, a real button, visible focus styles, and text labels for every status. Reasons are a list. Citation text wraps on narrow screens. Status meaning never relies on color. Respect reduced-motion preference.
 
 ## Key Flows
-1. Narin records a synthetic address change on an owned active policy, uploads a synthetic file, and selects “Check eligibility.” The result cites the address rule and says the request can proceed to a mock quote. This is the climax; no quote or policy change occurs yet.
-2. Mali checks a payment-frequency request with no upload. The result names the missing mock receipt and links back to upload. After uploading, she reruns the check; only the fresh server result may proceed.
-3. Narin checks a rider addition. The result says the request needs human review and explains the real-world underwriting caveat without collecting health details.
+1. Narin submits an address request on an active synthetic policy and selects “Check this request.” The API returns `CAN_PROCEED` with policy wording and endorsement rule citations. The result says a proposal can be prepared, while making clear the policy is unchanged.
+2. Mali checks a payment-frequency request. The result is `CANNOT_PROCEED` and identifies the rule condition with its citation. She can return to the request and edit it.
+3. Narin checks a rider addition. The result is `NEEDS_REVIEW` because sources require unresolved real-world underwriting. It explains what remains unresolved without collecting health information or implying that a reviewer was assigned.
 
-The [mockup](../../../design/page/check-endorsement-eligibility.html) demonstrates result states. The [ticket](../../../docs/tickets/fr-08-check-endorsement-eligibility.md) owns requirements if a mock differs.
+The [mockup](../../../design/page/check-endorsement-eligibility.html) demonstrates assessment states. The [ticket](../../../docs/tickets/fr-08-check-endorsement-eligibility.md) owns requirements.

@@ -57,7 +57,7 @@ None identified; confirm during refinement.
 
 ## UX handoff references
 
-- Not yet identified; add design documents and browser-viewable mockups if this ticket includes UI.
+- N/A — infrastructure-only feature; no customer-facing UI or UX handoff is required.
 
 ## Definition of Done
 

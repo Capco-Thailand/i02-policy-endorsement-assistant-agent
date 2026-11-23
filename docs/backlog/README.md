@@ -18,3 +18,4 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 | 11 | FR-11 Customer Review and Decision | [Draft](fr-11-review-approve-reject-endorsement-draft.md) | Backlog |
 | 12 | FR-12 Customer Change History and Audit | [Draft](fr-12-record-activity-audit-history.md) | Backlog |
 | 13 | FR-13 Run with Docker Compose | [Draft](fr-13-run-the-system-with-docker-compose.md) | Backlog |
+| 14 | FR-14 Expand Policy Detail with Product and Coverage Information | [Draft](fr-14-expand-policy-detail-with-coverage.md) | Backlog |

@@ -40,9 +40,9 @@ None.
 - 2026-11-23: Retire the mock upload through the [cleanup ticket](chore-remove-fr-07-mock-upload.md); it is outside the endorsement MVP assessment, calculation, and proposal contract.
 
 ## UX handoff references
+Historical design contracts are retained for traceability; the retired mock page was deleted.
 - [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-mock-document-upload/DESIGN.md)
 - [Behavior contract](../../_bmad-output/initiative-customer-authentication/ux-mock-document-upload/EXPERIENCE.md)
-- [Mock upload page](../../design/page/mock-document-upload.html)
 
 ## Definition of Done
 - [ ] Acceptance criteria satisfied
