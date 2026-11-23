@@ -97,7 +97,10 @@ integration('FR-04 PostgreSQL evidence boundary', () => {
     });
     expect(
       rows.rows.every(
-        (row) => row.sections === 4 && row.versions === 1 && row.vectors,
+        (row) =>
+          row.sections === (row.id === 'POL-NARIN-001' ? 9 : 7) &&
+          row.versions === 1 &&
+          row.vectors,
       ),
     ).toBe(true);
   });
@@ -318,7 +321,7 @@ integration('FR-04 PostgreSQL evidence boundary', () => {
       });
     } finally {
       await db.pool.query(
-        `UPDATE policy_documents SET facts_snapshot=(SELECT jsonb_object_agg(concept,fact_value) FROM policy_sections WHERE document_id='POL-NARIN-001:v1') WHERE id='POL-NARIN-001:v1'`,
+        `UPDATE policy_documents SET facts_snapshot=(SELECT jsonb_object_agg(CASE WHEN concept IN ('coverage','exclusions') THEN section_id ELSE concept END,fact_value) FROM policy_sections WHERE document_id='POL-NARIN-001:v1') WHERE id='POL-NARIN-001:v1'`,
       );
     }
     await db.pool.query(

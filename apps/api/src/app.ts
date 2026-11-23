@@ -11,7 +11,7 @@ import {
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
-import { Type, type Static } from '@sinclair/typebox';
+import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { database } from './db.js';
 import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
@@ -24,11 +24,11 @@ import {
 import { retrievePolicyEvidence } from './endorsement/policy-evidence.js';
 import { Value } from '@sinclair/typebox/value';
 import {
-  equalFact,
-  policyFacts,
+  matchesPolicyFactsSnapshot,
   reconcileEvidence,
   type UnresolvedReason,
 } from './evidence.js';
+import { policyTerms } from './policy-terms.js';
 
 const ErrorSchema = Type.Object({ error: Type.String() });
 const ActorSchema = Type.Object({
@@ -41,6 +41,49 @@ const PolicySchema = Type.Object({
   label: Type.String(),
   status: Type.Union([Type.Literal('ACTIVE'), Type.Literal('EXPIRED')]),
 });
+const TermCitation = Type.Object({
+  sourceId: Type.String(),
+  title: Type.String(),
+  version: Type.String(),
+  sectionId: Type.String(),
+  excerpt: Type.String(),
+});
+const TermReason = Type.Union([
+  Type.Literal('MISSING_DOCUMENT'),
+  Type.Literal('MISSING_SECTION'),
+  Type.Literal('STALE_DOCUMENT'),
+  Type.Literal('STALE_ENCODER'),
+  Type.Literal('CONFLICTING_EVIDENCE'),
+]);
+const Term = <T extends TSchema>(value: T) =>
+  Type.Union([
+    Type.Object({
+      status: Type.Literal('confirmed'),
+      value,
+      citation: TermCitation,
+    }),
+    Type.Object({
+      status: Type.Literal('unresolved'),
+      reason: TermReason,
+      citation: Type.Optional(TermCitation),
+    }),
+  ]);
+const ProductTerm = Term(
+  Type.Object({
+    insurer: Type.String(),
+    type: Type.String(),
+    name: Type.String(),
+    version: Type.String(),
+  }),
+);
+const CoverageTerm = Term(
+  Type.Object({
+    name: Type.String(),
+    amount: Type.Number(),
+    currency: Type.String(),
+  }),
+);
+const ExclusionTerm = Term(Type.String());
 const PolicyDetailSchema = Type.Object({
   ...PolicySchema.properties,
   effectiveDate: Type.String({ format: 'date' }),
@@ -52,6 +95,15 @@ const PolicyDetailSchema = Type.Object({
   beneficiaries: Type.Array(
     Type.Object({ name: Type.String(), allocationPercent: Type.Number() }),
   ),
+  terms: Type.Object({
+    product: ProductTerm,
+    coverages: Type.Array(
+      Type.Intersect([Type.Object({ id: Type.String() }), CoverageTerm]),
+    ),
+    exclusions: Type.Array(
+      Type.Intersect([Type.Object({ id: Type.String() }), ExclusionTerm]),
+    ),
+  }),
 });
 const SignInBody = Type.Object(
   {
@@ -374,6 +426,7 @@ export async function buildApp(options: AppOptions = {}) {
       if (!ownsPolicy(actor, policy))
         return reply.code(404).send({ error: 'NOT_FOUND' });
       await record(actor.id, 'policy-read');
+      const document = await evidenceStore.evidenceDocument(policy.id);
       return {
         policy: {
           id: policy.id,
@@ -383,6 +436,7 @@ export async function buildApp(options: AppOptions = {}) {
           expiryDate: policy.expiryDate,
           paymentFrequency: policy.paymentFrequency,
           beneficiaries: policy.beneficiaries,
+          terms: policyTerms(policy, document),
         },
       };
     },
@@ -425,7 +479,7 @@ export async function buildApp(options: AppOptions = {}) {
           )
         )
           return unresolved('STALE_ENCODER');
-        if (!equalFact(document.facts_snapshot, policyFacts(policy)))
+        if (!matchesPolicyFactsSnapshot(policy, document.facts_snapshot))
           return unresolved('STALE_DOCUMENT');
         const reason = reconcileEvidence(policy, document.sections);
         if (reason) return unresolved(reason);

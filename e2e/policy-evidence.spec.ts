@@ -35,7 +35,7 @@ test('FR-04 owned policy shows a bounded citation at 320px; foreign policy stays
   ).toBeVisible();
   await expect(page.getByText('Matches policy facts')).toBeVisible();
   await expect(
-    page.getByText('Family Protection Plan synthetic policy'),
+    page.getByText('Family Protection Plan synthetic policy', { exact: true }),
   ).toBeVisible();
   await expect(page.getByText(/Version v1 · Section dates/)).toBeVisible();
   expect(

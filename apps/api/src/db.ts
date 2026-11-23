@@ -33,6 +33,7 @@ export function database(url = process.env.DATABASE_URL) {
         '001_initial.sql',
         '002_policy_corpus.sql',
         '003_endorsement_rules.sql',
+        '004_policy_terms.sql',
       ]) {
         const sql = await readFile(
           fileURLToPath(new URL(`../sql/${filename}`, import.meta.url)),
@@ -101,7 +102,7 @@ export function database(url = process.env.DATABASE_URL) {
           beneficiaries,
         ] of fixed) {
           await client.query(
-            'INSERT INTO policies VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (id) DO NOTHING',
+            'INSERT INTO policies(id,customer_id,label,status,effective_date,expiry_date,payment_frequency) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (id) DO NOTHING',
             [id, cid, label, status, start, end, frequency],
           );
           for (const [position, [name, allocation]] of beneficiaries.entries())
@@ -109,6 +110,59 @@ export function database(url = process.env.DATABASE_URL) {
               'INSERT INTO beneficiaries VALUES ($1,$2,$3,$4) ON CONFLICT (policy_id,position) DO NOTHING',
               [id, position, name, allocation],
             );
+          const product = {
+            insurer: 'Example Mutual (Synthetic)',
+            type: 'Life',
+            name: label,
+            version: 'v1',
+          };
+          const amount =
+            id === 'POL-NARIN-001'
+              ? 1000000
+              : id === 'POL-MALI-001'
+                ? 750000
+                : 500000;
+          const coverages = [
+            {
+              id: 'coverage.life',
+              name: 'Life benefit',
+              amount,
+              currency: 'THB',
+            },
+            ...(id === 'POL-NARIN-001'
+              ? [
+                  {
+                    id: 'coverage.accidental-death',
+                    name: 'Accidental death benefit',
+                    amount: 250000,
+                    currency: 'THB',
+                  },
+                ]
+              : []),
+          ];
+          const exclusions = [
+            {
+              id: 'exclusions.life',
+              text: 'The life benefit does not cover death caused by intentional self-injury.',
+            },
+            ...(id === 'POL-NARIN-001'
+              ? [
+                  {
+                    id: 'exclusions.accidental-death',
+                    text: 'The accidental death benefit does not cover death caused solely by illness, without an accident.',
+                  },
+                ]
+              : []),
+          ];
+          await client.query(
+            'UPDATE policies SET product_terms=$2,coverage_terms=$3,exclusion_terms=$4 WHERE id=$1 AND product_terms IS NULL AND coverage_terms IS NULL AND exclusion_terms IS NULL',
+            [
+              id,
+              JSON.stringify(product),
+              JSON.stringify(coverages),
+              JSON.stringify(exclusions),
+            ],
+          );
         }
         await client.query('COMMIT');
       } catch (error) {
@@ -224,7 +278,7 @@ export function database(url = process.env.DATABASE_URL) {
     },
     async evidenceDocument(policyId: string) {
       const result = await pool.query(
-        `SELECT d.id, d.version, d.title, d.encoder_version, d.facts_snapshot,
+        `SELECT d.id, d.product_id, d.version, d.title, d.encoder_version, d.facts_snapshot,
           COALESCE(json_agg(json_build_object('sectionId',s.section_id,'concept',s.concept,'value',s.fact_value,'excerpt',s.excerpt,'encoderVersion',s.encoder_version) ORDER BY s.section_id)
           FILTER (WHERE s.section_id IS NOT NULL),'[]') AS sections
          FROM policy_document_selection x
@@ -236,6 +290,7 @@ export function database(url = process.env.DATABASE_URL) {
       return result.rows[0] as
         | {
             id: string;
+            product_id: string;
             version: string;
             title: string;
             encoder_version: string;
@@ -386,6 +441,9 @@ interface PolicyRow {
   expiry_date_text: string;
   payment_frequency: Policy['paymentFrequency'];
   beneficiaries: { name: string; allocationPercent: number | string }[];
+  product_terms: Policy['productTerms'];
+  coverage_terms: Policy['coverageTerms'];
+  exclusion_terms: Policy['exclusionTerms'];
 }
 function toPolicy(row: PolicyRow): Policy {
   return {
@@ -400,5 +458,8 @@ function toPolicy(row: PolicyRow): Policy {
       name: b.name,
       allocationPercent: Number(b.allocationPercent),
     })),
+    productTerms: row.product_terms,
+    coverageTerms: row.coverage_terms,
+    exclusionTerms: row.exclusion_terms,
   };
 }

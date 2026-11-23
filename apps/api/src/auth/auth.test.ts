@@ -217,7 +217,7 @@ describe('FR-03 policy access', () => {
       url: '/api/policies/POL-NARIN-001',
       headers: { cookie },
     });
-    expect(active.json().policy).toEqual({
+    expect(active.json().policy).toMatchObject({
       id: 'POL-NARIN-001',
       label: 'Family Protection Plan',
       status: 'ACTIVE',
@@ -252,7 +252,7 @@ describe('FR-03 policy access', () => {
       url: '/api/policies/POL-MALI-001',
       headers: { cookie: mali.cookie },
     });
-    expect(maliDetail.json().policy).toEqual({
+    expect(maliDetail.json().policy).toMatchObject({
       id: 'POL-MALI-001',
       label: 'Secure Future Plan',
       status: 'ACTIVE',

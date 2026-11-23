@@ -78,6 +78,26 @@ for (const width of [1280, 375]) {
   });
 }
 
+for (const width of [1280, 320]) {
+  test(`FR-14 coverage detail visual baseline at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      process.platform !== 'win32',
+      'FR-14 reviewed Chromium baselines are recorded on Windows',
+    );
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/');
+    await page.getByLabel('Account ID').fill('narin');
+    await page.getByLabel('Password').fill('NarinDemo123!');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.getByRole('link', { name: /Family Protection Plan/ }).click();
+    await expect(page.getByText('THB 250,000')).toBeVisible();
+    await expect(page.getByText('Matches policy facts')).toBeVisible();
+    await compare(page, testInfo, `policy-detail-coverage-${width}.png`);
+  });
+}
+
 for (const width of [1280, 375]) {
   test(`FR-08 eligibility result visual baseline at ${width}px`, async ({
     page,
