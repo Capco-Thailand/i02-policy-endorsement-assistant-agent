@@ -29,7 +29,7 @@ integration('FR-05 PostgreSQL rules', () => {
     await db.close();
   });
 
-  it('C1 loads twelve immutable pairs twice without changing operational records', async () => {
+  it('C1 loads twelve product/change pairs and six newer versions twice without changing operational records', async () => {
     const tables = [
       'policies',
       'sessions',
@@ -49,8 +49,8 @@ integration('FR-05 PostgreSQL rules', () => {
     const sections = await db.pool.query(
       'SELECT source_id, section_id FROM endorsement_rule_sections',
     );
-    expect(sources.rowCount).toBe(12);
-    expect(sections.rowCount).toBe(24);
+    expect(sources.rowCount).toBe(18);
+    expect(sections.rowCount).toBe(36);
     for (const [index, table] of tables.entries())
       expect((await db.pool.query(`SELECT * FROM ${table}`)).rows).toEqual(
         before[index],
@@ -150,6 +150,41 @@ integration('FR-05 PostgreSQL rules', () => {
     );
   });
 
+  it('C3/C5 selects v2 guidance after its start and keeps v1 for historical dates', async () => {
+    const route = (date: string) =>
+      `/api/policies/POL-NARIN-001/rules?changeType=ADDRESS&requestedEffectiveDate=${date}`;
+    const historical = await app.inject({
+      method: 'GET',
+      url: route('2026-11-22'),
+      headers: { cookie },
+    });
+    const current = await app.inject({
+      method: 'GET',
+      url: route('2027-01-01'),
+      headers: { cookie },
+    });
+    expect(historical.json().citations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          version: 1,
+          sourceId: 'FAMILY_PROTECTION:ADDRESS:v1',
+        }),
+      ]),
+    );
+    expect(current.json().citations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          version: 2,
+          sourceId: 'FAMILY_PROTECTION:ADDRESS:v2',
+          value: expect.objectContaining({
+            handling: 'real-world follow-up only',
+          }),
+        }),
+      ]),
+    );
+    expect(JSON.stringify(current.json())).not.toMatch(/mock receipt/i);
+  });
+
   it('C6 checks session, ownership, and input before corpus access', async () => {
     const selectedRuleProduct = vi
       .fn()
@@ -231,7 +266,7 @@ integration('FR-05 PostgreSQL rules', () => {
     }
   });
 
-  it('C7 reports stale source and section encoders as UNAVAILABLE rather than MISSING', async () => {
+  it('C4 reports stale source and section encoders as MISSING', async () => {
     const sourceId = 'FAMILY_PROTECTION:BENEFICIARY:v1';
     const route =
       '/api/policies/POL-NARIN-001/rules?changeType=BENEFICIARY&requestedEffectiveDate=2027-01-01';
@@ -245,9 +280,9 @@ integration('FR-05 PostgreSQL rules', () => {
         url: route,
         headers: { cookie },
       });
-      expect(staleSource.statusCode).toBe(503);
+      expect(staleSource.statusCode).toBe(200);
       expect(staleSource.json()).toMatchObject({
-        status: 'UNAVAILABLE',
+        status: 'MISSING',
         requiresHumanReferral: true,
         citations: [],
       });
@@ -264,9 +299,9 @@ integration('FR-05 PostgreSQL rules', () => {
         url: route,
         headers: { cookie },
       });
-      expect(staleSection.statusCode).toBe(503);
+      expect(staleSection.statusCode).toBe(200);
       expect(staleSection.json()).toMatchObject({
-        status: 'UNAVAILABLE',
+        status: 'MISSING',
         requiresHumanReferral: true,
         citations: [],
       });

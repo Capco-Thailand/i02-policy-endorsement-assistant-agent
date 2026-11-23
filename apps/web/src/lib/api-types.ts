@@ -506,8 +506,9 @@ export interface paths {
                           /** @enum {string} */
                           kind: 'DOCUMENT';
                           documentType: string;
-                          /** @enum {string} */
-                          handling: 'mock receipt only';
+                          handling:
+                            | 'mock receipt only'
+                            | 'real-world follow-up only';
                         };
                   }
               )[];
@@ -629,8 +630,9 @@ export interface paths {
                           /** @enum {string} */
                           kind: 'DOCUMENT';
                           documentType: string;
-                          /** @enum {string} */
-                          handling: 'mock receipt only';
+                          handling:
+                            | 'mock receipt only'
+                            | 'real-world follow-up only';
                         };
                   }
               )[];
@@ -840,17 +842,29 @@ export interface paths {
           };
           content: {
             'application/json': {
-              outcome: 'ELIGIBLE' | 'INELIGIBLE' | 'REFERRED';
+              outcome: 'CAN_PROCEED' | 'CANNOT_PROCEED' | 'NEEDS_REVIEW';
               reasonCodes: string[];
               reasons: string[];
               nextStep: string;
               sourceIds: string[];
-              citations: {
-                sourceId: string;
-                ruleId: string;
-                version: number;
-                sectionId: string;
-              }[];
+              citations: (
+                | {
+                    /** @enum {string} */
+                    kind: 'POLICY';
+                    sourceId: string;
+                    version: string;
+                    sectionId: string;
+                    excerpt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    kind: 'RULE';
+                    sourceId: string;
+                    ruleId: string;
+                    version: number;
+                    sectionId: string;
+                  }
+              )[];
             };
           };
         };
@@ -867,6 +881,17 @@ export interface paths {
         };
         /** @description Default Response */
         404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        409: {
           headers: {
             [name: string]: unknown;
           };

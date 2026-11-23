@@ -17,7 +17,11 @@ import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
 import { encodeQuery, ENCODER_VERSION } from '../../ai/retrieval.js';
 import { retrieveRules, type RuleStore } from './rules.js';
-import { decideEligibility } from './endorsement/eligibility.js';
+import {
+  decideEligibility,
+  validateEligibilityRequest,
+} from './endorsement/eligibility.js';
+import { retrievePolicyEvidence } from './endorsement/policy-evidence.js';
 import { Value } from '@sinclair/typebox/value';
 import {
   equalFact,
@@ -63,21 +67,31 @@ const EligibilityParams = Type.Object({
 });
 const EligibilityResultSchema = Type.Object({
   outcome: Type.Union([
-    Type.Literal('ELIGIBLE'),
-    Type.Literal('INELIGIBLE'),
-    Type.Literal('REFERRED'),
+    Type.Literal('CAN_PROCEED'),
+    Type.Literal('CANNOT_PROCEED'),
+    Type.Literal('NEEDS_REVIEW'),
   ]),
   reasonCodes: Type.Array(Type.String()),
   reasons: Type.Array(Type.String()),
   nextStep: Type.String(),
   sourceIds: Type.Array(Type.String()),
   citations: Type.Array(
-    Type.Object({
-      sourceId: Type.String(),
-      ruleId: Type.String(),
-      version: Type.Integer(),
-      sectionId: Type.String(),
-    }),
+    Type.Union([
+      Type.Object({
+        kind: Type.Literal('POLICY'),
+        sourceId: Type.String(),
+        version: Type.String(),
+        sectionId: Type.String(),
+        excerpt: Type.String(),
+      }),
+      Type.Object({
+        kind: Type.Literal('RULE'),
+        sourceId: Type.String(),
+        ruleId: Type.String(),
+        version: Type.Integer(),
+        sectionId: Type.String(),
+      }),
+    ]),
   ),
 });
 const EvidenceQuery = Type.Object({
@@ -132,7 +146,10 @@ const GuidanceValue = Type.Union([
   Type.Object({
     kind: Type.Literal('DOCUMENT'),
     documentType: Type.String(),
-    handling: Type.Literal('mock receipt only'),
+    handling: Type.Union([
+      Type.Literal('mock receipt only'),
+      Type.Literal('real-world follow-up only'),
+    ]),
   }),
 ]);
 const RuleCitation = Type.Union([
@@ -589,6 +606,7 @@ export async function buildApp(options: AppOptions = {}) {
           200: EligibilityResultSchema,
           401: ErrorSchema,
           404: ErrorSchema,
+          409: ErrorSchema,
           503: ErrorSchema,
         },
       },
@@ -606,53 +624,59 @@ export async function buildApp(options: AppOptions = {}) {
           request.params.requestId,
         );
         if (!saved) return reply.code(404).send({ error: 'NOT_FOUND' });
-        let rules;
-        if (
-          Value.Check(RequestRecordSchema, saved) &&
-          validDate(saved.requestedEffectiveDate)
-        ) {
-          try {
-            rules = await retrieveRules(
-              ruleStore,
-              policy.id,
-              saved.changeType,
-              saved.requestedEffectiveDate,
-            );
-          } catch (error) {
-            app.log.error({ err: error }, 'Rule retrieval failed');
-            rules = {
-              status: 'UNAVAILABLE' as const,
-              sourceIds: [],
-              citations: [],
-            };
-          }
-        } else
-          rules = { status: 'MISSING' as const, sourceIds: [], citations: [] };
-        const decision = decideEligibility(policy, saved, rules);
-        const ruleVersions: { ruleId: string; version: number }[] = [];
-        for (const citation of rules.citations) {
-          if (
-            citation.role === 'RULE' &&
-            typeof citation.ruleId === 'string' &&
-            citation.ruleId.length > 0 &&
-            Number.isInteger(citation.version) &&
-            citation.version > 0 &&
-            !ruleVersions.some(
-              (item) =>
-                item.ruleId === citation.ruleId &&
-                item.version === citation.version,
-            )
-          )
-            ruleVersions.push({
-              ruleId: citation.ruleId,
-              version: citation.version,
-            });
-        }
+        const checked = Value.Check(RequestRecordSchema, saved)
+          ? (saved as RequestRecord)
+          : undefined;
+        const rejected = validateEligibilityRequest(policy, saved);
+        if (rejected || !checked)
+          return reply.code(409).send({
+            error: rejected?.reasonCodes.includes('POLICY_EXPIRED')
+              ? 'POLICY_EXPIRED'
+              : 'INVALID_REQUEST',
+          });
+        const [policyResult, ruleResult] = await Promise.allSettled([
+          retrievePolicyEvidence(evidenceStore, policy, checked.changeType),
+          retrieveRules(
+            ruleStore,
+            policy.id,
+            checked.changeType,
+            checked.requestedEffectiveDate,
+          ),
+        ]);
+        if (policyResult?.status === 'rejected')
+          app.log.error(
+            { err: policyResult.reason },
+            'Policy evidence retrieval failed',
+          );
+        if (ruleResult?.status === 'rejected')
+          app.log.error({ err: ruleResult.reason }, 'Rule retrieval failed');
+        const policyEvidence =
+          policyResult?.status === 'fulfilled'
+            ? policyResult.value
+            : { status: 'UNAVAILABLE' as const, citations: [] };
+        const rules =
+          ruleResult?.status === 'fulfilled'
+            ? ruleResult.value
+            : { status: 'UNAVAILABLE' as const, sourceIds: [], citations: [] };
+        const decision = decideEligibility(
+          policy,
+          saved,
+          rules,
+          policyEvidence,
+        );
+        const sourceVersions =
+          'sourceVersions' in rules ? rules.sourceVersions : [];
+        const ruleVersions = sourceVersions.map(({ ruleId, version }) => ({
+          ruleId,
+          version,
+        }));
         await db.audit(actor.id, 'eligibility-check', now(), {
           policyId: policy.id,
           requestId: request.params.requestId,
           outcome: decision.outcome,
           reasonCodes: decision.reasonCodes,
+          policySources: policyEvidence.source ? [policyEvidence.source] : [],
+          ruleSources: sourceVersions,
           ruleVersions,
         });
         return decision;

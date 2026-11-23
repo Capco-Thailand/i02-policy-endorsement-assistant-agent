@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { selectRules, type RuleSource } from './rules.js';
 
 const source = (
@@ -30,6 +31,34 @@ const source = (
 });
 
 describe('FR-05 rule selection', () => {
+  it('C3/C5 selects authored v2 address guidance for current dates and v1 for historical dates', () => {
+    const sources = ['endorsement-rules.json', 'endorsement-rules-v2.json']
+      .flatMap(
+        (name) =>
+          JSON.parse(
+            readFileSync(
+              new URL(`../../ai/corpus/${name}`, import.meta.url),
+              'utf8',
+            ),
+          ) as RuleSource[],
+      )
+      .filter(
+        (item) =>
+          item.productId === 'FAMILY_PROTECTION' &&
+          item.changeType === 'ADDRESS',
+      );
+    expect(selectRules(sources, '2026-11-22').sources[0]?.version).toBe(1);
+    const current = selectRules(sources, '2027-01-01');
+    expect(current.sources[0]?.version).toBe(2);
+    expect(
+      current.sources[0]?.sections.find((item) => item.role === 'GUIDANCE')
+        ?.value,
+    ).toMatchObject({
+      kind: 'DOCUMENT',
+      handling: 'real-world follow-up only',
+    });
+    expect(JSON.stringify(current.sources)).not.toMatch(/mock receipt/i);
+  });
   it('C3 selects the highest applicable numeric version and preserves history', () => {
     const sources = [source(2, '2027-01-01'), source(10, '2028-01-01')];
     expect(selectRules(sources, '2027-06-01').sources[0]?.version).toBe(2);

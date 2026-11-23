@@ -124,3 +124,17 @@ Store IDs, metadata, typed values, text, vectors, and encoder version. Rank exac
 - `npm run typecheck`, `npm run format:check`, `npm run build`, and `npm run test:e2e` passed; the E2E report path is above.
 
 **Manual checks:** All 12 authored sources are synthetic; the rider rule states underwriting follow-up and says not to collect medical evidence. Populated PostgreSQL `EXPLAIN` used `endorsement_rule_filter_idx` with product, change, and date conditions.
+
+## 2026-11-23 requirement reconciliation
+
+FR-05 now treats stale source or section encoders as unresolved `MISSING`; storage failures remain `UNAVAILABLE`. The immutable v1 corpus remains loaded. A separate v2 corpus adds six address and rider source versions with real-world guidance and no mock-receipt instruction from 2026-11-23. The selector keeps exact product/change/date filtering and supersedes overlapping v1 sources for current dates. The v3 evaluation fixture records the expected source version for each historical or current case.
+
+| Current criterion | Evidence | Local result and gap |
+| --- | --- | --- |
+| 12 pairs, repeat load, no operational mutation | `rules.integration.test.ts` expects 18 source versions across 12 pairs and unchanged operational rows | PostgreSQL integration pending: `TEST_DATABASE_URL` unset |
+| Exact filter, citations, versions, historical selection | `rules.test.ts`; `rules.integration.test.ts` v1/v2 date case | Selector unit passed; PostgreSQL integration pending |
+| Missing, conflicting, stale, unavailable | `rules.test.ts`; `rules.integration.test.ts` stale and failure cases | Unit passed; PostgreSQL integration pending |
+| Rider real-world caveat, no medical collection | v2 corpus; `rules.integration.test.ts` | Static corpus inspection passed; API integration pending |
+| Ownership, bounded ranking, hostile text | Existing route and integration tests | PostgreSQL integration and browser pending |
+
+Focused API tests: 23 passed, 1 skipped (database evaluation) across the FR-05 selector and FR-08 consumers; `npm run typecheck -w apps/api` passed. The new source count and pair count were checked from both JSON files: 18 unique versions, 12 pairs. Previous CI evidence above predates this revision.

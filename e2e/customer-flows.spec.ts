@@ -215,9 +215,12 @@ test('FR-08 recorded address request checks eligibility without upload', async (
   ).toHaveCount(0);
   await page.getByRole('button', { name: 'Check eligibility' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Eligible to continue to a mock quote' }),
+    page.getByRole('heading', { name: 'Can proceed to a proposal' }),
   ).toBeVisible();
-  await expect(page.getByText(/rule.*version.*section/)).toBeVisible();
+  await expect(page.getByText(/Rule .*version .*section/)).toBeVisible();
+  await expect(
+    page.getByText(/Policy wording .*version .*section/).first(),
+  ).toBeVisible();
 });
 
 test('FR-08 payment can pass without a receipt on narrow UI', async ({
@@ -232,7 +235,7 @@ test('FR-08 payment can pass without a receipt on narrow UI', async ({
   await page.getByRole('button', { name: 'Record request' }).click();
   await page.getByRole('button', { name: 'Check eligibility' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Eligible to continue to a mock quote' }),
+    page.getByRole('heading', { name: 'Can proceed to a proposal' }),
   ).toBeVisible();
 });
 
@@ -247,10 +250,10 @@ test('FR-08 rider check refers without asking for health details', async ({
   await page.getByRole('button', { name: 'Record request' }).click();
   await page.getByRole('button', { name: 'Check eligibility' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Needs human review' }),
+    page.getByRole('heading', { name: 'Needs review' }),
   ).toBeVisible();
   await expect(
-    page.getByText(/health disclosure may be needed outside this prototype/),
+    page.getByText(/underwriting or health disclosure may be needed later/),
   ).toBeVisible();
 });
 
@@ -279,7 +282,7 @@ test('FR-08 eligibility service failure hides any result and offers retry', asyn
     page.getByRole('alert').filter({ hasText: /Could not complete the check/ }),
   ).toHaveText(/Could not complete the check/);
   await expect(
-    page.getByRole('heading', { name: 'Eligible to continue to a mock quote' }),
+    page.getByRole('heading', { name: 'Can proceed to a proposal' }),
   ).toHaveCount(0);
   await expect(
     page.getByRole('button', { name: 'Check eligibility' }),

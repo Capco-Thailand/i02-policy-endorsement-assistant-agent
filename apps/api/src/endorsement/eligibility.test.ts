@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { decideEligibility } from './eligibility.js';
+import { decideEligibility as assess } from './eligibility.js';
 import type { Policy } from '../auth/data.js';
 
 const request = {
@@ -38,6 +38,23 @@ const citation = {
     requirement: 'complete new mailing address',
   },
 };
+const policyEvidence = {
+  status: 'AVAILABLE' as const,
+  citations: [
+    {
+      kind: 'POLICY' as const,
+      sourceId: 'POLICY-WORDING',
+      version: 'v1',
+      sectionId: 'status',
+      excerpt: 'Policy is active.',
+    },
+  ],
+};
+const decideEligibility = (
+  selectedPolicy: Policy,
+  savedRequest: unknown,
+  rules: Parameters<typeof assess>[2],
+) => assess(selectedPolicy, savedRequest, rules, policyEvidence);
 
 it('FR-08 address: an owned active saved request with cited CHECK is eligible', () => {
   expect(
@@ -55,9 +72,10 @@ it('FR-08 address: an owned active saved request with cited CHECK is eligible', 
       ],
     }),
   ).toMatchObject({
-    outcome: 'ELIGIBLE',
+    outcome: 'CAN_PROCEED',
     reasonCodes: [],
-    nextStep: 'Review the mock premium impact when that step is available.',
+    nextStep:
+      'A non-binding proposal can be prepared when that step is available.',
   });
 });
 
@@ -76,7 +94,7 @@ it('FR-08 unknown values: extra structured rule fields require referral', () => 
         },
       ],
     }).outcome,
-  ).toBe('REFERRED');
+  ).toBe('NEEDS_REVIEW');
 });
 
 const available = (
@@ -107,7 +125,7 @@ it('FR-08 beneficiary: complete named allocations pass, malformed allocations fa
     },
   };
   expect(decideEligibility(policy, saved, available(rule)).outcome).toBe(
-    'ELIGIBLE',
+    'CAN_PROCEED',
   );
   expect(
     decideEligibility(
@@ -144,7 +162,7 @@ it('FR-08 payment: allowed value passes; disallowed value fails with citation ',
     },
   };
   expect(decideEligibility(policy, saved, available(rule)).outcome).toBe(
-    'ELIGIBLE',
+    'CAN_PROCEED',
   );
   expect(
     decideEligibility(
@@ -153,9 +171,12 @@ it('FR-08 payment: allowed value passes; disallowed value fails with citation ',
       available(rule),
     ),
   ).toMatchObject({
-    outcome: 'INELIGIBLE',
+    outcome: 'CANNOT_PROCEED',
     reasonCodes: ['RULE_CHECK_FAILED'],
-    citations: [{ ruleId: 'ADDRESS-RULE' }],
+    citations: [
+      { kind: 'POLICY', sourceId: 'POLICY-WORDING' },
+      { kind: 'RULE', ruleId: 'ADDRESS-RULE' },
+    ],
   });
 });
 it('FR-08 rider: underwriting referral cannot be cleared ', () => {
@@ -171,7 +192,7 @@ it('FR-08 rider: underwriting referral cannot be cleared ', () => {
     value: { kind: 'REFERRAL', reason: 'underwriting' },
   };
   expect(decideEligibility(policy, saved, available(rule))).toMatchObject({
-    outcome: 'REFERRED',
+    outcome: 'NEEDS_REVIEW',
     reasonCodes: ['RIDER_UNDERWRITING'],
   });
 });
@@ -183,9 +204,12 @@ it('FR-08 evidence: unresolved rules refer; missing receipt does not block eligi
         sourceIds: ['SRC'],
         citations: [],
       }),
-    ).toMatchObject({ outcome: 'REFERRED', reasonCodes: [`RULE_${status}`] });
+    ).toMatchObject({
+      outcome: 'NEEDS_REVIEW',
+      reasonCodes: [`RULE_${status}`],
+    });
   expect(decideEligibility(policy, request, available(citation))).toMatchObject(
-    { outcome: 'ELIGIBLE', reasonCodes: [] },
+    { outcome: 'CAN_PROCEED', reasonCodes: [] },
   );
   expect(
     decideEligibility(

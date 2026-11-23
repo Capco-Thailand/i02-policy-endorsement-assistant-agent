@@ -56,7 +56,7 @@ integration('FR-08 PostgreSQL request and eligibility', () => {
         headers: { cookie },
       });
     expect((await check(first)).json()).toMatchObject({
-      outcome: 'ELIGIBLE',
+      outcome: 'CAN_PROCEED',
       reasonCodes: [],
     });
     await db.audit('CUS-001', 'document-upload', Date.now(), {
@@ -65,7 +65,7 @@ integration('FR-08 PostgreSQL request and eligibility', () => {
       status: 'RECEIVED_MOCK',
     });
     expect((await check(second)).json()).toMatchObject({
-      outcome: 'ELIGIBLE',
+      outcome: 'CAN_PROCEED',
       reasonCodes: [],
     });
     const historical = await db.pool.query(
@@ -80,7 +80,7 @@ integration('FR-08 PostgreSQL request and eligibility', () => {
       [second],
     );
     expect(audit.rows[0].metadata).toMatchObject({
-      outcome: 'ELIGIBLE',
+      outcome: 'CAN_PROCEED',
       policyId: 'POL-NARIN-001',
       requestId: second,
     });

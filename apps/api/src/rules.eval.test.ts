@@ -23,7 +23,7 @@ type SafetyCase = BaseCase & { expectedStatus: string };
 const fixture = JSON.parse(
   await readFile(
     fileURLToPath(
-      new URL('../../ai/eval/rule-retrieval-v2.json', import.meta.url),
+      new URL('../../ai/eval/rule-retrieval-v3.json', import.meta.url),
     ),
     'utf8',
   ),
@@ -139,7 +139,7 @@ integration('FR-05 fixed retrieval evaluation', () => {
   });
 
   it('C8 measures relevant-rule recall over 80 applicable cases and separately checks safety cases', async () => {
-    expect(fixture.version).toBe('rule-retrieval-v2');
+    expect(fixture.version).toBe('rule-retrieval-v3');
     expect(fixture.applicableCases).toHaveLength(80);
     expect(fixture.safetyCases.length).toBeGreaterThanOrEqual(20);
     const changes: ChangeType[] = [
