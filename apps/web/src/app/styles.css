@@ -624,6 +624,39 @@ textarea:focus-visible,
   font-size: 13px;
   overflow-wrap: anywhere;
 }
+.policy-term-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.policy-term-list li {
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+  min-width: 0;
+}
+.policy-term-list li strong {
+  display: inline-block;
+  margin-right: 18px;
+}
+.policy-term-list li span {
+  font-variant-numeric: tabular-nums;
+}
+.policy-citation {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  margin: 6px 0 0;
+}
+.policy-unresolved {
+  color: #79510d;
+  border-left: 3px solid #79510d;
+  padding-left: 10px;
+}
+@media (max-width: 360px) {
+  .policy-term-list li strong,
+  .policy-term-list li span {
+    display: block;
+  }
+}
 @media (max-width: 600px) {
   .request-panel {
     padding: 18px;

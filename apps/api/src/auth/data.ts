@@ -14,4 +14,14 @@ export interface Policy {
   expiryDate: string;
   paymentFrequency: 'MONTHLY' | 'ANNUAL';
   beneficiaries: { name: string; allocationPercent: number }[];
+  productTerms?: {
+    insurer: string;
+    type: string;
+    name: string;
+    version: string;
+  } | null;
+  coverageTerms?:
+    | { id: string; name: string; amount: number; currency: string }[]
+    | null;
+  exclusionTerms?: { id: string; text: string }[] | null;
 }

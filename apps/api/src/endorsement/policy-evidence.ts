@@ -1,6 +1,10 @@
 import { encodeQuery, ENCODER_VERSION } from '../../../ai/retrieval.js';
 import type { Policy } from '../auth/data.js';
-import { equalFact, policyFacts, reconcileEvidence } from '../evidence.js';
+import {
+  equalFact,
+  matchesPolicyFactsSnapshot,
+  reconcileEvidence,
+} from '../evidence.js';
 import type { database } from '../db.js';
 
 export type PolicyCitation = {
@@ -42,7 +46,7 @@ export async function retrievePolicyEvidence(
     )
   )
     return { status: 'STALE', citations: [], source };
-  if (!equalFact(document.facts_snapshot, policyFacts(policy)))
+  if (!matchesPolicyFactsSnapshot(policy, document.facts_snapshot))
     return { status: 'STALE', citations: [], source };
   const discrepancy = reconcileEvidence(policy, document.sections);
   if (discrepancy)

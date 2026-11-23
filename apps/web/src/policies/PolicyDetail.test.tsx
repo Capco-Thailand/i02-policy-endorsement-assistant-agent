@@ -28,6 +28,63 @@ const show = (state: object) => {
 };
 
 describe('FR-03 policy detail', () => {
+  it('FR-14 shows cited product, coverage, and exclusions', () => {
+    show({
+      isPending: false,
+      isError: false,
+      data: {
+        policy: {
+          id: 'POL-NARIN-001',
+          label: 'Family Protection Plan',
+          status: 'ACTIVE',
+          effectiveDate: '2025-01-01',
+          expiryDate: '2035-12-31',
+          paymentFrequency: 'MONTHLY',
+          beneficiaries: [],
+          terms: {
+            product: {
+              status: 'confirmed',
+              value: {
+                insurer: 'Example Mutual (Synthetic)',
+                type: 'Life',
+                name: 'Family Protection Plan',
+                version: 'v1',
+              },
+              citation: {
+                sourceId: 'POL-NARIN-001:v1',
+                title: 'Family Protection Plan synthetic policy',
+                version: 'v1',
+                sectionId: 'product',
+                excerpt: '',
+              },
+            },
+            coverages: [
+              {
+                id: 'coverage.life',
+                status: 'confirmed',
+                value: {
+                  name: 'Life benefit',
+                  amount: 1000000,
+                  currency: 'THB',
+                },
+                citation: {
+                  sourceId: 'POL-NARIN-001:v1',
+                  title: 'Family Protection Plan synthetic policy',
+                  version: 'v1',
+                  sectionId: 'coverage.life',
+                  excerpt: '',
+                },
+              },
+            ],
+            exclusions: [],
+          },
+        },
+      },
+    });
+    expect(screen.getByText('Example Mutual (Synthetic)')).toBeInTheDocument();
+    expect(screen.getByText(/THB 1,000,000/)).toBeInTheDocument();
+    expect(screen.getByText(/section coverage.life/)).toBeInTheDocument();
+  });
   it('shows status, facts, allocations, and a return link without a request action', () => {
     show({
       isPending: false,

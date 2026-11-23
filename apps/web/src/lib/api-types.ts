@@ -251,6 +251,113 @@ export interface paths {
                   name: string;
                   allocationPercent: number;
                 }[];
+                terms: {
+                  product:
+                    | {
+                        /** @enum {string} */
+                        status: 'confirmed';
+                        value: {
+                          insurer: string;
+                          type: string;
+                          name: string;
+                          version: string;
+                        };
+                        citation: {
+                          sourceId: string;
+                          title: string;
+                          version: string;
+                          sectionId: string;
+                          excerpt: string;
+                        };
+                      }
+                    | {
+                        /** @enum {string} */
+                        status: 'unresolved';
+                        reason:
+                          | 'MISSING_DOCUMENT'
+                          | 'MISSING_SECTION'
+                          | 'STALE_DOCUMENT'
+                          | 'STALE_ENCODER'
+                          | 'CONFLICTING_EVIDENCE';
+                        citation?: {
+                          sourceId: string;
+                          title: string;
+                          version: string;
+                          sectionId: string;
+                          excerpt: string;
+                        };
+                      };
+                  coverages: ({
+                    id: string;
+                  } & (
+                    | {
+                        /** @enum {string} */
+                        status: 'confirmed';
+                        value: {
+                          name: string;
+                          amount: number;
+                          currency: string;
+                        };
+                        citation: {
+                          sourceId: string;
+                          title: string;
+                          version: string;
+                          sectionId: string;
+                          excerpt: string;
+                        };
+                      }
+                    | {
+                        /** @enum {string} */
+                        status: 'unresolved';
+                        reason:
+                          | 'MISSING_DOCUMENT'
+                          | 'MISSING_SECTION'
+                          | 'STALE_DOCUMENT'
+                          | 'STALE_ENCODER'
+                          | 'CONFLICTING_EVIDENCE';
+                        citation?: {
+                          sourceId: string;
+                          title: string;
+                          version: string;
+                          sectionId: string;
+                          excerpt: string;
+                        };
+                      }
+                  ))[];
+                  exclusions: ({
+                    id: string;
+                  } & (
+                    | {
+                        /** @enum {string} */
+                        status: 'confirmed';
+                        value: string;
+                        citation: {
+                          sourceId: string;
+                          title: string;
+                          version: string;
+                          sectionId: string;
+                          excerpt: string;
+                        };
+                      }
+                    | {
+                        /** @enum {string} */
+                        status: 'unresolved';
+                        reason:
+                          | 'MISSING_DOCUMENT'
+                          | 'MISSING_SECTION'
+                          | 'STALE_DOCUMENT'
+                          | 'STALE_ENCODER'
+                          | 'CONFLICTING_EVIDENCE';
+                        citation?: {
+                          sourceId: string;
+                          title: string;
+                          version: string;
+                          sectionId: string;
+                          excerpt: string;
+                        };
+                      }
+                  ))[];
+                };
               };
             };
           };

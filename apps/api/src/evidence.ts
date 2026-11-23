@@ -28,6 +28,17 @@ export function policyFacts(policy: Policy) {
   };
 }
 
+export function matchesPolicyFactsSnapshot(policy: Policy, snapshot: unknown) {
+  if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot))
+    return false;
+  const existingFacts = Object.fromEntries(
+    Object.entries(snapshot).filter(([key]) =>
+      ['status', 'dates', 'payment', 'beneficiaries'].includes(key),
+    ),
+  );
+  return equalFact(existingFacts, policyFacts(policy));
+}
+
 export function equalFact(a: unknown, b: unknown): boolean {
   const canonical = (value: unknown): unknown => {
     if (Array.isArray(value)) return value.map(canonical);

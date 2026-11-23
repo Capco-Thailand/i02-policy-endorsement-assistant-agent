@@ -62,6 +62,100 @@ function Beneficiaries({ policy }: { policy: Policy }) {
   );
 }
 
+function Citation({
+  citation,
+}: {
+  citation?: { title: string; version: string; sectionId: string };
+}) {
+  return citation ? (
+    <p className="policy-citation">
+      Source: {citation.title}, version {citation.version}, section{' '}
+      {citation.sectionId}
+    </p>
+  ) : null;
+}
+
+function PolicyTerms({ terms }: { terms: Policy['terms'] }) {
+  const product = terms.product;
+  return (
+    <>
+      <section className="policy-section" aria-labelledby="product-heading">
+        <h2 id="product-heading">Product and plan</h2>
+        {product.status === 'confirmed' ? (
+          <>
+            <dl className="policy-facts">
+              <div>
+                <dt>Insurer</dt>
+                <dd>{product.value.insurer}</dd>
+              </div>
+              <div>
+                <dt>Policy type</dt>
+                <dd>{product.value.type}</dd>
+              </div>
+              <div>
+                <dt>Product</dt>
+                <dd>{product.value.name}</dd>
+              </div>
+              <div>
+                <dt>Plan version</dt>
+                <dd>{product.value.version}</dd>
+              </div>
+            </dl>
+            <Citation citation={product.citation} />
+          </>
+        ) : (
+          <p role="status" className="policy-unresolved">
+            Unresolved: We can't confirm this coverage detail from the available
+            policy wording ({product.reason}).
+          </p>
+        )}
+      </section>
+      <section className="policy-section" aria-labelledby="coverage-heading">
+        <h2 id="coverage-heading">Coverage listed in this synthetic policy</h2>
+        <ul className="policy-term-list">
+          {terms.coverages.map((item) => (
+            <li key={item.id}>
+              <strong>
+                {item.status === 'confirmed' ? item.value.name : item.id}
+              </strong>
+              {item.status === 'confirmed' ? (
+                <span>
+                  {item.value.currency}{' '}
+                  {item.value.amount.toLocaleString('en-US')}
+                </span>
+              ) : (
+                <span className="policy-unresolved">
+                  Unresolved: We can't confirm this coverage detail from the
+                  available policy wording ({item.reason}).
+                </span>
+              )}
+              <Citation citation={item.citation} />
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section className="policy-section" aria-labelledby="exclusions-heading">
+        <h2 id="exclusions-heading">Key exclusions and limitations</h2>
+        <ul className="policy-term-list">
+          {terms.exclusions.map((item) => (
+            <li key={item.id}>
+              {item.status === 'confirmed' ? (
+                <p>{item.value}</p>
+              ) : (
+                <p className="policy-unresolved">
+                  Unresolved: We can't confirm this coverage detail from the
+                  available policy wording ({item.reason}).
+                </p>
+              )}
+              <Citation citation={item.citation} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
+  );
+}
+
 export function PolicyDetail({ policyId }: { policyId: string }) {
   const query = usePolicy(policyId);
   const client = useQueryClient();
@@ -123,6 +217,7 @@ export function PolicyDetail({ policyId }: { policyId: string }) {
           {policy.status}
         </span>
       </div>
+      {policy.terms && <PolicyTerms terms={policy.terms} />}
       <PolicyFacts policy={policy} />
       <Beneficiaries policy={policy} />
       <EvidenceSection policyId={policy.id} />

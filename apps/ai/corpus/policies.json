@@ -7,6 +7,49 @@
     "title": "Family Protection Plan synthetic policy",
     "sections": [
       {
+        "id": "product",
+        "concept": "product",
+        "excerpt": "Example Mutual (Synthetic) Life product Family Protection Plan version v1.",
+        "value": {
+          "insurer": "Example Mutual (Synthetic)",
+          "type": "Life",
+          "name": "Family Protection Plan",
+          "version": "v1"
+        }
+      },
+      {
+        "id": "coverage.life",
+        "concept": "coverage",
+        "excerpt": "Life benefit: THB 1,000,000.",
+        "value": {
+          "name": "Life benefit",
+          "amount": 1000000,
+          "currency": "THB"
+        }
+      },
+      {
+        "id": "coverage.accidental-death",
+        "concept": "coverage",
+        "excerpt": "Accidental death benefit: THB 250,000.",
+        "value": {
+          "name": "Accidental death benefit",
+          "amount": 250000,
+          "currency": "THB"
+        }
+      },
+      {
+        "id": "exclusions.life",
+        "concept": "exclusions",
+        "excerpt": "The life benefit does not cover death caused by intentional self-injury.",
+        "value": "The life benefit does not cover death caused by intentional self-injury."
+      },
+      {
+        "id": "exclusions.accidental-death",
+        "concept": "exclusions",
+        "excerpt": "The accidental death benefit does not cover death caused solely by illness, without an accident.",
+        "value": "The accidental death benefit does not cover death caused solely by illness, without an accident."
+      },
+      {
         "id": "status",
         "concept": "status",
         "excerpt": "This Family Protection Plan is active.",
@@ -43,6 +86,29 @@
     "title": "Secure Future Plan synthetic policy",
     "sections": [
       {
+        "id": "product",
+        "concept": "product",
+        "excerpt": "Example Mutual (Synthetic) Life product Secure Future Plan version v1.",
+        "value": {
+          "insurer": "Example Mutual (Synthetic)",
+          "type": "Life",
+          "name": "Secure Future Plan",
+          "version": "v1"
+        }
+      },
+      {
+        "id": "coverage.life",
+        "concept": "coverage",
+        "excerpt": "Life benefit: THB 750,000.",
+        "value": { "name": "Life benefit", "amount": 750000, "currency": "THB" }
+      },
+      {
+        "id": "exclusions.life",
+        "concept": "exclusions",
+        "excerpt": "The life benefit does not cover death caused by intentional self-injury.",
+        "value": "The life benefit does not cover death caused by intentional self-injury."
+      },
+      {
         "id": "status",
         "concept": "status",
         "excerpt": "This Secure Future Plan is active.",
@@ -75,6 +141,29 @@
     "version": "v1",
     "title": "Classic Life Plan synthetic policy",
     "sections": [
+      {
+        "id": "product",
+        "concept": "product",
+        "excerpt": "Example Mutual (Synthetic) Life product Classic Life Plan version v1.",
+        "value": {
+          "insurer": "Example Mutual (Synthetic)",
+          "type": "Life",
+          "name": "Classic Life Plan",
+          "version": "v1"
+        }
+      },
+      {
+        "id": "coverage.life",
+        "concept": "coverage",
+        "excerpt": "Life benefit: THB 500,000.",
+        "value": { "name": "Life benefit", "amount": 500000, "currency": "THB" }
+      },
+      {
+        "id": "exclusions.life",
+        "concept": "exclusions",
+        "excerpt": "The life benefit does not cover death caused by intentional self-injury.",
+        "value": "The life benefit does not cover death caused by intentional self-injury."
+      },
       {
         "id": "status",
         "concept": "status",
