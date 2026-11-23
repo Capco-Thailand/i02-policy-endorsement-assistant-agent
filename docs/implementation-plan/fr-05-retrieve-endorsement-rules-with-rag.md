@@ -127,7 +127,7 @@ Store IDs, metadata, typed values, text, vectors, and encoder version. Rank exac
 
 ## 2026-11-23 requirement reconciliation
 
-FR-05 now treats stale source or section encoders as unresolved `MISSING`; storage failures remain `UNAVAILABLE`. The immutable v1 corpus remains loaded. A separate v2 corpus adds six address and rider source versions with real-world guidance and no mock-receipt instruction from 2026-11-23. The selector keeps exact product/change/date filtering and supersedes overlapping v1 sources for current dates.
+FR-05 now treats stale source or section encoders as unresolved `MISSING`; storage failures remain `UNAVAILABLE`. The immutable v1 corpus remains loaded. A separate v2 corpus adds six address and rider source versions with real-world guidance and no mock-receipt instruction from 2026-11-23. The selector keeps exact product/change/date filtering and supersedes overlapping v1 sources for current dates. The v3 evaluation fixture records the expected source version for each historical or current case.
 
 | Current criterion | Evidence | Local result and gap |
 | --- | --- | --- |
