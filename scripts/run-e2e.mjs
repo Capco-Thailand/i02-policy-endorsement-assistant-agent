@@ -39,8 +39,8 @@ const reportDir = join('test-results', ticketId, reportName);
 await mkdir(reportDir, { recursive: true });
 if (!process.env.CI) {
   const build = spawn(
-    process.platform === 'win32' ? 'npm.cmd' : 'npm',
-    ['run', 'build'],
+    process.execPath,
+    ['node_modules/next/dist/bin/next', 'build', 'apps/web'],
     { stdio: 'inherit' },
   );
   const buildExit = await new Promise((resolve) => {
@@ -50,8 +50,8 @@ if (!process.env.CI) {
   if (buildExit !== 0) process.exit(buildExit);
 }
 const child = spawn(
-  process.platform === 'win32' ? 'npx.cmd' : 'npx',
-  ['playwright', 'test', ...process.argv.slice(2)],
+  process.execPath,
+  ['node_modules/@playwright/test/cli.js', 'test', ...process.argv.slice(2)],
   {
     stdio: 'inherit',
     env: { ...process.env, PLAYWRIGHT_HTML_OUTPUT_DIR: reportDir },

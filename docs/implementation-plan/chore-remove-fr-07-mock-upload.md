@@ -73,7 +73,7 @@ context:
 - 2026-11-23: Medium, patched — FR-08 design preview linked to retired upload and described a receipt gate; updated preview and index links.
 - 2026-11-23: Medium, deferred — rule corpus still contains mock-receipt guidance. FR-05 evidence changes are outside this approved cleanup plan and need separate contract review.
 - 2026-11-23: Low, deferred — `docs/TESTING_STANDARD.md` and `docs/backlog/README.md` still describe FR-07 as existing. The user explicitly excluded both files from this documentation change.
-- 2026-11-23: Medium, unresolved — browser report and full criterion coverage require E2E; no `DATABASE_URL` is configured and the runner fails with `spawn EINVAL` before scenarios.
+- 2026-11-23: Medium, patched — Windows `spawn EINVAL` prevented E2E; the runner now starts installed JavaScript CLIs through Node. Supplied Neon connection, system CA trust, synthetic rule load, and Chromium installation enabled the full run.
 
 ## Verification
 
@@ -83,4 +83,6 @@ context:
 - `npm run format:check` — formatting passes.
 - `npm run test:e2e` — request and assessment browser scenarios pass without upload; record dated report and criterion coverage.
 
-**Results (2026-11-23):** Focused API tests 12/12 and web tests 19/19 passed; `npm run typecheck` passed. Changed source files pass Prettier. Full workspace tests require `DATABASE_URL`; E2E stopped before browser scenarios with Windows `spawn EINVAL` in `scripts/run-e2e.mjs`. Root `format:check` reports unrelated pre-existing formatting failures. No browser coverage is claimed.
+**Results (2026-11-23):** Focused API tests 12/12 and web tests 19/19 passed. With supplied `DATABASE_URL`, `npm test` passed: script tests 17/17, API 37/37 (32 isolated integration cases skipped without a separate `TEST_DATABASE_URL`), web 37/37. `npm run typecheck` passed. Full Chromium E2E: 23 passed, 4 platform-specific visual baselines skipped; [dated HTML report](../../test-results/chore-remove-fr-07-mock-upload/report-20261123120757/e2e-20261123120757.html). Changed source files pass Prettier; root `format:check` still reports 69 unrelated pre-existing files.
+
+**Criterion coverage:** No upload UI and four change types: `e2e/customer-flows.spec.ts` request and FR-08 cases, passed. No receipt gate and historical receipt: `apps/api/src/endorsement/eligibility.test.ts` and `apps/api/src/eligibility.integration.test.ts` (integration skipped without isolated DB); browser address and payment outcomes passed without receipt. Former endpoint absent: `apps/api/src/document-upload.test.ts`, passed. Historical audit rows untouched: code review confirms no migration or delete; integration assertion remains unrun. Authorization: `e2e/api-boundaries.spec.ts`, passed.
