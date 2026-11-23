@@ -5,7 +5,7 @@
 **Feature ID:** FR-08
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a false eligible decision could permit an invalid quote or proposal.
-**State:** Implementation merged in PR #117; requirements revised for endorsement flow
+**State:** Revised assessment merged in PR #124; FR-09/FR-10 gate integration remains pending
 
 ## Summary and objective
 Assess whether a recorded synthetic endorsement request can proceed by checking cited passages from both the authorized policy wording and applicable endorsement rules. Explain every negative or unresolved result to the customer.
@@ -17,7 +17,7 @@ As a customer, I can check my recorded request and see a preliminary `CAN_PROCEE
 - The [PRD](../PRD.md) requires an assistant assessment grounded in cited policy wording and rules. Fastify enforces the session, ownership, active status, required fields, evidence scope, and tool gates. FR-02 defines request shapes; FR-04 and FR-05 supply versioned policy and rule evidence. FR-06 and FR-07 are outside the MVP assessment gate.
 - Use the persisted request and authorized structured policy fields to select and reconcile evidence. Missing, stale, conflicting, or unavailable evidence cannot produce `CAN_PROCEED`. Retrieved prose and customer input are untrusted and cannot override API gates or invent monetary amounts.
 - Return typed `CAN_PROCEED`, `CANNOT_PROCEED`, or `NEEDS_REVIEW` results with stable reason codes and safe customer explanations. `NEEDS_REVIEW` is a preliminary result; it does not assign an operational reviewer or authorize a quote or proposal.
-- Existing FR-08 code returns `ELIGIBLE`, `INELIGIBLE`, or `REFERRED` using deterministic rule checks and a mock-upload receipt. That implementation must be reconciled with this revised contract before the endorsement flow is accepted.
+- PR #124 replaced the earlier outcome contract and receipt-dependent checks with cited policy-and-rule assessment. FR-09 and FR-10 are not yet implemented, so their fresh-server gate must be verified when those features are built.
 
 ## Acceptance criteria
 - [ ] For a signed-in customer, check a persisted request belonging to one of their policies. A missing or invalid session returns `401`; unknown or another customer's policy or request returns the same non-disclosing `404`. Check access, required fields, and `ACTIVE` status before policy or rule retrieval. Rejected checks do not retrieve evidence or produce an assessment.
@@ -42,7 +42,7 @@ None.
 
 ## Accepted decisions and readiness
 - 2026-11-23: The assistant assesses cited policy wording and rules; upload is outside the flow. `NEEDS_REVIEW` explains unresolved evidence without assigning a reviewer.
-- Implementation merged in PR #117; reconcile the existing eligibility API, UI, and tests with the revised requirement before claiming this flow complete.
+- 2026-11-23: PR #124 reconciled the API, UI, audit, and source citations with this ticket. CI run 45135833676 passed PostgreSQL, component, and browser tests. The [implementation plan](../implementation-plan/fr-08-check-endorsement-eligibility.md) records criterion coverage and the future FR-09/FR-10 gate gap.
 
 ## UX handoff references
 - [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-08/DESIGN.md)
