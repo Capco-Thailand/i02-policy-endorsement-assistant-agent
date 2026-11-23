@@ -44,10 +44,7 @@ Out of scope:
 None. The corpus, loader, and retrieval API form one reviewable slice.
 
 ## Accepted decisions and readiness
-- 2026-11-18: FR-05 authors mock endorsement rules and cited document guidance for the seeded products and four supported changes; FR-04 owns policy documents and product identifiers.
-- 2026-11-18: Uploaded bytes remain outside the RAG corpus; guidance never verifies a mock upload.
-- 2026-11-19: FR-05 delivers the backend retrieval contract. FR-07 owns customer display and FR-08 owns eligibility, so no new UI handoff is required for this ticket.
-- 2026-11-23: Supersedes the document-guidance handoff to FR-07 for the endorsement MVP. Applicable rule text may mention real-world supporting documents, but the flow collects none. Missing or conflicting rule evidence produces a reason for FR-08 `NEEDS_REVIEW`.
+- 2026-11-23: FR-05 provides cited rule evidence to FR-08; it has no document-guidance handoff to FR-07 in the endorsement MVP. Applicable rules may mention real-world supporting documents, but the flow collects none.
 - Implementation merged in PR #112; reconcile the existing rule retrieval contract with the revised requirement before claiming this flow complete.
 
 ## UX handoff references

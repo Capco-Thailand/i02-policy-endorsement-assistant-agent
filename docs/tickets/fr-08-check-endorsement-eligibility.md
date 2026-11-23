@@ -30,7 +30,7 @@ As a customer, I can check my recorded request and see a preliminary `CAN_PROCEE
 - [ ] API, component, and browser evidence covers all four change types; positive, negative, and unresolved cited cases; missing/stale/conflicting policy or rule evidence; prompt-like source text; session and cross-account boundaries; expired policy; service and audit failures; no upload; and unchanged policy data. Record criterion coverage and remaining gaps in the implementation plan.
 
 ## Scope and out of scope
-In scope: server eligibility decision and audit, typed API response, and recorded-request result UI using synthetic data.
+In scope: preliminary server assessment and audit, typed API response, and recorded-request result UI using synthetic data.
 
 Out of scope: FR-06 eKYC, real document suitability or underwriting, quote calculation, proposal creation, human review workflow, policy mutation, and coverage binding.
 
@@ -41,9 +41,7 @@ FR-01/02/03 session, request, and ownership boundaries; FR-04 policy wording; FR
 None.
 
 ## Accepted decisions and readiness
-- 2026-11-18: FR-06 is outside MVP. FR-07 mock receipt replaces document bypass, while eligibility remains deterministic.
-- 2026-11-20: A received synthetic file is required to advance but is not verified evidence. Missing or conflicting rule evidence and rider underwriting conditions refer rather than pass automatically.
-- 2026-11-23: Supersedes the 2026-11-18 and 2026-11-20 gates: the assistant assesses cited policy wording and rules; upload is outside the flow; `NEEDS_REVIEW` explains unresolved evidence without assigning a reviewer.
+- 2026-11-23: The assistant assesses cited policy wording and rules; upload is outside the flow. `NEEDS_REVIEW` explains unresolved evidence without assigning a reviewer.
 - Implementation merged in PR #117; reconcile the existing eligibility API, UI, and tests with the revised requirement before claiming this flow complete.
 
 ## UX handoff references

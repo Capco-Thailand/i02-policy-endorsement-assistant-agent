@@ -25,7 +25,6 @@ System requirement: Start the frontend, API, and FR-09 calculator through Docker
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
 - [ ] Run the frontend, API, and internal FR-09 calculator with Docker Compose; the API connects to a configured Neon database with seeded synthetic application data and versioned vector corpora. Load the versioned synthetic rating fixtures required by the calculator.
-- [ ] Keep application and storage boundaries consistent with `docs/ADR.md`.
 - [ ] Provide frontend, API, and calculator Dockerfiles, a root `compose.yaml`, health checks, and development environment configuration. Run repeatable corpus and rating-fixture load commands without requiring a separate RAG container.
 - [ ] The API owns authorization, writes, vector retrieval, and calls to the calculator's versioned internal HTTP contract. The calculator is reachable from the API network, not exposed as a browser-facing port; the browser does not access it or storage directly.
 - [ ] A healthy calculator accepts a known FR-09 synthetic fixture and returns the expected deterministic quote through the API. If the calculator is unavailable or unhealthy, the API reports a calculation service failure and creates no proposal.
