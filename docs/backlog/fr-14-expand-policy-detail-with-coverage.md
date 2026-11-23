@@ -19,8 +19,22 @@ As a customer viewing one of my synthetic policies, I can understand which produ
 - [FR-04](../tickets/fr-04-retrieve-policy-details-with-rag.md) supplies policy-scoped, versioned citations. Its current seeded evidence covers status, dates, payment frequency, and beneficiaries; it does not contain the new coverage details in this draft.
 - Keep this as read-only policy information. Existing authorization, non-disclosing not-found behavior, active/expired request access, and non-binding boundaries remain in force.
 
+## Accepted synthetic product terms
+The following terms are fixtures for this prototype only. They describe no real insurer or issued coverage. Each policy's existing source document remains version `v1`; add the named sections to that policy-scoped document and keep structured policy values identical to its excerpts.
+
+| Policy ID | Insurer display name | Type | Product / version | Coverage |
+| --- | --- | --- | --- | --- |
+| `POL-NARIN-001` | Example Mutual (Synthetic) | Life | Family Protection Plan / `v1` | Life benefit: `THB 1,000,000`; accidental death benefit: `THB 250,000` |
+| `POL-MALI-001` | Example Mutual (Synthetic) | Life | Secure Future Plan / `v1` | Life benefit: `THB 750,000` |
+| `POL-NARIN-002` | Example Mutual (Synthetic) | Life | Classic Life Plan / `v1` | Life benefit: `THB 500,000`; policy status remains `EXPIRED` |
+
+For all three policies, `exclusions.life` states: “The life benefit does not cover death caused by intentional self-injury.” For `POL-NARIN-001` only, `exclusions.accidental-death` states: “The accidental death benefit does not cover death caused solely by illness, without an accident.” These are the complete key exclusions displayed in this prototype, not a claim about real-world policy terms.
+
+Use `product` for insurer, type, product name, and version; `coverage.life` for the life amount and `coverage.accidental-death` for the Family Protection amount. Each exclusion has its own section as named above. Cite the existing policy-specific synthetic source title, version `v1`, and exact section ID beside each displayed term. Do not add an accidental death benefit to Secure Future or Classic Life. The expired Classic Life amount is historical policy information, not current coverage.
+
 ## Acceptance criteria
 - [ ] For each seeded synthetic policy, the policy detail response and page show a synthetic insurer display name, policy type, product name, and plan or product version. These fields match the policy's versioned synthetic source.
+- [ ] All three seeded policies use the accepted synthetic product terms and section IDs above; source excerpts and structured values match exactly.
 - [ ] The page shows each included coverage by name, its insured amount, and currency. It shows key exclusions or limitations in customer-readable language with the source title, version, and section citation.
 - [ ] Coverage and exclusion details are returned only after the API verifies the signed-in customer's ownership of the policy. Missing sessions return `401`; unknown and unowned policy IDs return the same non-disclosing `404` without exposing policy or source details.
 - [ ] Missing, stale, or conflicting coverage evidence is shown as unresolved with a clear explanation and relevant citation when available. The system does not infer or fabricate an insurer, coverage amount, exclusion, or source citation.
@@ -46,9 +60,9 @@ None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
 - 2026-11-23: Keep all insurer, product, coverage, and exclusion content synthetic. Display coverage and exclusions with versioned source citations; do not infer missing terms.
-- Open question: Define the coverage items and key exclusions to include for each seeded product, including their synthetic insured amounts and currencies.
-- 2026-11-23: UX handoff drafted from current requirements. Illustrative mock terms are not fixture decisions; the open coverage-content question still blocks implementation and Issue creation.
-- Status: Backlog draft; UX handoff exists, but product terms and ticket refinement remain open.
+- 2026-11-23: Customer approved the three-product synthetic coverage draft, including amounts, currency, and displayed exclusions. The exact `v1` source sections above are the implementation contract.
+- 2026-11-23: UX handoff updated to the accepted fixture terms; mockup remains a static preview rather than seeded API data.
+- Status: Backlog draft; product terms and UX handoff are defined. Ticket review and the normal PR/Issue flow remain before implementation.
 
 ## UX handoff references
 - [Existing policy detail visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-03/DESIGN.md) — baseline only; extend during refinement.
@@ -56,7 +70,7 @@ None identified; confirm during refinement.
 - [Current policy detail mockup](../../design/page/policy-detail.html) — FR-03 baseline; FR-14 has a separate expanded-detail mockup below.
 - [FR-04 evidence mockup](../../design/page/policy-evidence.html) — citation presentation reference.
 - [FR-14 visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-14/DESIGN.md) and [experience contract](../../_bmad-output/initiative-customer-authentication/ux-fr-14/EXPERIENCE.md) — expanded detail handoff.
-- [FR-14 expanded policy detail mockup](../../design/page/policy-detail-coverage.html) — illustrative synthetic values and preview states.
+- [FR-14 expanded policy detail mockup](../../design/page/policy-detail-coverage.html) — accepted synthetic terms and preview states.
 
 ## Definition of Done
 - [ ] Acceptance criteria satisfied

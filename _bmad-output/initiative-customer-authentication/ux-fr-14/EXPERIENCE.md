@@ -6,7 +6,7 @@ updated: 2026-11-23
 # FR-14 expanded policy detail — experience contract
 
 ## Foundation
-Responsive customer web app using the existing Next.js and shadcn/ui system. The paired [visual contract](DESIGN.md) owns appearance. The [expanded policy detail mockup](../../../design/page/policy-detail-coverage.html) previews content and states. It uses illustrative synthetic values pending fixture decisions.
+Responsive customer web app using the existing Next.js and shadcn/ui system. The paired [visual contract](DESIGN.md) owns appearance. The [expanded policy detail mockup](../../../design/page/policy-detail-coverage.html) previews the accepted synthetic terms and states defined in the [FR-14 backlog](../../../docs/backlog/fr-14-expand-policy-detail-with-coverage.md#accepted-synthetic-product-terms).
 
 ## Information Architecture
 | Surface | Entry | Outcome |
@@ -22,7 +22,7 @@ Use “Coverage listed in this synthetic policy”, “Key exclusions and limita
 - The page retains policy ID, status, dates, payment frequency, beneficiaries, synthetic disclosure, and the active-policy request path.
 - Insurer, policy type, product name, and plan or product version appear together. Each is sourced from the owned policy's versioned synthetic wording.
 - Each coverage item presents name, amount, currency, and source. Each exclusion or limitation has its own source. Citation text is available without opening another control.
-- Show only server-authorized policy data. Source passages and structured terms must describe the same version. The mockup's illustrative terms are not implementation fixtures.
+- Show only server-authorized policy data. Source passages and structured terms must describe the same `v1` version and exact section IDs in the FR-14 backlog. An expired policy's amount is historical information, not current coverage.
 
 ## State Patterns
 | State | Behavior |
@@ -48,5 +48,5 @@ Use one `h1`, ordered section headings, definition lists for single facts, and l
 4. Narin sees a conflicting coverage source. The affected amount reads “Unresolved” with an explanation and relevant source; confirmed fields remain readable. He is not shown a guessed value.
 5. Mali's session ends while the page loads; protected content clears and sign-in is required.
 
-## Product Boundary and Open Decision
-All data is synthetic; reading this page creates no request, quote, proposal, policy update, or coverage binding. The FR-14 ticket must define coverage items, amounts, currencies, and exclusions for every seeded product before implementation.
+## Product Boundary
+All data is synthetic; reading this page creates no request, quote, proposal, policy update, or coverage binding. The accepted terms and sections are listed in the FR-14 backlog; implementation must add matching versioned source fixtures before displaying them as sourced facts.
