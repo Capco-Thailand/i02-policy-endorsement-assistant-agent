@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Log access, RAG sources, mock upload receipt, quotes, draft creation, and customer decisions. Show each customer the approved changes to their own synthetic policies in a history page.
+Log access, cited policy and rule sources, preliminary assessment outcomes and reasons, calculation calls when needed, proposal creation, and customer decisions. Show each customer the approved changes to their own synthetic policies in a history page.
 
 ## User story or requirement
 
-System requirement: Log access, RAG sources, mock upload receipt, quotes, draft creation, and customer decisions; show approved change records in the owning customer's history page.
+System requirement: Log cited sources and versions, assessment outcomes and reasons, any calculation, proposal creation, and customer decisions; show approved change records in the owning customer's history page.
 
 ## Business or technical context
 
@@ -24,7 +24,7 @@ System requirement: Log access, RAG sources, mock upload receipt, quotes, draft 
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] Audit authenticated actor and action, policy access, RAG sources and versions, FR-07 mock upload receipt and safe file metadata, quotes, draft creation, and customer decisions; never store uploaded bytes in the audit trail.
+- [ ] Audit authenticated actor and action, policy access, cited policy and rule sources and versions, `CAN_PROCEED`/`CANNOT_PROCEED`/`NEEDS_REVIEW` outcomes and reasons, calculation calls and results when used, proposal creation, and customer decisions. FR-07 upload events remain separate from this endorsement audit flow.
 - [ ] After approval, the owning customer can see the proposed change, approval decision, and time in their history page; another customer cannot access the record.
 - [ ] Exclude credentials, session secrets, and unnecessary personal data.
 
@@ -48,6 +48,7 @@ None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
 - 2026-11-18: Audit mock upload receipt in place of FR-06 and bypass outcomes for the MVP workflow.
+- 2026-11-23: Audit the preliminary assessment and its reasons; calculation events are conditional. FR-07 upload events are outside this endorsement flow.
 
 - 2026-11-12: Customer approval adds the proposed change to that customer's history page with no further processing.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.

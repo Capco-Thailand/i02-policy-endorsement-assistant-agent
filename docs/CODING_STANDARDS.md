@@ -26,7 +26,7 @@ For a feature or bug fix that changes behavior, use test-driven development as d
 - Share a component when the same UI and behavior are used in more than one place. Keep shared components in a clear shared area, expose differences through a small, explicit prop API, and keep page-specific components near their page or feature. Do not generalize for hypothetical future use; promote a component when a second concrete use appears.
 - When AI tools create or change React code, follow the conventions below and the existing patterns in the affected feature. Prefer small, reviewable changes that meet the requirement; do not add dependencies, architecture, or abstractions without a concrete need.
 - In `apps/api/`, use TypeScript and Fastify. Derive API types and OpenAPI output from validated route schemas; keep frontend client types aligned with the published contract.
-- Use RAG to retrieve versioned synthetic policy evidence and endorsement rules as required by the PRD. Verify decision fields against structured records; retrieved text never decides eligibility or premium.
+- Use vector retrieval for versioned synthetic policy wording and endorsement rules as required by the PRD. The assistant assesses cited passages from both sources for endorsement eligibility; verify structured decision fields against database records. Only the separate deterministic calculation service supplies changed premium or benefit values.
 
 ## Example folder structure
 
@@ -63,7 +63,7 @@ docs/
   TESTING_STANDARD.md
 ```
 
-Keep the API's validation, eligibility, quote, draft, and audit decisions on the server. The web page presents those results and uses `api.ts` as its request boundary; it does not recalculate eligibility or premiums. Start with one page and one route. Compose the page from focused components as the UI warrants, add shared components when a second concrete use appears, and add routing when another real flow needs it.
+Keep API validation, authorization, assessment orchestration, calculation calls, draft, and audit decisions on the server. The web page presents those results and uses `api.ts` as its request boundary; it does not recalculate eligibility, premiums, or benefits. Start with one page and one route. Compose the page from focused components as the UI warrants, add shared components when a second concrete use appears, and add routing when another real flow needs it.
 
 ## React implementation rules
 
@@ -89,7 +89,7 @@ Keep the API's validation, eligibility, quote, draft, and audit decisions on the
 
 ## Preserve the hard gates
 
-- Check authorization, required fields, and eligibility deterministically before calling `quote_endorsement`. Use the mock tool's returned amounts unchanged.
+- Check authorization and required fields deterministically before retrieving evidence. Require a cited `CAN_PROCEED` assessment based on both policy wording and applicable rules before calling the separate calculation service; use its returned amounts and benefit values unchanged.
 - Call `create_endorsement_draft` only after the required gates pass. Keep the result non-binding; submission moves it from `DRAFT` to `PENDING_APPROVAL`.
 - Keep the audit trail needed to explain each result: request ID, cited rule IDs and versions, validation result, tool calls, and final status. Exclude unnecessary personal data.
 - When changing an API or rule contract, update its consumers and the tests for the changed behavior in the same change.

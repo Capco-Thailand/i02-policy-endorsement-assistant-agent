@@ -39,6 +39,8 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 
 This record captures the stack decision. Product behavior and safety boundaries remain in [PRD.md](PRD.md); implementation rules remain in [CODING_STANDARDS.md](CODING_STANDARDS.md).
 
+2026-11-23: The product flow now requires an assistant assessment grounded in vector-retrieved policy wording and endorsement rules. Fastify continues to enforce ownership, active status, structured-field reconciliation, tool access, and persistence. A separate deterministic internal HTTP calculation service supplies revised premium or benefit values when the assessed change requires them. FR-09 owns its versioned contract and synthetic rating fixtures; FR-13 runs it as an internal Compose service. This supersedes the earlier description of backend-only eligibility decisions.
+
 The API uses the `pg` server-side client, explicit SQL migration, and synthetic seed commands. The browser receives data only through Fastify. Session token digests, requests, and audit events persist in PostgreSQL.
 
 2026-11-19: FR-04 uses pgvector in the same PostgreSQL database as the structured synthetic policy records. A versioned document selection and B-tree document filter precede exact cosine ranking over eight-dimensional, normalized `policy-concepts-v1` vectors. The small corpus does not warrant an approximate index. The API authorizes the policy before reading corpus tables and reconciles status, dates, payment frequency, and beneficiaries with structured records before issuing a citation. Unknown queries, missing or stale documents, and contradictions remain unresolved. Storage errors return a separate service failure. No external embedding service or additional retrieval server is used for FR-04.
