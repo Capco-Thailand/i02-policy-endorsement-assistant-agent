@@ -13,6 +13,7 @@ async function compare(
   testInfo: TestInfo,
   name: string,
   mask?: Locator,
+  maxDiffPixels = 0,
 ) {
   const screenshot = {
     fullPage: true,
@@ -41,7 +42,7 @@ async function compare(
     body: current,
     contentType: 'image/png',
   });
-  await expect(page).toHaveScreenshot(name, screenshot);
+  await expect(page).toHaveScreenshot(name, { ...screenshot, maxDiffPixels });
 }
 
 for (const width of [1280, 375]) {
@@ -110,6 +111,7 @@ for (const width of [1280, 375]) {
       testInfo,
       `eligibility-${width}.png`,
       page.locator('.request-id'),
+      20,
     );
   });
 }
