@@ -49,4 +49,4 @@ Use {rounded.panel} sparingly on state notices and {rounded.control} on controls
 - Unresolved notice: warning border and text explaining which evidence is missing, stale, or conflicting. Do not show an invented value.
 
 ## Do's and Don'ts
-Show “Synthetic policy data for this prototype” near the record. Keep active and expired status words visible. Never label a coverage amount “approved”, “issued”, or “guaranteed”. Use the accepted terms and exact `v1` source sections in the [FR-14 backlog](../../../docs/backlog/fr-14-expand-policy-detail-with-coverage.md#accepted-synthetic-product-terms); the static mockup does not itself supply source evidence.
+Show “Synthetic policy data for this prototype” near the record. Keep active and expired status words visible. Never label a coverage amount “approved”, “issued”, or “guaranteed”. Use the accepted terms and exact `v1` source sections in the [FR-14 ticket](../../../docs/tickets/fr-14-expand-policy-detail-with-coverage.md#accepted-synthetic-product-terms); the static mockup does not itself supply source evidence.

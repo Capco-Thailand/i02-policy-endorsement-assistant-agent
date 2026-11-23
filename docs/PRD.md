@@ -14,9 +14,9 @@ Build a customer-facing AI-assisted life insurance endorsement request workflow.
 - **Data:** Synthetic policy records and versioned mock policy documents, customer profiles, mock endorsement rules, and rating tables only. FR-04 and FR-05 supply the RAG source documents for the existing demo products.
 - **Out of scope:** Document upload in the endorsement flow, production identity-provider integration, eKYC during the endorsement request, real document inspection/OCR, medical underwriting, insurer integrations, issuance, live policy updates, or coverage binding.
 
-### Planned policy-detail expansion
+### Policy-detail expansion
 
-[FR-14](backlog/fr-14-expand-policy-detail-with-coverage.md) is a backlog proposal to show synthetic insurer and product identity, coverage amounts, and key exclusions on the existing policy detail page, each supported by versioned synthetic policy wording. It is read-only and follows the same owner authorization and non-binding boundaries as the MVP. FR-14 is not part of the MVP definition of done; its product-specific coverage terms remain open for refinement.
+[FR-14](tickets/fr-14-expand-policy-detail-with-coverage.md) adds synthetic insurer and product identity, coverage amounts, and key exclusions to the existing policy detail page, each supported by versioned synthetic policy wording. Its three seeded products, coverage amounts, exclusions, and source section IDs are accepted in the ticket. The view remains read-only and follows the same owner authorization and non-binding boundaries as the MVP. FR-14 is outside the MVP definition of done.
 
 ### Authentication and access
 
