@@ -39,4 +39,6 @@ The frontend, API, and retrieval workspaces need one consistent stack and contra
 
 This record captures the stack decision. Product behavior and safety boundaries remain in [PRD.md](PRD.md); implementation rules remain in [CODING_STANDARDS.md](CODING_STANDARDS.md).
 
+2026-11-23: The product flow now requires an assistant assessment grounded in vector-retrieved policy wording and endorsement rules. Fastify continues to enforce ownership, active status, structured-field reconciliation, tool access, and persistence. A separate deterministic internal HTTP calculation service supplies revised premium or benefit values when the assessed change requires them. FR-09 owns its versioned contract and synthetic rating fixtures; FR-13 runs it as an internal Compose service. This supersedes the earlier description of backend-only eligibility decisions.
+
 The API uses the `pg` server-side client, explicit SQL migration, and synthetic seed commands. The browser receives data only through Fastify. Session token digests, requests, and audit events persist in PostgreSQL.

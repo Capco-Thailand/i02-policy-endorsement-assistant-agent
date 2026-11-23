@@ -10,11 +10,11 @@
 
 ## Summary and objective
 
-Save a non-binding `DRAFT` with proposed changes, quote, and supporting evidence; present a proposed updated-policy view for customer review as `PENDING_APPROVAL`.
+Save a non-binding `DRAFT` with proposed changes, cited assessment, and any required calculation result; present a proposed updated-policy view for customer review as `PENDING_APPROVAL`.
 
 ## User story or requirement
 
-System requirement: Save a non-binding `DRAFT` with proposed changes, quote, and supporting evidence; present a proposed updated-policy view for customer review as `PENDING_APPROVAL`.
+System requirement: Save a non-binding `DRAFT` with proposed changes, policy and rule citations, and recalculated premium or benefits when applicable; present it for customer review as `PENDING_APPROVAL`.
 
 ## Business or technical context
 
@@ -24,8 +24,8 @@ System requirement: Save a non-binding `DRAFT` with proposed changes, quote, and
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] Save proposed changes, mock premium impact, FR-07 `RECEIVED_MOCK` status, and cited policy/rule evidence as non-binding `DRAFT` with `binding=false`. Do not present upload receipt as document or health verification.
-- [ ] Submission changes status to `PENDING_APPROVAL` and shows the current and proposed synthetic policy values and mock premium impact before the customer decides. Neither action changes live policy coverage.
+- [ ] Only an FR-08 `CAN_PROCEED` outcome may create a proposal. Save proposed changes, the cited policy-and-rule assessment, and any FR-09 calculation result as non-binding `DRAFT` with `binding=false`. FR-07 upload status is outside the proposal contract.
+- [ ] After the FR-02 request has been assessed and any required calculation succeeds, presenting the proposal changes its status from `DRAFT` to `PENDING_APPROVAL` and shows current and proposed synthetic policy, premium, and benefit values, marking unchanged values when calculation was unnecessary. Neither state changes live policy coverage.
 
 ## Scope and out of scope
 
@@ -46,7 +46,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
-- 2026-11-18: Include mock upload receipt and the unverified-document disclosure in the proposal; omit FR-06 results.
+- 2026-11-23: Supersedes the 2026-11-18 upload decision: exclude FR-07 receipt from the endorsement proposal; omit FR-06 results.
 
 - 2026-11-12: Prepare a proposed updated-policy view for the customer to review before approval; keep the draft non-binding.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.

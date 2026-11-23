@@ -24,7 +24,7 @@ System requirement: Allow the owning customer to review the proposed updated-pol
 
 Draft checks from the known product rules; refine inputs, failure paths, and evidence before the ticket/UX handoff.
 
-- [ ] The signed-in customer sees current and proposed policy values, mock premium impact, and the non-binding boundary before deciding on their own submitted request.
+- [ ] The signed-in customer sees current and proposed policy and benefit values, any calculated premium impact, and the non-binding boundary before deciding on their own submitted request. Values unaffected by the change are shown as unchanged.
 - [ ] Only the owning customer may record `APPROVED` or `REJECTED`; a different customer or forged identity or policy ID cannot decide or view the proposal.
 - [ ] An approved proposal appears in that customer's history with the proposed change, decision, and time. Rejection is recorded without applying a change. Neither decision changes the underlying policy record or binds coverage; no later review or issuance step runs.
 
@@ -49,6 +49,7 @@ None identified; confirm during refinement.
 ## Accepted decisions and readiness
 
 - 2026-11-12: The owning customer reviews and approves or rejects the proposal. No separate staff reviewer or later issuance step is part of this prototype.
+- 2026-11-23: Review shows the calculation result only when premium or benefits changed; approval remains a non-binding prototype record.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.
 - Status: Backlog draft; not ready for implementation or Issue creation.
 
