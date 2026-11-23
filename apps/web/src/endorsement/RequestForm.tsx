@@ -8,7 +8,6 @@ import type { RequestBody } from '../lib/api';
 import { useCreateRequest, usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { FocusHeading } from '../policies/FocusHeading';
-import { DocumentUpload } from './DocumentUpload';
 import { EligibilityCheck } from './EligibilityCheck';
 
 type ChangeType = RequestBody['changeType'];
@@ -258,12 +257,6 @@ export function RequestForm({ policyId }: { policyId: string }) {
             <span className="request-id">{saved.id}</span>. No policy coverage
             has changed.
           </p>
-          <DocumentUpload
-            policyId={policyId}
-            requestId={saved.id}
-            changeType={saved.changeType}
-            requestedEffectiveDate={saved.requestedEffectiveDate}
-          />
           <EligibilityCheck policyId={policyId} requestId={saved.id} />
           <Link href={routes.policy(policyId)}>Return to policy</Link>
         </section>

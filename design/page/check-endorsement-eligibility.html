@@ -14,7 +14,7 @@
       <span>Policy Endorsement Assistant<small>Synthetic policy demonstration</small></span>
     </header>
     <main class="shell detail">
-      <a class="back" href="mock-document-upload.html">← Mock document upload</a>
+      <a class="back" href="index.html">← Design previews</a>
       <p class="eyebrow">Recorded request · FR-08</p>
       <h1 class="page-title">Check this request</h1>
       <p class="intro">See whether this synthetic request can continue to a mock quote. This check does not change your policy or coverage.</p>
@@ -24,13 +24,11 @@
           <div><dt>Policy</dt><dd>Family Protection · POL-001</dd></div>
           <div><dt>Change</dt><dd>Correspondence address</dd></div>
           <div><dt>Requested effective date</dt><dd>1 December 2026</dd></div>
-          <div><dt>Mock upload</dt><dd>RECEIVED_MOCK</dd></div>
         </dl>
-        <p class="notice">The file was received for demonstration only. Its contents and suitability were not verified.</p>
       </section>
       <section class="section" aria-labelledby="check-heading">
         <h2 id="check-heading">Eligibility</h2>
-        <p>Eligibility uses this recorded request, your policy, cited rules, and this request’s mock receipt.</p>
+        <p>Eligibility uses this recorded request, your policy, and cited rules.</p>
         <button class="button" id="check" type="button">Check eligibility</button>
         <div id="result" class="decision" aria-live="polite" aria-atomic="true">
           <h3>Not checked yet</h3>
@@ -40,7 +38,7 @@
       <nav class="preview-controls" aria-label="Preview result states">
         <span>Design preview:</span>
         <button type="button" data-state="ELIGIBLE">Eligible</button>
-        <button type="button" data-state="INELIGIBLE">Missing upload</button>
+        <button type="button" data-state="INELIGIBLE">Rule not met</button>
         <button type="button" data-state="REFERRED">Human referral</button>
         <button type="button" data-state="ERROR">Service failure</button>
       </nav>

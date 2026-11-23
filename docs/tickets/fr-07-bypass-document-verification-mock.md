@@ -5,20 +5,19 @@
 **Feature ID:** FR-07
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a mock receipt presented as verification could mislead customers or expose uploaded data.
-**State:** Implemented previously; retirement tracked by [cleanup ticket](chore-remove-fr-07-mock-upload.md)
+**State:** Retired; see [cleanup ticket](chore-remove-fr-07-mock-upload.md)
 
 ## Summary and objective
-This ticket records the previously implemented synthetic upload. The capability is outside the current endorsement MVP and is scheduled for removal in the [cleanup ticket](chore-remove-fr-07-mock-upload.md).
+This ticket records the previously implemented synthetic upload. The capability is outside the current endorsement MVP and was removed in the [cleanup ticket](chore-remove-fr-07-mock-upload.md).
 
-## User story or requirement
-As a customer using the standalone mock upload, I can upload a synthetic file and understand that receipt does not mean verification.
+## Historical requirement
+The original story delivered a standalone synthetic upload with an unverified receipt. It is retained here for traceability, not as a current build requirement.
 
 ## Business and technical context
-- [PRD](../PRD.md) no longer includes upload in the endorsement MVP flow. The existing mock-upload capability retains its access boundary from FR-01, FR-03, and FR-02 but is not a prerequisite or step in the current customer journey.
-- FR-05 no longer has an MVP handoff to this upload capability. The existing UI uses clearly labeled synthetic fixture guidance; it does not treat guidance as verification or participate in the endorsement assessment.
+- [PRD](../PRD.md) excludes upload from the endorsement MVP flow. The [cleanup ticket](chore-remove-fr-07-mock-upload.md) removes the implemented capability and its FR-08 receipt gate.
 - The prior `/document-bypass` and `BYPASSED_MOCK` contract was replaced by the existing mock upload. This ticket does not claim a production upload integration.
 
-## Acceptance criteria
+## Historical acceptance criteria (retired)
 - [ ] For the existing standalone mock-upload capability, the UI labels its synthetic document guidance as a demonstration fixture and never presents it as a verified requirement or as evidence used by the endorsement assessment.
 - [ ] The customer can select and upload one synthetic file for the request. Accept PDF, PNG, or JPEG up to 10 MiB; reject empty, unsupported, or oversized uploads with a clear technical error. Any accepted file passes the **mock business check** regardless of name or contents. Do not run OCR, authenticity, health assessment, or matching against RAG requirements. Tell customers to use synthetic files only and never upload real identity or health records.
 - [ ] A completed upload returns `RECEIVED_MOCK` and plainly says the document was received for demonstration only and was not verified. The UI distinguishes selected, uploading, received, and failed states. RAG never indexes or reads uploaded bytes.
@@ -28,7 +27,7 @@ As a customer using the standalone mock upload, I can upload a synthetic file an
 - [ ] API schema, UI, and tests cover receipt, arbitrary allowed content, disclosure, missing/failed upload, technical rejection, session and cross-account boundaries, expired policy, audit failure, and unchanged policy data.
 
 ## Scope and out of scope
-In scope: existing authenticated synthetic upload API and UI, mock receipt, fixture guidance, and audit event.
+Former scope: authenticated synthetic upload API and UI, mock receipt, fixture guidance, and audit event. Current removal scope belongs to the [cleanup ticket](chore-remove-fr-07-mock-upload.md).
 Out of scope: real document verification, OCR, medical evidence collection, identity checks, underwriting, eligibility decision, quote, and draft creation.
 
 ## Dependencies

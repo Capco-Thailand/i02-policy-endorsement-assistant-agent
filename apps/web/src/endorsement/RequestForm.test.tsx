@@ -5,26 +5,13 @@ import { RequestForm } from './RequestForm';
 import {
   usePolicy,
   useCreateRequest,
-  useDocumentUpload,
   useEligibilityCheck,
-  useRules,
 } from '../lib/queries';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock('../lib/queries', () => ({
   usePolicy: vi.fn(),
   useCreateRequest: vi.fn(),
-  useDocumentUpload: vi.fn(() => ({
-    mutate: vi.fn(),
-    isPending: false,
-    isError: false,
-    data: null,
-  })),
-  useRules: vi.fn(() => ({
-    isPending: false,
-    isError: false,
-    data: { status: 'MISSING', citations: [] },
-  })),
   useEligibilityCheck: vi.fn(() => ({
     mutate: vi.fn(),
     isPending: false,
@@ -121,13 +108,6 @@ it('keeps entered address on service failure and confirms only a recorded pendin
         requestedEffectiveDate: '2026-12-01',
       },
     });
-  const upload = vi.fn();
-  vi.mocked(useDocumentUpload).mockReturnValue({
-    mutate: upload,
-    isPending: false,
-    isError: false,
-    data: null,
-  } as unknown as ReturnType<typeof useDocumentUpload>);
   vi.mocked(useCreateRequest).mockReturnValue({
     mutateAsync,
     isPending: false,
@@ -161,11 +141,6 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   expect(
     await screen.findByRole('heading', { name: 'Pending checks' }),
   ).toBeInTheDocument();
-  expect(useRules).toHaveBeenCalledWith(
-    'POL-NARIN-001',
-    'ADDRESS',
-    '2026-12-01',
-  );
   expect(
     screen.getByRole('heading', { level: 1, name: 'Request recorded' }),
   ).toHaveFocus();
@@ -173,40 +148,14 @@ it('keeps entered address on service failure and confirms only a recorded pendin
     /No policy coverage has changed/,
   );
   expect(
-    screen.getByText(
-      /This demonstration does not check whether the file meets any requirement/,
-    ),
-  ).toBeInTheDocument();
+    screen.queryByRole('heading', { name: 'Mock document upload' }),
+  ).not.toBeInTheDocument();
   expect(
-    screen.getByRole('button', { name: 'Upload synthetic file' }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', { name: 'Upload synthetic file' }),
-  ).toBeDisabled();
-  expect(useEligibilityCheck).toHaveBeenCalledWith('POL-NARIN-001', 'REQ-1');
-  const uploadHeading = screen.getByRole('heading', {
-    name: 'Mock document upload',
-  });
-  const eligibilityHeading = screen.getByRole('heading', {
-    name: 'Eligibility',
-  });
-  expect(
-    uploadHeading.compareDocumentPosition(eligibilityHeading) &
-      Node.DOCUMENT_POSITION_FOLLOWING,
-  ).toBeTruthy();
+    screen.queryByRole('button', { name: 'Upload synthetic file' }),
+  ).not.toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: 'Check eligibility' }),
   ).toBeEnabled();
-  const file = new File(['%PDF-demo'], 'fixture.pdf', {
-    type: 'application/pdf',
-  });
-  fireEvent.change(screen.getByLabelText(/Synthetic document/), {
-    target: { files: [file] },
-  });
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Upload synthetic file' }),
-  );
-  expect(upload).toHaveBeenCalledWith({ requestId: 'REQ-1', file });
   expect(mutateAsync).toHaveBeenCalledTimes(2);
 });
 

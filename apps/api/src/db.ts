@@ -337,20 +337,6 @@ export function database(url = process.env.DATABASE_URL) {
       );
       return result.rows[0]?.payload;
     },
-    async hasMockReceipt(
-      customerId: string,
-      policyId: string,
-      requestId: string,
-    ): Promise<boolean> {
-      const result = await pool.query(
-        `SELECT 1 FROM audit_events WHERE actor_id=$1 AND action='document-upload' AND metadata @> $2::jsonb LIMIT 1`,
-        [
-          customerId,
-          JSON.stringify({ policyId, requestId, status: 'RECEIVED_MOCK' }),
-        ],
-      );
-      return result.rowCount === 1;
-    },
     async audit(
       actorId: string,
       action: string,

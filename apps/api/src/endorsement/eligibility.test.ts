@@ -39,26 +39,21 @@ const citation = {
   },
 };
 
-it('FR-08 address: an owned active saved request with cited CHECK and own receipt is eligible', () => {
+it('FR-08 address: an owned active saved request with cited CHECK is eligible', () => {
   expect(
-    decideEligibility(
-      policy,
-      request,
-      {
-        status: 'AVAILABLE',
-        sourceIds: ['SRC'],
-        citations: [
-          citation,
-          {
-            ...citation,
-            sectionId: 'GUIDANCE',
-            role: 'GUIDANCE',
-            value: { kind: 'NONE' },
-          },
-        ],
-      },
-      true,
-    ),
+    decideEligibility(policy, request, {
+      status: 'AVAILABLE',
+      sourceIds: ['SRC'],
+      citations: [
+        citation,
+        {
+          ...citation,
+          sectionId: 'GUIDANCE',
+          role: 'GUIDANCE',
+          value: { kind: 'NONE' },
+        },
+      ],
+    }),
   ).toMatchObject({
     outcome: 'ELIGIBLE',
     reasonCodes: [],
@@ -68,24 +63,19 @@ it('FR-08 address: an owned active saved request with cited CHECK and own receip
 
 it('FR-08 unknown values: extra structured rule fields require referral', () => {
   expect(
-    decideEligibility(
-      policy,
-      request,
-      {
-        status: 'AVAILABLE',
-        sourceIds: ['SRC'],
-        citations: [
-          { ...citation, value: { ...citation.value, override: true } },
-          {
-            ...citation,
-            sectionId: 'GUIDANCE',
-            role: 'GUIDANCE',
-            value: { kind: 'NONE' },
-          },
-        ],
-      },
-      true,
-    ).outcome,
+    decideEligibility(policy, request, {
+      status: 'AVAILABLE',
+      sourceIds: ['SRC'],
+      citations: [
+        { ...citation, value: { ...citation.value, override: true } },
+        {
+          ...citation,
+          sectionId: 'GUIDANCE',
+          role: 'GUIDANCE',
+          value: { kind: 'NONE' },
+        },
+      ],
+    }).outcome,
   ).toBe('REFERRED');
 });
 
@@ -116,7 +106,7 @@ it('FR-08 beneficiary: complete named allocations pass, malformed allocations fa
       requirement: 'named beneficiaries and allocations total 100%',
     },
   };
-  expect(decideEligibility(policy, saved, available(rule), true).outcome).toBe(
+  expect(decideEligibility(policy, saved, available(rule)).outcome).toBe(
     'ELIGIBLE',
   );
   expect(
@@ -124,7 +114,6 @@ it('FR-08 beneficiary: complete named allocations pass, malformed allocations fa
       policy,
       { ...saved, beneficiaries: [{ name: ' ', allocationPercent: 100 }] },
       available(rule),
-      true,
     ).reasonCodes,
   ).toContain('INVALID_BENEFICIARIES');
   expect(
@@ -135,11 +124,10 @@ it('FR-08 beneficiary: complete named allocations pass, malformed allocations fa
         beneficiaries: [{ name: 'Synthetic Person', allocationPercent: 90 }],
       },
       available(rule),
-      true,
     ).reasonCodes,
   ).toContain('INVALID_BENEFICIARIES');
 });
-it('FR-08 payment: allowed value passes; disallowed value fails with citation before receipt', () => {
+it('FR-08 payment: allowed value passes; disallowed value fails with citation ', () => {
   const { correspondenceAddress: _address, ...base } = request;
   const saved = {
     ...base,
@@ -155,7 +143,7 @@ it('FR-08 payment: allowed value passes; disallowed value fails with citation be
       allowedValues: ['MONTHLY', 'ANNUAL'],
     },
   };
-  expect(decideEligibility(policy, saved, available(rule), true).outcome).toBe(
+  expect(decideEligibility(policy, saved, available(rule)).outcome).toBe(
     'ELIGIBLE',
   );
   expect(
@@ -163,7 +151,6 @@ it('FR-08 payment: allowed value passes; disallowed value fails with citation be
       policy,
       { ...saved, paymentFrequency: 'QUARTERLY' },
       available(rule),
-      false,
     ),
   ).toMatchObject({
     outcome: 'INELIGIBLE',
@@ -171,7 +158,7 @@ it('FR-08 payment: allowed value passes; disallowed value fails with citation be
     citations: [{ ruleId: 'ADDRESS-RULE' }],
   });
 });
-it('FR-08 rider: underwriting referral cannot be cleared by a mock receipt', () => {
+it('FR-08 rider: underwriting referral cannot be cleared ', () => {
   const { correspondenceAddress: _address, ...base } = request;
   const saved = {
     ...base,
@@ -183,29 +170,28 @@ it('FR-08 rider: underwriting referral cannot be cleared by a mock receipt', () 
     changeType: 'ACCIDENTAL_DEATH_RIDER',
     value: { kind: 'REFERRAL', reason: 'underwriting' },
   };
-  expect(decideEligibility(policy, saved, available(rule), true)).toMatchObject(
-    { outcome: 'REFERRED', reasonCodes: ['RIDER_UNDERWRITING'] },
-  );
+  expect(decideEligibility(policy, saved, available(rule))).toMatchObject({
+    outcome: 'REFERRED',
+    reasonCodes: ['RIDER_UNDERWRITING'],
+  });
 });
-it('FR-08 evidence and receipt: unresolved rules refer; missing own receipt blocks eligible', () => {
+it('FR-08 evidence: unresolved rules refer; missing receipt does not block eligible', () => {
   for (const status of ['MISSING', 'CONFLICTING', 'UNAVAILABLE'])
     expect(
-      decideEligibility(
-        policy,
-        request,
-        { status, sourceIds: ['SRC'], citations: [] },
-        true,
-      ),
+      decideEligibility(policy, request, {
+        status,
+        sourceIds: ['SRC'],
+        citations: [],
+      }),
     ).toMatchObject({ outcome: 'REFERRED', reasonCodes: [`RULE_${status}`] });
-  expect(
-    decideEligibility(policy, request, available(citation), false),
-  ).toMatchObject({ outcome: 'INELIGIBLE', reasonCodes: ['MISSING_RECEIPT'] });
+  expect(decideEligibility(policy, request, available(citation))).toMatchObject(
+    { outcome: 'ELIGIBLE', reasonCodes: [] },
+  );
   expect(
     decideEligibility(
       { ...policy, status: 'EXPIRED' },
       request,
       available(citation),
-      true,
     ).reasonCodes,
   ).toContain('POLICY_EXPIRED');
   expect(
@@ -213,7 +199,6 @@ it('FR-08 evidence and receipt: unresolved rules refer; missing own receipt bloc
       policy,
       { ...request, requestedEffectiveDate: '2026-02-30' },
       available(citation),
-      true,
     ).reasonCodes,
   ).toContain('INVALID_EFFECTIVE_DATE');
 });

@@ -7,7 +7,7 @@ import { loadRules } from './load-rules.js';
 
 const url = process.env.TEST_DATABASE_URL;
 const integration = url ? describe : describe.skip;
-integration('FR-08 PostgreSQL request, upload, eligibility', () => {
+integration('FR-08 PostgreSQL request and eligibility', () => {
   const db = database(url ?? 'postgresql://localhost/unused');
   let app: Awaited<ReturnType<typeof buildApp>>;
   let cookie = '';
@@ -31,7 +31,7 @@ integration('FR-08 PostgreSQL request, upload, eligibility', () => {
     await db.close();
   });
 
-  it('FR-08 durable receipt applies only to its actor, policy and request without changing policy', async () => {
+  it('FR-08 assessment ignores historical receipts and leaves policy unchanged', async () => {
     const before = await db.policy('CUS-001', 'POL-NARIN-001');
     const create = async () => {
       const response = await app.inject({
@@ -56,31 +56,23 @@ integration('FR-08 PostgreSQL request, upload, eligibility', () => {
         headers: { cookie },
       });
     expect((await check(first)).json()).toMatchObject({
-      outcome: 'INELIGIBLE',
-      reasonCodes: ['MISSING_RECEIPT'],
+      outcome: 'ELIGIBLE',
+      reasonCodes: [],
     });
-    const boundary = `fr08-${randomUUID()}`;
-    const payload = Buffer.from(
-      `--${boundary}\r\nContent-Disposition: form-data; name="requestId"\r\n\r\n${second}\r\n--${boundary}\r\nContent-Disposition: form-data; name="document"; filename="synthetic.pdf"\r\nContent-Type: application/pdf\r\n\r\n%PDF-synthetic\r\n--${boundary}--\r\n`,
+    await db.audit('CUS-001', 'document-upload', Date.now(), {
+      policyId: 'POL-NARIN-001',
+      requestId: second,
+      status: 'RECEIVED_MOCK',
+    });
+    expect((await check(second)).json()).toMatchObject({
+      outcome: 'ELIGIBLE',
+      reasonCodes: [],
+    });
+    const historical = await db.pool.query(
+      "SELECT 1 FROM audit_events WHERE action='document-upload' AND metadata->>'requestId'=$1",
+      [second],
     );
-    expect(
-      (
-        await app.inject({
-          method: 'POST',
-          url: '/api/policies/POL-NARIN-001/document-upload',
-          headers: {
-            cookie,
-            'content-type': `multipart/form-data; boundary=${boundary}`,
-          },
-          payload,
-        })
-      ).statusCode,
-    ).toBe(200);
-    expect((await check(first)).json()).toMatchObject({
-      outcome: 'INELIGIBLE',
-      reasonCodes: ['MISSING_RECEIPT'],
-    });
-    expect((await check(second)).json()).toMatchObject({ outcome: 'ELIGIBLE' });
+    expect(historical.rowCount).toBe(1);
     expect((await check(second, 'POL-MALI-001')).statusCode).toBe(404);
     expect(await db.policy('CUS-001', 'POL-NARIN-001')).toEqual(before);
     const audit = await db.pool.query(

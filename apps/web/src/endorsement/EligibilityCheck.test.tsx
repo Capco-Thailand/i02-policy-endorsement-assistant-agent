@@ -49,7 +49,7 @@ it.each([
   ['INELIGIBLE', 'Cannot continue yet'],
   ['REFERRED', 'Needs human review'],
 ])(
-  'FR-08 UI: %s result shows reason, citation, next step and mock disclosure',
+  'FR-08 UI: %s result shows reason, citation, next step and unchanged coverage',
   (outcome, heading) => {
     state({
       data: {
@@ -71,7 +71,7 @@ it.each([
       screen.getByText(/Source SRC.*rule RULE.*version 1.*section S/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/does not verify document suitability/),
+      screen.getByText(/No policy coverage has changed/),
     ).toBeInTheDocument();
   },
 );
@@ -128,19 +128,17 @@ it('FR-08 UI: an expired session redirects to sign-in without showing a result',
   expect(screen.queryByText(/Eligible to continue/)).not.toBeInTheDocument();
 });
 
-it('FR-08 UI: missing receipt links directly to this request upload section', () => {
+it('FR-08 UI: assessment has no upload guidance or receipt message', () => {
   state({
     data: {
-      outcome: 'INELIGIBLE',
-      reasonCodes: ['MISSING_RECEIPT'],
-      reasons: ['Upload a synthetic file for this request.'],
-      nextStep: 'Upload a synthetic file, then check again.',
+      outcome: 'ELIGIBLE',
+      reasonCodes: [],
+      reasons: [],
+      nextStep: 'Continue',
       sourceIds: [],
       citations: [],
     },
   });
   renderCheck();
-  expect(
-    screen.getByRole('link', { name: 'Go to mock document upload' }),
-  ).toHaveAttribute('href', '#document-upload-heading');
+  expect(screen.queryByText(/receipt|upload/i)).not.toBeInTheDocument();
 });

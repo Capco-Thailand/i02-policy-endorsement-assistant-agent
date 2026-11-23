@@ -99,13 +99,6 @@ for (const width of [1280, 375]) {
       .last()
       .fill('100 Synthetic Road');
     await page.getByRole('button', { name: 'Record request' }).click();
-    await page.getByLabel(/Synthetic document/).setInputFiles({
-      name: 'synthetic.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from('%PDF-synthetic'),
-    });
-    await page.getByRole('button', { name: 'Upload synthetic file' }).click();
-    await expect(page.getByText('RECEIVED_MOCK')).toBeVisible();
     await page.getByRole('button', { name: 'Check eligibility' }).click();
     await expect(
       page.getByRole('heading', {
