@@ -46,7 +46,7 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
-- 2026-11-23: Supersedes the 2026-11-18 upload decision: exclude FR-07 receipt from the endorsement proposal; omit FR-06 results.
+- 2026-11-23: Exclude FR-07 receipt and FR-06 results from the endorsement proposal.
 
 - 2026-11-12: Prepare a proposed updated-policy view for the customer to review before approval; keep the draft non-binding.
 - Open question: Confirm precise inputs, error cases, dependencies, and any UX handoff before implementation.

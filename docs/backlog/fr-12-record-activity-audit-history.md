@@ -47,7 +47,6 @@ Out of scope:
 None identified; confirm during refinement.
 
 ## Accepted decisions and readiness
-- 2026-11-18: Audit mock upload receipt in place of FR-06 and bypass outcomes for the MVP workflow.
 - 2026-11-23: Audit the preliminary assessment and its reasons; calculation events are conditional. FR-07 upload events are outside this endorsement flow.
 
 - 2026-11-12: Customer approval adds the proposed change to that customer's history page with no further processing.
