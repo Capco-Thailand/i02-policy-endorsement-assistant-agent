@@ -9,7 +9,7 @@ route: full
 risk: high
 review: thorough
 context:
-  - docs/tickets/fr-06-verify-customer-identity-mock-ekyc.md
+  - https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/85
   - docs/CODING_STANDARDS.md
   - docs/TESTING_STANDARD.md
   - _bmad-output/initiative-customer-authentication/ux-mock-verification/DESIGN.md
