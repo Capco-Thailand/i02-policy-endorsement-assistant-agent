@@ -53,7 +53,7 @@ None identified; confirm during refinement.
 ## UX handoff references
 - [Existing policy detail visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-03/DESIGN.md) — baseline only; extend during refinement.
 - [Existing policy detail experience contract](../../_bmad-output/initiative-customer-authentication/ux-fr-03/EXPERIENCE.md) — baseline only; extend during refinement.
-- [Current policy detail mockup](../../design/page/policy-detail.html) — baseline only; update during UX handoff.
+- [Current policy detail mockup](../../design/page/policy-detail.html) — FR-03 baseline; FR-14 has a separate expanded-detail mockup below.
 - [FR-04 evidence mockup](../../design/page/policy-evidence.html) — citation presentation reference.
 - [FR-14 visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-14/DESIGN.md) and [experience contract](../../_bmad-output/initiative-customer-authentication/ux-fr-14/EXPERIENCE.md) — expanded detail handoff.
 - [FR-14 expanded policy detail mockup](../../design/page/policy-detail-coverage.html) — illustrative synthetic values and preview states.

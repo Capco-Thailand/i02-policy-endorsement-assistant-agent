@@ -1,6 +1,6 @@
 # PRD — I02 Life Insurance Policy Endorsement Assistant
 
-**Version:** 1.7 | **Date:** 2026-11-23 | **Status:** MVP
+**Version:** 1.8 | **Date:** 2026-11-23 | **Status:** MVP
 
 This PRD states the business outcome, product scope, cross-feature rules, and success measures. Detailed behavior and acceptance criteria live in [implementation tickets](tickets/) and [backlog tickets](backlog/). GitHub Issues track discussion and delivery status; [ticket workflow](TICKETING.md) explains how the records connect. Architecture decisions live in [ADR.md](ADR.md).
 
@@ -13,6 +13,10 @@ Build a customer-facing AI-assisted life insurance endorsement request workflow.
 - **Policy statuses:** `ACTIVE` and `EXPIRED`; only `ACTIVE` policies may start or submit an endorsement request. An `EXPIRED` policy cannot create a request.
 - **Data:** Synthetic policy records and versioned mock policy documents, customer profiles, mock endorsement rules, and rating tables only. FR-04 and FR-05 supply the RAG source documents for the existing demo products.
 - **Out of scope:** Document upload in the endorsement flow, production identity-provider integration, eKYC during the endorsement request, real document inspection/OCR, medical underwriting, insurer integrations, issuance, live policy updates, or coverage binding.
+
+### Planned policy-detail expansion
+
+[FR-14](backlog/fr-14-expand-policy-detail-with-coverage.md) is a backlog proposal to show synthetic insurer and product identity, coverage amounts, and key exclusions on the existing policy detail page, each supported by versioned synthetic policy wording. It is read-only and follows the same owner authorization and non-binding boundaries as the MVP. FR-14 is not part of the MVP definition of done; its product-specific coverage terms remain open for refinement.
 
 ### Authentication and access
 
