@@ -31,7 +31,7 @@ In scope: synthetic fixture evaluation, authenticated API, audit result, and cus
 Out of scope: real eKYC, document upload, OCR, biometrics, provider calls, eligibility, quote, and draft.
 
 ## Dependencies
-FR-01, FR-02, and FR-03 are implemented. No RAG dependency; FR-08 consumes the result later.
+FR-01, FR-02, and FR-03 are implemented. No RAG dependency. FR-08 does not consume the optional mock eKYC result.
 
 ## Related subtasks
 None.

@@ -11,6 +11,9 @@ import { Pool } from 'pg';
 import type { Customer, Policy } from './auth/data.js';
 import type { RequestRecord } from './endorsement/schema.js';
 import { SESSION_LIFETIME_MS } from './auth/session.js';
+import { ENCODER_VERSION } from '../../ai/retrieval.js';
+import { RULE_ENCODER_VERSION } from '../../ai/rule-retrieval.js';
+import type { ChangeType, RuleSource } from './rules.js';
 
 const digest = (token: string) =>
   createHash('sha256').update(token).digest('hex');
@@ -26,11 +29,17 @@ export function database(url = process.env.DATABASE_URL) {
       await pool.end();
     },
     async migrate() {
-      const sql = await readFile(
-        fileURLToPath(new URL('../sql/001_initial.sql', import.meta.url)),
-        'utf8',
-      );
-      await pool.query(sql);
+      for (const filename of [
+        '001_initial.sql',
+        '002_policy_corpus.sql',
+        '003_endorsement_rules.sql',
+      ]) {
+        const sql = await readFile(
+          fileURLToPath(new URL(`../sql/${filename}`, import.meta.url)),
+          'utf8',
+        );
+        await pool.query(sql);
+      }
     },
     async seed() {
       const client = await pool.connect();
@@ -213,6 +222,103 @@ export function database(url = process.env.DATABASE_URL) {
     ): Promise<Policy | undefined> {
       return (await this.policies(customerId)).find((p) => p.id === policyId);
     },
+    async evidenceDocument(policyId: string) {
+      const result = await pool.query(
+        `SELECT d.id, d.version, d.title, d.encoder_version, d.facts_snapshot,
+          COALESCE(json_agg(json_build_object('sectionId',s.section_id,'concept',s.concept,'value',s.fact_value,'excerpt',s.excerpt,'encoderVersion',s.encoder_version) ORDER BY s.section_id)
+          FILTER (WHERE s.section_id IS NOT NULL),'[]') AS sections
+         FROM policy_document_selection x
+         JOIN policy_documents d ON d.id=x.document_id AND d.policy_id=x.policy_id
+         LEFT JOIN policy_sections s ON s.document_id=d.id
+         WHERE x.policy_id=$1 GROUP BY d.id`,
+        [policyId],
+      );
+      return result.rows[0] as
+        | {
+            id: string;
+            version: string;
+            title: string;
+            encoder_version: string;
+            facts_snapshot: unknown;
+            sections: {
+              sectionId: string;
+              concept: string;
+              value: unknown;
+              excerpt: string;
+              encoderVersion: string;
+            }[];
+          }
+        | undefined;
+    },
+    async rankedEvidence(
+      policyId: string,
+      documentId: string,
+      embedding: number[],
+      limit = 4,
+    ) {
+      const vector = `[${embedding.join(',')}]`;
+      const result = await pool.query(
+        `SELECT d.id AS document_id,d.version,d.title,s.section_id,s.excerpt,
+          s.concept,s.fact_value
+         FROM policy_document_selection x
+         JOIN policy_documents d ON d.id=x.document_id AND d.policy_id=x.policy_id
+         JOIN policy_sections s ON s.document_id=d.id
+         WHERE x.policy_id=$1 AND x.document_id=$2 AND d.id=$2
+           AND d.encoder_version=$3 AND s.encoder_version=$3
+         ORDER BY s.embedding <=> $4::vector, s.section_id LIMIT $5`,
+        [policyId, documentId, ENCODER_VERSION, vector, limit],
+      );
+      return result.rows as {
+        document_id: string;
+        version: string;
+        title: string;
+        section_id: string;
+        excerpt: string;
+        concept: string;
+        fact_value: unknown;
+      }[];
+    },
+    async selectedRuleProduct(policyId: string) {
+      const result = await pool.query(
+        `SELECT d.product_id, (SELECT count(DISTINCT product_id)::int FROM policy_documents WHERE policy_id=$1) AS product_count
+        FROM policy_document_selection x JOIN policy_documents d ON d.id=x.document_id AND d.policy_id=x.policy_id
+        WHERE x.policy_id=$1`,
+        [policyId],
+      );
+      return result.rows[0] as
+        | { product_id: string; product_count: number }
+        | undefined;
+    },
+    async ruleSources(productId: string, changeType: ChangeType, date: string) {
+      const result = await pool.query(
+        `SELECT s.id AS "sourceId",s.rule_id AS "ruleId",s.version,s.product_id AS "productId",s.change_type AS "changeType",s.effective_from::text AS "effectiveFrom",s.effective_to::text AS "effectiveTo",s.encoder_version AS "encoderVersion",
+        COALESCE(json_agg(json_build_object('sectionId',x.section_id,'role',x.role,'text',x.text,'value',x.value,'encoderVersion',x.encoder_version) ORDER BY x.section_id) FILTER (WHERE x.section_id IS NOT NULL),'[]') AS sections
+        FROM endorsement_rule_sources s LEFT JOIN endorsement_rule_sections x ON x.source_id=s.id
+        WHERE s.product_id=$1 AND s.change_type=$2 AND s.effective_from <= $3::date AND s.effective_to >= $3::date
+        GROUP BY s.id ORDER BY s.rule_id,s.version DESC,s.id LIMIT 65`,
+        [productId, changeType, date],
+      );
+      return result.rows as RuleSource[];
+    },
+    async rankedRuleSections(
+      sourceIds: string[],
+      vector: number[],
+      limit: number,
+    ) {
+      const result = await pool.query(
+        `SELECT source_id,section_id,role,text,value FROM endorsement_rule_sections
+        WHERE source_id = ANY($1::text[]) AND encoder_version=$2
+        ORDER BY embedding <=> $3::vector, source_id, CASE role WHEN 'RULE' THEN 0 ELSE 1 END, section_id LIMIT $4`,
+        [sourceIds, RULE_ENCODER_VERSION, `[${vector.join(',')}]`, limit],
+      );
+      return result.rows as {
+        source_id: string;
+        section_id: string;
+        role: 'RULE' | 'GUIDANCE';
+        text: string;
+        value: { kind: string };
+      }[];
+    },
     async ownsRequest(customerId: string, policyId: string, requestId: string) {
       const result = await pool.query(
         'SELECT 1 FROM endorsement_requests WHERE id=$1 AND requester_id=$2 AND policy_id=$3',
@@ -220,11 +326,36 @@ export function database(url = process.env.DATABASE_URL) {
       );
       return result.rowCount === 1;
     },
+    async requestFor(
+      customerId: string,
+      policyId: string,
+      requestId: string,
+    ): Promise<unknown | undefined> {
+      const result = await pool.query(
+        'SELECT payload FROM endorsement_requests WHERE id=$1 AND requester_id=$2 AND policy_id=$3',
+        [requestId, customerId, policyId],
+      );
+      return result.rows[0]?.payload;
+    },
+    async hasMockReceipt(
+      customerId: string,
+      policyId: string,
+      requestId: string,
+    ): Promise<boolean> {
+      const result = await pool.query(
+        `SELECT 1 FROM audit_events WHERE actor_id=$1 AND action='document-upload' AND metadata @> $2::jsonb LIMIT 1`,
+        [
+          customerId,
+          JSON.stringify({ policyId, requestId, status: 'RECEIVED_MOCK' }),
+        ],
+      );
+      return result.rowCount === 1;
+    },
     async audit(
       actorId: string,
       action: string,
       now: number,
-      metadata: Record<string, string> = {},
+      metadata: Record<string, unknown> = {},
     ) {
       await pool.query(
         'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',

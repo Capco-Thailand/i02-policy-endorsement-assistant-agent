@@ -16,6 +16,16 @@ import { Type, type Static } from '@sinclair/typebox';
 import { database } from './db.js';
 import { ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
+import { encodeQuery, ENCODER_VERSION } from '../../ai/retrieval.js';
+import { retrieveRules, type RuleStore } from './rules.js';
+import { decideEligibility } from './endorsement/eligibility.js';
+import { Value } from '@sinclair/typebox/value';
+import {
+  equalFact,
+  policyFacts,
+  reconcileEvidence,
+  type UnresolvedReason,
+} from './evidence.js';
 
 const ErrorSchema = Type.Object({ error: Type.String() });
 const ActorSchema = Type.Object({
@@ -48,8 +58,142 @@ const SignInBody = Type.Object(
   { additionalProperties: false },
 );
 const PolicyParams = Type.Object({ policyId: Type.String() });
+const EligibilityParams = Type.Object({
+  policyId: Type.String(),
+  requestId: Type.String(),
+});
+const EligibilityResultSchema = Type.Object({
+  outcome: Type.Union([
+    Type.Literal('ELIGIBLE'),
+    Type.Literal('INELIGIBLE'),
+    Type.Literal('REFERRED'),
+  ]),
+  reasonCodes: Type.Array(Type.String()),
+  reasons: Type.Array(Type.String()),
+  nextStep: Type.String(),
+  sourceIds: Type.Array(Type.String()),
+  citations: Type.Array(
+    Type.Object({
+      sourceId: Type.String(),
+      ruleId: Type.String(),
+      version: Type.Integer(),
+      sectionId: Type.String(),
+    }),
+  ),
+});
+const EvidenceQuery = Type.Object({
+  query: Type.String({ minLength: 1, maxLength: 200 }),
+});
+const RuleChange = Type.Union([
+  Type.Literal('BENEFICIARY'),
+  Type.Literal('ADDRESS'),
+  Type.Literal('PAYMENT_FREQUENCY'),
+  Type.Literal('ACCIDENTAL_DEATH_RIDER'),
+]);
+const RulesQuery = Type.Object(
+  {
+    changeType: RuleChange,
+    requestedEffectiveDate: Type.String({ format: 'date' }),
+  },
+  { additionalProperties: false },
+);
+const RuleCitationBase = {
+  sourceId: Type.String(),
+  ruleId: Type.String(),
+  version: Type.Integer(),
+  productId: Type.String(),
+  changeType: RuleChange,
+  effectiveFrom: Type.String(),
+  effectiveTo: Type.String(),
+  sectionId: Type.String(),
+  text: Type.String(),
+};
+const RuleValue = Type.Union([
+  Type.Object({
+    kind: Type.Literal('CHECK'),
+    field: Type.Literal('beneficiaries'),
+    requirement: Type.String(),
+  }),
+  Type.Object({
+    kind: Type.Literal('CHECK'),
+    field: Type.Literal('address'),
+    requirement: Type.String(),
+  }),
+  Type.Object({
+    kind: Type.Literal('CHECK'),
+    field: Type.Literal('paymentFrequency'),
+    allowedValues: Type.Array(
+      Type.Union([Type.Literal('MONTHLY'), Type.Literal('ANNUAL')]),
+    ),
+  }),
+  Type.Object({ kind: Type.Literal('REFERRAL'), reason: Type.String() }),
+]);
+const GuidanceValue = Type.Union([
+  Type.Object({ kind: Type.Literal('NONE') }),
+  Type.Object({
+    kind: Type.Literal('DOCUMENT'),
+    documentType: Type.String(),
+    handling: Type.Literal('mock receipt only'),
+  }),
+]);
+const RuleCitation = Type.Union([
+  Type.Object({
+    ...RuleCitationBase,
+    role: Type.Literal('RULE'),
+    value: RuleValue,
+  }),
+  Type.Object({
+    ...RuleCitationBase,
+    role: Type.Literal('GUIDANCE'),
+    value: GuidanceValue,
+  }),
+]);
+const RulesResult = Type.Object({
+  status: Type.Union([
+    Type.Literal('AVAILABLE'),
+    Type.Literal('MISSING'),
+    Type.Literal('CONFLICTING'),
+  ]),
+  requiresHumanReferral: Type.Boolean(),
+  sourceIds: Type.Array(Type.String()),
+  citations: Type.Array(RuleCitation),
+});
+const RuleUnavailable = Type.Object({
+  status: Type.Literal('UNAVAILABLE'),
+  requiresHumanReferral: Type.Literal(true),
+  sourceIds: Type.Array(Type.String(), { maxItems: 0 }),
+  citations: Type.Array(RuleCitation, { maxItems: 0 }),
+});
+const EvidenceCitation = Type.Object({
+  sourceId: Type.String(),
+  title: Type.String(),
+  version: Type.String(),
+  sectionId: Type.String(),
+  excerpt: Type.String(),
+});
+const EvidenceResult = Type.Union([
+  Type.Object({
+    status: Type.Literal('available'),
+    match: Type.Literal('Matches policy facts'),
+    citations: Type.Array(EvidenceCitation),
+  }),
+  Type.Object({
+    status: Type.Literal('unresolved'),
+    reason: Type.Union([
+      Type.Literal('UNKNOWN_QUERY'),
+      Type.Literal('MISSING_DOCUMENT'),
+      Type.Literal('MISSING_SECTION'),
+      Type.Literal('STALE_DOCUMENT'),
+      Type.Literal('STALE_ENCODER'),
+      Type.Literal('CONFLICTING_EVIDENCE'),
+    ]),
+    citations: Type.Array(EvidenceCitation, { maxItems: 0 }),
+  }),
+]);
 type Credentials = Static<typeof SignInBody>;
 type Params = Static<typeof PolicyParams>;
+type EvidenceQueryInput = Static<typeof EvidenceQuery>;
+type RulesQueryInput = Static<typeof RulesQuery>;
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MockUploadResult = Type.Object({
   status: Type.Literal('RECEIVED_MOCK'),
@@ -74,6 +218,11 @@ export interface AuditRecord {
 export interface AppOptions {
   now?: () => number;
   schemaOnly?: boolean;
+  evidenceStore?: Pick<
+    ReturnType<typeof database>,
+    'evidenceDocument' | 'rankedEvidence'
+  >;
+  ruleStore?: RuleStore;
 }
 export async function buildApp(options: AppOptions = {}) {
   if (!options.schemaOnly && !process.env.DATABASE_URL)
@@ -83,6 +232,8 @@ export async function buildApp(options: AppOptions = {}) {
   const db = database(
     options.schemaOnly ? 'postgresql://localhost/schema-only' : undefined,
   );
+  const evidenceStore = options.evidenceStore ?? db;
+  const ruleStore = options.ruleStore ?? db;
   try {
     if (!options.schemaOnly) await db.ready();
   } catch (error) {
@@ -97,7 +248,7 @@ export async function buildApp(options: AppOptions = {}) {
     limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 1, parts: 2 },
   });
   await app.register(cors, {
-    origin: 'http://localhost:3001',
+    origin: process.env.WEB_ORIGIN ?? 'http://localhost:3001',
     credentials: true,
   });
   await app.register(swagger, {
@@ -263,6 +414,113 @@ export async function buildApp(options: AppOptions = {}) {
           beneficiaries: policy.beneficiaries,
         },
       };
+    },
+  );
+  app.get<{ Params: Params; Querystring: EvidenceQueryInput }>(
+    '/api/policies/:policyId/evidence',
+    {
+      schema: {
+        params: PolicyParams,
+        querystring: EvidenceQuery,
+        response: {
+          200: EvidenceResult,
+          400: ErrorSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(actor.id, request.params.policyId);
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      const unresolved = (reason: UnresolvedReason) => ({
+        status: 'unresolved' as const,
+        reason,
+        citations: [],
+      });
+      const embedding = encodeQuery(request.query.query);
+      if (!embedding) return unresolved('UNKNOWN_QUERY');
+      try {
+        const document = await evidenceStore.evidenceDocument(policy.id);
+        if (!document) return unresolved('MISSING_DOCUMENT');
+        if (
+          document.encoder_version !== ENCODER_VERSION ||
+          document.sections.some(
+            (section) => section.encoderVersion !== ENCODER_VERSION,
+          )
+        )
+          return unresolved('STALE_ENCODER');
+        if (!equalFact(document.facts_snapshot, policyFacts(policy)))
+          return unresolved('STALE_DOCUMENT');
+        const reason = reconcileEvidence(policy, document.sections);
+        if (reason) return unresolved(reason);
+        const ranked = await evidenceStore.rankedEvidence(
+          policy.id,
+          document.id,
+          embedding,
+          1,
+        );
+        if (ranked.length === 0) return unresolved('STALE_DOCUMENT');
+        return {
+          status: 'available',
+          match: 'Matches policy facts',
+          citations: ranked.map((section) => ({
+            sourceId: section.document_id,
+            title: section.title,
+            version: section.version,
+            sectionId: section.section_id,
+            excerpt: section.excerpt,
+          })),
+        };
+      } catch (error) {
+        app.log.error({ err: error }, 'Evidence storage failed');
+        return reply.code(503).send({ error: 'EVIDENCE_UNAVAILABLE' });
+      }
+    },
+  );
+  app.get<{ Params: Params; Querystring: RulesQueryInput }>(
+    '/api/policies/:policyId/rules',
+    {
+      schema: {
+        params: PolicyParams,
+        querystring: RulesQuery,
+        response: {
+          200: RulesResult,
+          400: ErrorSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          503: RuleUnavailable,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(actor.id, request.params.policyId);
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      if (!validDate(request.query.requestedEffectiveDate))
+        return reply.code(400).send({ error: 'BAD_REQUEST' });
+      try {
+        return await retrieveRules(
+          ruleStore,
+          policy.id,
+          request.query.changeType,
+          request.query.requestedEffectiveDate,
+        );
+      } catch (error) {
+        app.log.error({ err: error }, 'Rule retrieval failed');
+        return reply.code(503).send({
+          status: 'UNAVAILABLE',
+          requiresHumanReferral: true,
+          sourceIds: [],
+          citations: [],
+        });
+      }
     },
   );
   app.post<{ Params: Params }>(
@@ -459,6 +717,93 @@ export async function buildApp(options: AppOptions = {}) {
       };
       await db.saveRequest(saved, now());
       return { request: saved };
+    },
+  );
+  app.post<{ Params: Static<typeof EligibilityParams> }>(
+    '/api/policies/:policyId/requests/:requestId/eligibility',
+    {
+      schema: {
+        params: EligibilityParams,
+        response: {
+          200: EligibilityResultSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      try {
+        const policy = await db.policy(actor.id, request.params.policyId);
+        if (!ownsPolicy(actor, policy))
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const saved = await db.requestFor(
+          actor.id,
+          policy.id,
+          request.params.requestId,
+        );
+        if (!saved) return reply.code(404).send({ error: 'NOT_FOUND' });
+        let rules;
+        if (
+          Value.Check(RequestRecordSchema, saved) &&
+          validDate(saved.requestedEffectiveDate)
+        ) {
+          try {
+            rules = await retrieveRules(
+              ruleStore,
+              policy.id,
+              saved.changeType,
+              saved.requestedEffectiveDate,
+            );
+          } catch (error) {
+            app.log.error({ err: error }, 'Rule retrieval failed');
+            rules = {
+              status: 'UNAVAILABLE' as const,
+              sourceIds: [],
+              citations: [],
+            };
+          }
+        } else
+          rules = { status: 'MISSING' as const, sourceIds: [], citations: [] };
+        const receipt = await db.hasMockReceipt(
+          actor.id,
+          policy.id,
+          request.params.requestId,
+        );
+        const decision = decideEligibility(policy, saved, rules, receipt);
+        const ruleVersions: { ruleId: string; version: number }[] = [];
+        for (const citation of rules.citations) {
+          if (
+            citation.role === 'RULE' &&
+            typeof citation.ruleId === 'string' &&
+            citation.ruleId.length > 0 &&
+            Number.isInteger(citation.version) &&
+            citation.version > 0 &&
+            !ruleVersions.some(
+              (item) =>
+                item.ruleId === citation.ruleId &&
+                item.version === citation.version,
+            )
+          )
+            ruleVersions.push({
+              ruleId: citation.ruleId,
+              version: citation.version,
+            });
+        }
+        await db.audit(actor.id, 'eligibility-check', now(), {
+          policyId: policy.id,
+          requestId: request.params.requestId,
+          outcome: decision.outcome,
+          reasonCodes: decision.reasonCodes,
+          ruleVersions,
+        });
+        return decision;
+      } catch (error) {
+        app.log.error({ err: error }, 'Eligibility storage failed');
+        return reply.code(503).send({ error: 'ELIGIBILITY_UNAVAILABLE' });
+      }
     },
   );
   app.get('/openapi.json', { schema: { hide: true } }, async () =>

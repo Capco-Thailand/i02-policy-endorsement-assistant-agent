@@ -9,6 +9,7 @@ import { useCreateRequest, usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { FocusHeading } from '../policies/FocusHeading';
 import { DocumentUpload } from './DocumentUpload';
+import { EligibilityCheck } from './EligibilityCheck';
 
 type ChangeType = RequestBody['changeType'];
 type Row = { id: number; name: string; allocationPercent: string };
@@ -253,14 +254,17 @@ export function RequestForm({ policyId }: { policyId: string }) {
         <section className="request-panel" role="status">
           <h2>Pending checks</h2>
           <p>
-            Your request was recorded and is pending checks. Request {saved.id}.
-            No policy coverage has changed.
+            Your request was recorded and is pending checks. Request{' '}
+            <span className="request-id">{saved.id}</span>. No policy coverage
+            has changed.
           </p>
           <DocumentUpload
             policyId={policyId}
             requestId={saved.id}
             changeType={saved.changeType}
+            requestedEffectiveDate={saved.requestedEffectiveDate}
           />
+          <EligibilityCheck policyId={policyId} requestId={saved.id} />
           <Link href={routes.policy(policyId)}>Return to policy</Link>
         </section>
       ) : (

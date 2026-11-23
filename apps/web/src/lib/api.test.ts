@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getPolicy, signOut, uploadDocument } from './api';
+import {
+  checkEligibility,
+  getPolicy,
+  getRules,
+  signOut,
+  uploadDocument,
+} from './api';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -16,7 +22,38 @@ describe('FR-01 API client', () => {
   });
 });
 
+describe('FR-08 eligibility client', () => {
+  it('checks the recorded request with credentials and no replacement body', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ outcome: 'ELIGIBLE' }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    await checkEligibility('POL-1', 'REQ-1');
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(
+      'http://localhost:3000/api/policies/POL-1/requests/REQ-1/eligibility',
+    );
+    expect(init).toMatchObject({ method: 'POST', credentials: 'include' });
+    expect(init.body).toBeUndefined();
+  });
+});
+
 describe('FR-07 upload client', () => {
+  it('requests FR-05 rules for the recorded change and effective date', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ status: 'MISSING', citations: [] }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    await getRules('POL-NARIN-001', 'ADDRESS', '2027-01-01');
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      'http://localhost:3000/api/policies/POL-NARIN-001/rules?changeType=ADDRESS&requestedEffectiveDate=2027-01-01',
+    );
+    expect(fetchMock.mock.calls[0][1].credentials).toBe('include');
+  });
   it('sends the request ID before the synthetic file as multipart without a JSON header', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

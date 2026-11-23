@@ -1,11 +1,29 @@
 import { expect, test } from '@playwright/test';
 
-const api = 'http://localhost:3000';
+const api = `http://localhost:${process.env.E2E_API_PORT ?? 3000}`;
 const validAddress = {
   changeType: 'ADDRESS',
   requestedEffectiveDate: '2027-01-01',
   correspondenceAddress: '100 Demo Road',
 };
+
+test('FR-08 eligibility rejects missing session and gives identical 404 for unknown and foreign policy', async ({
+  request,
+}) => {
+  const route = (policyId: string, requestId: string) =>
+    `${api}/api/policies/${policyId}/requests/${requestId}/eligibility`;
+  expect((await request.post(route('POL-NARIN-001', 'unknown'))).status()).toBe(
+    401,
+  );
+  await request.post(`${api}/api/auth/sign-in`, {
+    data: { accountId: 'narin', password: 'NarinDemo123!' },
+  });
+  const unknown = await request.post(route('POL-UNKNOWN', 'unknown'));
+  const foreign = await request.post(route('POL-MALI-001', 'unknown'));
+  expect(unknown.status()).toBe(404);
+  expect(foreign.status()).toBe(404);
+  expect(await foreign.json()).toEqual(await unknown.json());
+});
 
 test('FR-01 AC2-AC3: protected routes reject missing and signed-out sessions', async ({
   request,

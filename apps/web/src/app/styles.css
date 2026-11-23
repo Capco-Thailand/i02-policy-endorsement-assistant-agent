@@ -179,6 +179,34 @@ textarea:focus-visible,
 .policy-list li {
   min-width: 0;
 }
+.evidence-section > p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.evidence-list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.evidence-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  overflow-wrap: anywhere;
+}
+.evidence-card p {
+  margin: 8px 0 0;
+}
+.evidence-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+.evidence-match {
+  font-weight: 650;
+}
 .policy-card {
   display: block;
   height: 100%;
@@ -560,9 +588,48 @@ textarea:focus-visible,
   color: var(--error);
   font-weight: 650;
 }
+.eligibility-result {
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.eligibility-result h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.eligibility-result.eligible {
+  border-left-color: #16624a;
+}
+.eligibility-result.referred {
+  border-left-color: #79510d;
+}
+.eligibility-result.ineligible {
+  border-left-color: var(--error);
+}
+.eligibility-result .eligibility-next-step {
+  margin: 8px 0 16px;
+  font-weight: 600;
+}
+.eligibility-result ul {
+  margin: 0 0 14px;
+  padding-left: 22px;
+}
+.eligibility-citation {
+  color: var(--muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
 @media (max-width: 600px) {
   .request-panel {
     padding: 18px;
+  }
+  .eligibility-result {
+    padding: 16px;
   }
   .beneficiary-row {
     grid-template-columns: 1fr;

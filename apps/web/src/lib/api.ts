@@ -20,6 +20,12 @@ export type RequestResult =
   paths['/api/policies/{policyId}/requests']['post']['responses'][200]['content']['application/json'];
 type PolicyResult =
   paths['/api/policies/{policyId}']['get']['responses'][200]['content']['application/json'];
+export type EvidenceResult =
+  paths['/api/policies/{policyId}/evidence']['get']['responses'][200]['content']['application/json'];
+type RulesQuery =
+  paths['/api/policies/{policyId}/rules']['get']['parameters']['query'];
+export type RulesResult =
+  paths['/api/policies/{policyId}/rules']['get']['responses'][200]['content']['application/json'];
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -60,6 +66,18 @@ export const signOut = () =>
 export const getPolicies = () => request<PoliciesResult>('/api/policies');
 export const getPolicy = (policyId: string) =>
   request<PolicyResult>(`/api/policies/${encodeURIComponent(policyId)}`);
+export const getEvidence = (policyId: string, query: string) =>
+  request<EvidenceResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/evidence?query=${encodeURIComponent(query)}`,
+  );
+export const getRules = (
+  policyId: string,
+  changeType: RulesQuery['changeType'],
+  requestedEffectiveDate: RulesQuery['requestedEffectiveDate'],
+) =>
+  request<RulesResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/rules?changeType=${encodeURIComponent(changeType)}&requestedEffectiveDate=${encodeURIComponent(requestedEffectiveDate)}`,
+  );
 
 export const createRequest = (policyId: string, body: RequestBody) =>
   request<RequestResult>(
@@ -82,3 +100,10 @@ export const uploadDocument = (
     { method: 'POST', body },
   );
 };
+export type EligibilityResult =
+  paths['/api/policies/{policyId}/requests/{requestId}/eligibility']['post']['responses'][200]['content']['application/json'];
+export const checkEligibility = (policyId: string, requestId: string) =>
+  request<EligibilityResult>(
+    `/api/policies/${encodeURIComponent(policyId)}/requests/${encodeURIComponent(requestId)}/eligibility`,
+    { method: 'POST' },
+  );

@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "test": "vitest run",
+    "test": "vitest run --no-file-parallelism",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/migrate.ts",
-    "db:seed": "tsx src/seed.ts"
+    "db:seed": "tsx src/seed.ts",
+    "db:load-corpus": "tsx src/load-corpus.ts",
+    "db:load-rules": "tsx src/load-rules.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
