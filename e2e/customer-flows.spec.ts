@@ -219,7 +219,7 @@ test('FR-08 recorded address request checks eligibility without upload', async (
   ).toBeVisible();
   await expect(page.getByText(/Rule .*version .*section/)).toBeVisible();
   await expect(
-    page.getByText(/Policy wording .*version .*section/),
+    page.getByText(/Policy wording .*version .*section/).first(),
   ).toBeVisible();
 });
 
@@ -253,7 +253,7 @@ test('FR-08 rider check refers without asking for health details', async ({
     page.getByRole('heading', { name: 'Needs review' }),
   ).toBeVisible();
   await expect(
-    page.getByText(/health disclosure may be needed outside this prototype/),
+    page.getByText(/underwriting or health disclosure may be needed later/),
   ).toBeVisible();
 });
 
