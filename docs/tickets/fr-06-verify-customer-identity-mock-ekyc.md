@@ -41,9 +41,9 @@ None.
 - Ticket and UX handoff require review before implementation.
 
 ## UX handoff references
+Historical design contracts are retained for traceability; the retired mock page was deleted.
 - [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-mock-verification/DESIGN.md)
 - [Behavior contract](../../_bmad-output/initiative-customer-authentication/ux-mock-verification/EXPERIENCE.md)
-- [Mock verification page](../../design/page/mock-verification.html)
 
 ## Definition of Done
 - [ ] Acceptance criteria satisfied

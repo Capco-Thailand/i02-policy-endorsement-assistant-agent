@@ -56,7 +56,10 @@ None identified; confirm during refinement.
 
 ## UX handoff references
 
-- Not yet identified; add design documents and browser-viewable mockups if this ticket includes UI.
+- [Visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-09-12/DESIGN.md)
+- [Behavior contract](../../_bmad-output/initiative-customer-authentication/ux-fr-09-12/EXPERIENCE.md)
+- [Proposal review mockup](../../design/page/proposal-review.html)
+- [Change history mockup](../../design/page/change-history.html)
 
 ## Definition of Done
 
