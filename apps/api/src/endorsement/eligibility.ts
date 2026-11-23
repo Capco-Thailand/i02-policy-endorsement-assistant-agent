@@ -1,5 +1,6 @@
 import { Value } from '@sinclair/typebox/value';
 import type { Policy } from '../auth/data.js';
+import type { PolicyCitation, PolicyEvidence } from './policy-evidence.js';
 import {
   RequestRecordSchema,
   validAllocation,
@@ -7,19 +8,24 @@ import {
   type RequestRecord,
 } from './schema.js';
 
-export type EligibilityOutcome = 'ELIGIBLE' | 'INELIGIBLE' | 'REFERRED';
+export type EligibilityOutcome =
+  | 'CAN_PROCEED'
+  | 'CANNOT_PROCEED'
+  | 'NEEDS_REVIEW';
+type RuleCitation = {
+  kind: 'RULE';
+  sourceId: string;
+  ruleId: string;
+  version: number;
+  sectionId: string;
+};
 export type EligibilityResult = {
   outcome: EligibilityOutcome;
   reasonCodes: string[];
   reasons: string[];
   nextStep: string;
   sourceIds: string[];
-  citations: {
-    sourceId: string;
-    ruleId: string;
-    version: number;
-    sectionId: string;
-  }[];
+  citations: (PolicyCitation | RuleCitation)[];
 };
 type Citation = {
   sourceId: string;
@@ -49,7 +55,7 @@ const result = (
   citations,
 });
 const invalid = (code: string, reason: string) =>
-  result('INELIGIBLE', code, reason, 'Correct and record a new request.');
+  result('CANNOT_PROCEED', code, reason, 'Correct and record a new request.');
 const referred = (
   code: string,
   reason: string,
@@ -57,10 +63,10 @@ const referred = (
   citations: EligibilityResult['citations'] = [],
 ) =>
   result(
-    'REFERRED',
+    'NEEDS_REVIEW',
     code,
     reason,
-    'Automatic quote and proposal creation are paused. A person must review this outside the prototype.',
+    'This request cannot proceed automatically while the evidence remains unresolved.',
     sourceIds,
     citations,
   );
@@ -68,11 +74,10 @@ const hasOnly = (value: object, keys: string[]) =>
   Object.keys(value).length === keys.length &&
   keys.every((key) => Object.hasOwn(value, key));
 
-export function decideEligibility(
+export function validateEligibilityRequest(
   policy: Policy,
   rawRequest: unknown,
-  rules: Rules,
-): EligibilityResult {
+): EligibilityResult | undefined {
   if (!Value.Check(RequestRecordSchema, rawRequest))
     return invalid(
       'INVALID_REQUEST',
@@ -115,11 +120,40 @@ export function decideEligibility(
       'INVALID_BENEFICIARIES',
       'Enter named beneficiaries with allocations totaling 100%.',
     );
+  return undefined;
+}
+
+export function decideEligibility(
+  policy: Policy,
+  rawRequest: unknown,
+  rules: Rules,
+  policyEvidence: PolicyEvidence,
+): EligibilityResult {
+  const rejected = validateEligibilityRequest(policy, rawRequest);
+  if (rejected) return rejected;
+  const request = rawRequest as RequestRecord;
+  const ruleCitations: RuleCitation[] = rules.citations
+    .filter((item) => item.role === 'RULE')
+    .map(({ sourceId, ruleId, version, sectionId }) => ({
+      kind: 'RULE',
+      sourceId,
+      ruleId,
+      version,
+      sectionId,
+    }));
+  if (policyEvidence.status !== 'AVAILABLE')
+    return referred(
+      `POLICY_${policyEvidence.status}`,
+      `Policy wording is ${policyEvidence.status.toLowerCase()} or cannot be reconciled with this policy.`,
+      [],
+      [...policyEvidence.citations, ...ruleCitations],
+    );
   if (rules.status !== 'AVAILABLE')
     return referred(
       `RULE_${rules.status}`,
-      'Applicable rules need human review.',
+      `Applicable endorsement rules are ${rules.status.toLowerCase()}.`,
       rules.sourceIds,
+      policyEvidence.citations,
     );
   const selected = rules.citations.filter((item) => item.role === 'RULE');
   const guidance = rules.citations.filter((item) => item.role === 'GUIDANCE');
@@ -130,17 +164,19 @@ export function decideEligibility(
   )
     return referred(
       'INCOMPLETE_RULE',
-      'Applicable rules need human review.',
+      'Applicable rules cannot be resolved automatically.',
       rules.sourceIds,
     );
-  const citations = selected.map(
-    ({ sourceId, ruleId, version, sectionId }) => ({
+  const citations: EligibilityResult['citations'] = [
+    ...policyEvidence.citations,
+    ...selected.map(({ sourceId, ruleId, version, sectionId }) => ({
+      kind: 'RULE' as const,
       sourceId,
       ruleId,
       version,
       sectionId,
-    }),
-  );
+    })),
+  ];
   for (const rule of selected) {
     if (
       !rule.sourceId ||
@@ -154,14 +190,14 @@ export function decideEligibility(
     )
       return referred(
         'INCOMPLETE_RULE',
-        'Applicable rules need human review.',
+        'Applicable rules cannot be resolved automatically.',
         rules.sourceIds,
       );
     const value = rule.value;
     if (!value || typeof value !== 'object' || !('kind' in value))
       return referred(
         'UNKNOWN_RULE',
-        'Applicable rules need human review.',
+        'Applicable rules cannot be resolved automatically.',
         rules.sourceIds,
       );
     if (
@@ -173,14 +209,14 @@ export function decideEligibility(
     )
       return referred(
         'RIDER_UNDERWRITING',
-        'Rider change needs human review. Real underwriting or health disclosure may be needed outside this prototype.',
+        'Real-world underwriting or health disclosure may be needed later for this rider. This prototype does not collect medical evidence.',
         rules.sourceIds,
         citations,
       );
     if (value.kind !== 'CHECK')
       return referred(
         'UNKNOWN_RULE',
-        'Applicable rules need human review.',
+        'Applicable rules cannot be resolved automatically.',
         rules.sourceIds,
       );
     if (
@@ -214,7 +250,7 @@ export function decideEligibility(
     ) {
       if (!value.allowedValues.includes(request.paymentFrequency))
         return result(
-          'INELIGIBLE',
+          'CANNOT_PROCEED',
           'RULE_CHECK_FAILED',
           'Payment frequency is not allowed by the cited rule.',
           'Record a new request with an allowed payment frequency.',
@@ -225,7 +261,7 @@ export function decideEligibility(
     }
     return referred(
       'UNKNOWN_RULE',
-      'Applicable rules need human review.',
+      'Applicable rules cannot be resolved automatically.',
       rules.sourceIds,
     );
   }
@@ -244,7 +280,7 @@ export function decideEligibility(
     )
       return referred(
         'INCOMPLETE_RULE',
-        'Applicable rules need human review.',
+        'Applicable rules cannot be resolved automatically.',
         rules.sourceIds,
       );
     const value = item.value;
@@ -259,20 +295,21 @@ export function decideEligibility(
           'documentType' in value &&
           typeof value.documentType === 'string' &&
           'handling' in value &&
-          value.handling === 'mock receipt only'
+          (value.handling === 'mock receipt only' ||
+            value.handling === 'real-world follow-up only')
         ))
     )
       return referred(
         'UNKNOWN_GUIDANCE',
-        'Document guidance needs human review.',
+        'Document guidance cannot be resolved automatically.',
         rules.sourceIds,
       );
   }
   return result(
-    'ELIGIBLE',
+    'CAN_PROCEED',
     '',
     '',
-    'Review the mock premium impact when that step is available.',
+    'A non-binding proposal can be prepared when that step is available.',
     rules.sourceIds,
     citations,
   );

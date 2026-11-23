@@ -55,7 +55,10 @@ const GuidanceValue = Type.Union([
     {
       kind: Type.Literal('DOCUMENT'),
       documentType: Type.String(),
-      handling: Type.Literal('mock receipt only'),
+      handling: Type.Union([
+        Type.Literal('mock receipt only'),
+        Type.Literal('real-world follow-up only'),
+      ]),
     },
     { additionalProperties: false },
   ),
@@ -90,14 +93,21 @@ const Corpus = Type.Array(
 export async function loadRules(pool: Pool, corpus?: unknown) {
   const input: unknown =
     corpus ??
-    JSON.parse(
-      await readFile(
-        fileURLToPath(
-          new URL('../../ai/corpus/endorsement-rules.json', import.meta.url),
+    (
+      await Promise.all(
+        ['endorsement-rules.json', 'endorsement-rules-v2.json'].map(
+          async (name) =>
+            JSON.parse(
+              await readFile(
+                fileURLToPath(
+                  new URL(`../../ai/corpus/${name}`, import.meta.url),
+                ),
+                'utf8',
+              ),
+            ),
         ),
-        'utf8',
-      ),
-    );
+      )
+    ).flat();
   if (!Value.Check(Corpus, input)) throw new Error('Invalid rules corpus');
   const client = await pool.connect();
   try {

@@ -47,7 +47,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       const body = (await response.json()) as { error?: string };
       throw new Error(body.error ?? 'INVALID_REQUEST');
     }
-    if (response.status === 409) throw new Error('POLICY_EXPIRED');
+    if (response.status === 409) {
+      const body = (await response.json()) as { error?: string };
+      throw new Error(body.error ?? 'POLICY_EXPIRED');
+    }
     throw new Error('API_UNAVAILABLE');
   }
   if (response.status === 204) return undefined as T;

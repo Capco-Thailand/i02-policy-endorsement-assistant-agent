@@ -103,7 +103,7 @@ for (const width of [1280, 375]) {
     await page.getByRole('button', { name: 'Check eligibility' }).click();
     await expect(
       page.getByRole('heading', {
-        name: 'Eligible to continue to a mock quote',
+        name: 'Can proceed to a proposal',
       }),
     ).toBeVisible();
     await compare(

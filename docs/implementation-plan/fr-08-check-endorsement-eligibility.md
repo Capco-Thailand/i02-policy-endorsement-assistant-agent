@@ -124,3 +124,19 @@ The existing recorded-request panel appears immediately after request creation a
 **Follow-up verification (supersedes earlier counts):** A referred result with no citation omitted its safe source ID; `EligibilityCheck.test.tsx` failed, then passed after rendering `sourceIds`. A `401` redirect test and saved-request composition test also passed. The Fastify route test now asserts audited `ruleVersions`. The mocked `503` browser service-failure scenario is added but remains unrun locally. Full web suite: 48/48 passed. Focused web tests: 15/15 passed. Fastify route tests: 4/4 passed. Root typecheck and focused Prettier check passed. Root `npm run format:check` still fails on 74 unrelated baseline files. The styled result panel has a flat border, status-specific left rule, and narrow citation wrapping; browser screenshot comparison remains unrun without the isolated database.
 
 **Isolated CI evidence:** Run 44706022890 on 2026-11-20 Asia/Bangkok passed database migration/seed, API tests (74/74, including FR-08 PostgreSQL integration), web tests (49/49), typecheck, formatting, and production build. Chromium passed 26 functional browser scenarios; its only two failures were the intentionally absent FR-08 visual baselines. Dated HTML report: `test-results/fr-08-check-endorsement-eligibility/report-20261120155427/e2e-20261120155427.html` in the CI artifact. The reviewed baselines above were added afterward; their comparison is the remaining PR check.
+
+## 2026-11-23 requirement reconciliation
+
+The previous frozen plan and evidence above describe the retired upload-dependent contract. The current implementation checks required fields and active status before retrieval, reconciles the selected FR-04 policy document with owned structured facts, retrieves bounded policy passages and FR-05 rules, and returns `CAN_PROCEED`, `CANNOT_PROCEED`, or `NEEDS_REVIEW`. Policy and rule citations are separate typed variants. Audit records both source versions. A receipt has no role.
+
+| Current criterion | Evidence | Local result and gap |
+| --- | --- | --- |
+| Session, ownership, request, active status before retrieval | `apps/api/src/eligibility.test.ts` | Focused API passed; invalid/inactive requests return `409` without retrieval, assessment, or audit; PostgreSQL/browser pending |
+| Both cited sources and structured reconciliation | `apps/api/src/endorsement/policy-evidence.ts`; `eligibility.test.ts` | Positive, missing, stale, conflicting, unavailable fixtures passed; PostgreSQL pending |
+| Three outcomes, reasons, citations | `endorsement/eligibility.test.ts`; `EligibilityCheck.test.tsx` | Domain and UI passed |
+| Fresh server gate, no upload, no policy mutation | Eligibility route and `eligibility.integration.test.ts` | No calculation/proposal routes exist yet; PostgreSQL unchanged-policy check pending |
+| UI states and rider caveat | `EligibilityCheck.test.tsx`; `e2e/customer-flows.spec.ts` | Component passed; browser and revised visual baselines pending |
+| Untrusted source text and audit failure | Domain and route tests | Focused API passed; browser pending |
+| Durable audit with policy/rule versions | `eligibility.test.ts`; `eligibility.integration.test.ts` | Mocked audit assertions passed; PostgreSQL durability pending |
+
+Focused API tests: 22 passed; web suite: 39 passed. API and web typechecks, `npm run format:check`, and the production web build passed. Full API suite cannot pass locally without `DATABASE_URL`; `TEST_DATABASE_URL` is also unset, so PostgreSQL and browser E2E remain unrun for this revision. Previous CI results above do not verify the revised contract.

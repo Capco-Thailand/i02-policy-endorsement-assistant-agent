@@ -2,6 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { buildApp } from './app.js';
 import { database } from './db.js';
 import { RULE_ENCODER_VERSION } from '../../ai/rule-retrieval.js';
+import { ENCODER_VERSION } from '../../ai/retrieval.js';
 
 vi.mock('./db.js', () => {
   const actor = { id: 'CUS', accountId: 'narin', name: 'Narin' };
@@ -33,6 +34,59 @@ vi.mock('./db.js', () => {
       requestedEffectiveDate: '2026-12-01',
       correspondenceAddress: 'New address',
     })),
+    evidenceDocument: vi.fn(async () => ({
+      id: 'POLICY-WORDING',
+      version: 'v1',
+      title: 'Synthetic policy wording',
+      encoder_version: ENCODER_VERSION,
+      facts_snapshot: {
+        status: 'ACTIVE',
+        dates: { effectiveDate: '2020-01-01', expiryDate: '2030-01-01' },
+        payment: 'MONTHLY',
+        beneficiaries: [],
+      },
+      sections: [
+        {
+          sectionId: 'status',
+          concept: 'status',
+          value: 'ACTIVE',
+          excerpt: 'Policy is active.',
+          encoderVersion: ENCODER_VERSION,
+        },
+        {
+          sectionId: 'dates',
+          concept: 'dates',
+          value: { effectiveDate: '2020-01-01', expiryDate: '2030-01-01' },
+          excerpt: 'Effective 2020-01-01 expiry 2030-01-01.',
+          encoderVersion: ENCODER_VERSION,
+        },
+        {
+          sectionId: 'payment',
+          concept: 'payment',
+          value: 'MONTHLY',
+          excerpt: 'Monthly payment.',
+          encoderVersion: ENCODER_VERSION,
+        },
+        {
+          sectionId: 'beneficiaries',
+          concept: 'beneficiaries',
+          value: [],
+          excerpt: 'Beneficiaries: 0',
+          encoderVersion: ENCODER_VERSION,
+        },
+      ],
+    })),
+    rankedEvidence: vi.fn(async () => [
+      {
+        document_id: 'POLICY-WORDING',
+        version: 'v1',
+        title: 'Synthetic policy wording',
+        section_id: 'status',
+        excerpt: 'Policy is active.',
+        concept: 'status',
+        fact_value: 'ACTIVE',
+      },
+    ]),
     audit: vi.fn(),
   };
   return { database: () => db };
@@ -107,8 +161,11 @@ it('FR-08 success: assesses without a receipt, cites rule, and audits', async ()
     });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({
-      outcome: 'ELIGIBLE',
-      citations: [{ sourceId: 'SRC', ruleId: 'RULE-ADDRESS', version: 1 }],
+      outcome: 'CAN_PROCEED',
+      citations: [
+        { kind: 'POLICY', sourceId: 'POLICY-WORDING', version: 'v1' },
+        { kind: 'RULE', sourceId: 'SRC', ruleId: 'RULE-ADDRESS', version: 1 },
+      ],
     });
     expect(database().requestFor).toHaveBeenCalledWith('CUS', 'POL', 'REQ');
     expect(database().audit).toHaveBeenCalledWith(
@@ -116,9 +173,10 @@ it('FR-08 success: assesses without a receipt, cites rule, and audits', async ()
       'eligibility-check',
       expect.any(Number),
       expect.objectContaining({
-        outcome: 'ELIGIBLE',
+        outcome: 'CAN_PROCEED',
         requestId: 'REQ',
         reasonCodes: [],
+        policySources: [{ sourceId: 'POLICY-WORDING', version: 'v1' }],
         ruleVersions: [{ ruleId: 'RULE-ADDRESS', version: 1 }],
       }),
     );
@@ -153,7 +211,7 @@ it('FR-08 referral audit retains selected rule version when guidance is unknown'
     });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({
-      outcome: 'REFERRED',
+      outcome: 'NEEDS_REVIEW',
       citations: [],
     });
     expect(database().audit).toHaveBeenCalledWith(
@@ -181,6 +239,156 @@ it('FR-08 failure: audit storage errors never return eligible', async () => {
       headers: { cookie: 'pea_session=test' },
     });
     expect(response.statusCode).toBe(503);
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-08 unresolved: missing policy wording cannot produce CAN_PROCEED', async () => {
+  vi.mocked(database().evidenceDocument).mockResolvedValueOnce(undefined);
+  const app = await buildApp({ schemaOnly: true, ruleStore });
+  try {
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      headers: { cookie: 'pea_session=test' },
+    });
+    expect(response.json()).toMatchObject({
+      outcome: 'NEEDS_REVIEW',
+      reasonCodes: ['POLICY_MISSING'],
+      citations: [{ kind: 'RULE', sourceId: 'SRC' }],
+    });
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-08 unresolved: rule storage failure retains policy citation', async () => {
+  ruleStore.ruleSources.mockRejectedValueOnce(new Error('rule storage failed'));
+  const app = await buildApp({ schemaOnly: true, ruleStore });
+  try {
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      headers: { cookie: 'pea_session=test' },
+    });
+    expect(response.json()).toMatchObject({
+      outcome: 'NEEDS_REVIEW',
+      reasonCodes: ['RULE_UNAVAILABLE'],
+      citations: [{ kind: 'POLICY', sourceId: 'POLICY-WORDING' }],
+    });
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-08 unresolved: stale policy wording and retrieval failure remain non-positive', async () => {
+  vi.mocked(database().evidenceDocument)
+    .mockResolvedValueOnce({
+      id: 'STALE',
+      version: 'v0',
+      encoder_version: 'stale',
+      sections: [],
+    } as never)
+    .mockRejectedValueOnce(new Error('storage failed'));
+  const app = await buildApp({ schemaOnly: true, ruleStore });
+  try {
+    const request = () =>
+      app.inject({
+        method: 'POST',
+        url,
+        headers: { cookie: 'pea_session=test' },
+      });
+    expect((await request()).json()).toMatchObject({
+      outcome: 'NEEDS_REVIEW',
+      reasonCodes: ['POLICY_STALE'],
+    });
+    expect((await request()).json()).toMatchObject({
+      outcome: 'NEEDS_REVIEW',
+      reasonCodes: ['POLICY_UNAVAILABLE'],
+    });
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-08 unresolved: conflicting policy passage blocks automatic progression', async () => {
+  const baseline = await database().evidenceDocument('POL');
+  if (!baseline) throw new Error('Missing test wording');
+  vi.mocked(database().evidenceDocument).mockResolvedValueOnce({
+    ...baseline,
+    sections: baseline.sections.map((section) =>
+      section.concept === 'payment' ? { ...section, value: 'ANNUAL' } : section,
+    ),
+  });
+  const app = await buildApp({ schemaOnly: true, ruleStore });
+  try {
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      headers: { cookie: 'pea_session=test' },
+    });
+    expect(response.json()).toMatchObject({
+      outcome: 'NEEDS_REVIEW',
+      reasonCodes: ['POLICY_CONFLICTING'],
+    });
+    expect(database().audit).toHaveBeenCalledWith(
+      'CUS',
+      'eligibility-check',
+      expect.any(Number),
+      expect.objectContaining({
+        policySources: [{ sourceId: 'POLICY-WORDING', version: 'v1' }],
+      }),
+    );
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-08 gate: expired policy stops before either evidence store', async () => {
+  vi.mocked(database().policy).mockResolvedValueOnce({
+    id: 'POL',
+    customerId: 'CUS',
+    label: 'Synthetic',
+    status: 'EXPIRED',
+    effectiveDate: '2020-01-01',
+    expiryDate: '2030-01-01',
+    paymentFrequency: 'MONTHLY',
+    beneficiaries: [],
+  });
+  const app = await buildApp({ schemaOnly: true, ruleStore });
+  try {
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      headers: { cookie: 'pea_session=test' },
+    });
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({ error: 'POLICY_EXPIRED' });
+    expect(database().evidenceDocument).not.toHaveBeenCalled();
+    expect(ruleStore.selectedRuleProduct).not.toHaveBeenCalled();
+    expect(database().audit).not.toHaveBeenCalled();
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-08 gate: invalid persisted fields stop before retrieval and audit', async () => {
+  vi.mocked(database().requestFor).mockResolvedValueOnce({
+    changeType: 'ADDRESS',
+  });
+  const app = await buildApp({ schemaOnly: true, ruleStore });
+  try {
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      headers: { cookie: 'pea_session=test' },
+    });
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({ error: 'INVALID_REQUEST' });
+    expect(database().evidenceDocument).not.toHaveBeenCalled();
+    expect(ruleStore.selectedRuleProduct).not.toHaveBeenCalled();
+    expect(database().audit).not.toHaveBeenCalled();
   } finally {
     await app.close();
   }

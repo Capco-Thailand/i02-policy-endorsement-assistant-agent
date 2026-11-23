@@ -183,6 +183,7 @@ export async function retrieveRules(
       requiresHumanReferral: true,
       sourceIds: [],
       citations: [],
+      sourceVersions: [],
     };
   if (product.product_count !== 1)
     return {
@@ -190,12 +191,14 @@ export async function retrieveRules(
       requiresHumanReferral: true,
       sourceIds: [],
       citations: [],
+      sourceVersions: [],
     };
   const candidates = await store.ruleSources(
     product.product_id,
     changeType,
     date,
   );
+  if (candidates.length > 64) throw new Error('Rule source overflow');
   if (
     candidates.some(
       (source) =>
@@ -205,8 +208,17 @@ export async function retrieveRules(
         ),
     )
   )
-    throw new Error('Stale rule encoder');
-  if (candidates.length > 64) throw new Error('Rule source overflow');
+    return {
+      status: 'MISSING' as const,
+      requiresHumanReferral: true,
+      sourceIds: candidates.map((source) => source.sourceId).sort(),
+      citations: [],
+      sourceVersions: candidates.map(({ sourceId, ruleId, version }) => ({
+        sourceId,
+        ruleId,
+        version,
+      })),
+    };
   const selection = selectRules(candidates, date);
   if (selection.status !== 'AVAILABLE')
     return {
@@ -214,6 +226,13 @@ export async function retrieveRules(
       requiresHumanReferral: true,
       sourceIds: selection.sourceIds,
       citations: [],
+      sourceVersions: candidates
+        .filter((source) => selection.sourceIds.includes(source.sourceId))
+        .map(({ sourceId, ruleId, version }) => ({
+          sourceId,
+          ruleId,
+          version,
+        })),
     };
   const sourceIds = selection.sourceIds;
   const ruleVector = encodeRuleSection(changeType, 'RULE');
@@ -255,5 +274,10 @@ export async function retrieveRules(
     requiresHumanReferral: selection.requiresHumanReferral,
     sourceIds,
     citations,
+    sourceVersions: selection.sources.map(({ sourceId, ruleId, version }) => ({
+      sourceId,
+      ruleId,
+      version,
+    })),
   };
 }

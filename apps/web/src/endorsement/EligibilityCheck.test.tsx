@@ -45,9 +45,9 @@ it('FR-08 UI: pending check disables duplicate action', () => {
   ).toBeDisabled();
 });
 it.each([
-  ['ELIGIBLE', 'Eligible to continue to a mock quote'],
-  ['INELIGIBLE', 'Cannot continue yet'],
-  ['REFERRED', 'Needs human review'],
+  ['CAN_PROCEED', 'Can proceed to a proposal'],
+  ['CANNOT_PROCEED', 'Cannot continue yet'],
+  ['NEEDS_REVIEW', 'Needs review'],
 ])(
   'FR-08 UI: %s result shows reason, citation, next step and unchanged coverage',
   (outcome, heading) => {
@@ -59,7 +59,20 @@ it.each([
         nextStep: 'Next step',
         sourceIds: ['SRC'],
         citations: [
-          { sourceId: 'SRC', ruleId: 'RULE', version: 1, sectionId: 'S' },
+          {
+            kind: 'POLICY',
+            sourceId: 'WORDING',
+            version: 'v1',
+            sectionId: 'P',
+            excerpt: 'Policy is active.',
+          },
+          {
+            kind: 'RULE',
+            sourceId: 'SRC',
+            ruleId: 'RULE',
+            version: 1,
+            sectionId: 'S',
+          },
         ],
       },
     });
@@ -68,7 +81,10 @@ it.each([
     expect(screen.getByRole('listitem')).toHaveTextContent('Safe reason');
     expect(screen.getByText('Next step')).toBeInTheDocument();
     expect(
-      screen.getByText(/Source SRC.*rule RULE.*version 1.*section S/),
+      screen.getByText(/Rule SRC.*version 1.*section S.*rule RULE/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Policy wording WORDING.*version v1.*section P/),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/No policy coverage has changed/),
@@ -79,7 +95,7 @@ it('FR-08 UI: service failure hides prior result and leaves retry available', ()
   state({
     isError: true,
     error: new Error('API_UNAVAILABLE'),
-    data: { outcome: 'ELIGIBLE' },
+    data: { outcome: 'CAN_PROCEED' },
   });
   renderCheck();
   expect(screen.getByRole('alert')).toHaveTextContent(
@@ -87,7 +103,7 @@ it('FR-08 UI: service failure hides prior result and leaves retry available', ()
   );
   expect(
     screen.queryByRole('heading', {
-      name: 'Eligible to continue to a mock quote',
+      name: 'Can proceed to a proposal',
     }),
   ).not.toBeInTheDocument();
   expect(
@@ -102,10 +118,19 @@ it('FR-08 UI: unavailable request has one non-disclosing message', () => {
   );
 });
 
+it('FR-08 UI: invalid recorded request shows a distinct non-positive state', () => {
+  state({ isError: true, error: new Error('INVALID_REQUEST') });
+  renderCheck();
+  expect(screen.getByRole('alert')).toHaveTextContent('cannot be checked');
+  expect(
+    screen.queryByText('Can proceed to a proposal'),
+  ).not.toBeInTheDocument();
+});
+
 it('FR-08 UI: referral shows safe source IDs when no citation is available', () => {
   state({
     data: {
-      outcome: 'REFERRED',
+      outcome: 'NEEDS_REVIEW',
       reasonCodes: ['RULE_CONFLICTING'],
       reasons: ['Rules need human review.'],
       nextStep: 'Wait for review.',
@@ -121,17 +146,19 @@ it('FR-08 UI: an expired session redirects to sign-in without showing a result',
   state({
     isError: true,
     error: new Error('UNAUTHORIZED'),
-    data: { outcome: 'ELIGIBLE' },
+    data: { outcome: 'CAN_PROCEED' },
   });
   renderCheck();
   await waitFor(() => expect(replace).toHaveBeenCalledWith('/?ended=1'));
-  expect(screen.queryByText(/Eligible to continue/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/Can proceed to a proposal/),
+  ).not.toBeInTheDocument();
 });
 
 it('FR-08 UI: assessment has no upload guidance or receipt message', () => {
   state({
     data: {
-      outcome: 'ELIGIBLE',
+      outcome: 'CAN_PROCEED',
       reasonCodes: [],
       reasons: [],
       nextStep: 'Continue',

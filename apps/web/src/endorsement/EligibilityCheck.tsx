@@ -25,6 +25,16 @@ export function EligibilityCheck({
   if (check.error?.message === 'UNAUTHORIZED') return null;
   if (check.error?.message === 'NOT_FOUND')
     return <p role="alert">This request is unavailable.</p>;
+  if (
+    check.error?.message === 'POLICY_EXPIRED' ||
+    check.error?.message === 'INVALID_REQUEST'
+  )
+    return (
+      <p role="alert">
+        This request cannot be checked because its policy or recorded details
+        are no longer valid.
+      </p>
+    );
   const decision = check.isError ? undefined : check.data;
   return (
     <section aria-labelledby="eligibility-heading">
@@ -48,10 +58,10 @@ export function EligibilityCheck({
             className={`eligibility-result ${decision.outcome.toLowerCase()}`}
           >
             <h4>
-              {decision.outcome === 'ELIGIBLE'
-                ? 'Eligible to continue to a mock quote'
-                : decision.outcome === 'REFERRED'
-                  ? 'Needs human review'
+              {decision.outcome === 'CAN_PROCEED'
+                ? 'Can proceed to a proposal'
+                : decision.outcome === 'NEEDS_REVIEW'
+                  ? 'Needs review'
                   : 'Cannot continue yet'}
             </h4>
             <p className="eligibility-next-step">{decision.nextStep}</p>
@@ -67,14 +77,18 @@ export function EligibilityCheck({
             {decision.citations.map((item) => (
               <p
                 className="eligibility-citation"
-                key={`${item.sourceId}:${item.sectionId}`}
+                key={`${item.kind}:${item.sourceId}:${item.sectionId}`}
               >
-                Source {item.sourceId} · rule {item.ruleId} · version{' '}
-                {item.version} · section {item.sectionId}
+                {item.kind === 'POLICY' ? 'Policy wording' : 'Rule'}{' '}
+                {item.sourceId} · version {item.version} · section{' '}
+                {item.sectionId}
+                {item.kind === 'POLICY'
+                  ? ` · ${item.excerpt}`
+                  : ` · rule ${item.ruleId}`}
               </p>
             ))}
-            {decision.outcome === 'REFERRED' &&
-              decision.citations.length === 0 &&
+            {decision.outcome === 'NEEDS_REVIEW' &&
+              !decision.citations.some((item) => item.kind === 'RULE') &&
               decision.sourceIds.map((sourceId) => (
                 <p className="eligibility-citation" key={sourceId}>
                   Source {sourceId}

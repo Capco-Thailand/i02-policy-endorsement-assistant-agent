@@ -602,13 +602,13 @@ textarea:focus-visible,
   font-size: 18px;
   font-weight: 700;
 }
-.eligibility-result.eligible {
+.eligibility-result.can_proceed {
   border-left-color: #16624a;
 }
-.eligibility-result.referred {
+.eligibility-result.needs_review {
   border-left-color: #79510d;
 }
-.eligibility-result.ineligible {
+.eligibility-result.cannot_proceed {
   border-left-color: var(--error);
 }
 .eligibility-result .eligibility-next-step {

@@ -21,7 +21,7 @@ describe('FR-08 eligibility client', () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ outcome: 'ELIGIBLE' }),
+      json: async () => ({ outcome: 'CAN_PROCEED' }),
     });
     vi.stubGlobal('fetch', fetchMock);
     await checkEligibility('POL-1', 'REQ-1');
@@ -31,6 +31,19 @@ describe('FR-08 eligibility client', () => {
     );
     expect(init).toMatchObject({ method: 'POST', credentials: 'include' });
     expect(init.body).toBeUndefined();
+  });
+  it('keeps a rejected recorded request distinct from a service failure', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 409,
+        json: async () => ({ error: 'INVALID_REQUEST' }),
+      }),
+    );
+    await expect(checkEligibility('POL-1', 'REQ-1')).rejects.toThrow(
+      'INVALID_REQUEST',
+    );
   });
 });
 
