@@ -13,7 +13,7 @@ review_source: pinned
 lenses_ran: [quick]
 review_loop_iteration: 0
 context:
-  - docs/tickets/fr-07-bypass-document-verification-mock.md
+  - https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/87
   - _bmad-output/initiative-customer-authentication/ux-mock-document-upload/DESIGN.md
   - _bmad-output/initiative-customer-authentication/ux-mock-document-upload/EXPERIENCE.md
   - docs/CODING_STANDARDS.md
