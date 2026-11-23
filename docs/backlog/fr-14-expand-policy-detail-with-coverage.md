@@ -47,13 +47,16 @@ None identified; confirm during refinement.
 ## Accepted decisions and readiness
 - 2026-11-23: Keep all insurer, product, coverage, and exclusion content synthetic. Display coverage and exclusions with versioned source citations; do not infer missing terms.
 - Open question: Define the coverage items and key exclusions to include for each seeded product, including their synthetic insured amounts and currencies.
-- Status: Backlog draft; requirements and fresh UX handoff are not yet ready for implementation or Issue creation.
+- 2026-11-23: UX handoff drafted from current requirements. Illustrative mock terms are not fixture decisions; the open coverage-content question still blocks implementation and Issue creation.
+- Status: Backlog draft; UX handoff exists, but product terms and ticket refinement remain open.
 
 ## UX handoff references
 - [Existing policy detail visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-03/DESIGN.md) — baseline only; extend during refinement.
 - [Existing policy detail experience contract](../../_bmad-output/initiative-customer-authentication/ux-fr-03/EXPERIENCE.md) — baseline only; extend during refinement.
 - [Current policy detail mockup](../../design/page/policy-detail.html) — baseline only; update during UX handoff.
 - [FR-04 evidence mockup](../../design/page/policy-evidence.html) — citation presentation reference.
+- [FR-14 visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-14/DESIGN.md) and [experience contract](../../_bmad-output/initiative-customer-authentication/ux-fr-14/EXPERIENCE.md) — expanded detail handoff.
+- [FR-14 expanded policy detail mockup](../../design/page/policy-detail-coverage.html) — illustrative synthetic values and preview states.
 
 ## Definition of Done
 - [ ] Acceptance criteria satisfied
