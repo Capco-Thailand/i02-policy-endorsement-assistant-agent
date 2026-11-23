@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { RequestBody } from './api';
 import {
-  uploadDocument,
   checkEligibility,
   createRequest,
   getPolicies,
@@ -74,12 +73,6 @@ export const useSignOut = () => useMutation({ mutationFn: signOut });
 export const useCreateRequest = (policyId: string) =>
   useMutation({
     mutationFn: (body: RequestBody) => createRequest(policyId, body),
-  });
-
-export const useDocumentUpload = (policyId: string) =>
-  useMutation({
-    mutationFn: ({ requestId, file }: { requestId: string; file: File }) =>
-      uploadDocument(policyId, requestId, file),
   });
 
 export const useEligibilityCheck = (policyId: string, requestId: string) =>

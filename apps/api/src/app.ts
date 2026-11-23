@@ -11,7 +11,6 @@ import {
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
-import multipart from '@fastify/multipart';
 import { Type, type Static } from '@sinclair/typebox';
 import { database } from './db.js';
 import { ownsPolicy } from './auth/guards.js';
@@ -194,22 +193,6 @@ type Credentials = Static<typeof SignInBody>;
 type Params = Static<typeof PolicyParams>;
 type EvidenceQueryInput = Static<typeof EvidenceQuery>;
 type RulesQueryInput = Static<typeof RulesQuery>;
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
-const MockUploadResult = Type.Object({
-  status: Type.Literal('RECEIVED_MOCK'),
-  explanation: Type.String(),
-});
-const fileKind = (header: Buffer) => {
-  if (header.subarray(0, 5).toString() === '%PDF-') return 'application/pdf';
-  if (
-    header.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-  )
-    return 'image/png';
-  if (header[0] === 255 && header[1] === 216 && header[2] === 255)
-    return 'image/jpeg';
-  return undefined;
-};
-
 export interface AuditRecord {
   actorId: string;
   action: string;
@@ -244,9 +227,6 @@ export async function buildApp(options: AppOptions = {}) {
     await db.close();
   });
   await app.register(cookie);
-  await app.register(multipart, {
-    limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 1, parts: 2 },
-  });
   await app.register(cors, {
     origin: process.env.WEB_ORIGIN ?? 'http://localhost:3001',
     credentials: true,
@@ -254,32 +234,6 @@ export async function buildApp(options: AppOptions = {}) {
   await app.register(swagger, {
     openapi: {
       info: { title: 'Policy Endorsement Assistant API', version: '0.1.0' },
-    },
-    transformObject: (document) => {
-      if ('openapiObject' in document) {
-        const openapi = document.openapiObject;
-        const upload =
-          openapi.paths?.['/api/policies/{policyId}/document-upload']?.post;
-        if (upload) {
-          upload.requestBody = {
-            required: true,
-            content: {
-              'multipart/form-data': {
-                schema: {
-                  type: 'object',
-                  required: ['requestId', 'document'],
-                  properties: {
-                    requestId: { type: 'string', format: 'uuid' },
-                    document: { type: 'string', format: 'binary' },
-                  },
-                },
-              },
-            },
-          };
-        }
-        return openapi;
-      }
-      return document.swaggerObject;
     },
   });
   const unauthorized = { error: 'UNAUTHORIZED' };
@@ -523,99 +477,6 @@ export async function buildApp(options: AppOptions = {}) {
       }
     },
   );
-  app.post<{ Params: Params }>(
-    '/api/policies/:policyId/document-upload',
-    {
-      schema: {
-        params: PolicyParams,
-        consumes: ['multipart/form-data'],
-        response: {
-          200: MockUploadResult,
-          400: ErrorSchema,
-          401: ErrorSchema,
-          404: ErrorSchema,
-          409: ErrorSchema,
-          413: ErrorSchema,
-          415: ErrorSchema,
-        },
-      },
-    },
-    async (request, reply) => {
-      const actor = (await actorFor(request))?.actor;
-      if (!actor) return reply.code(401).send(unauthorized);
-      const policy = await db.policy(actor.id, request.params.policyId);
-      if (!ownsPolicy(actor, policy))
-        return reply.code(404).send({ error: 'NOT_FOUND' });
-      if (policy.status !== 'ACTIVE')
-        return reply.code(409).send({ error: 'POLICY_EXPIRED' });
-      if (!request.isMultipart())
-        return reply.code(415).send({ error: 'MULTIPART_REQUIRED' });
-      let requestId: string | undefined;
-      let mediaType: string | undefined;
-      let byteSize = 0;
-      try {
-        for await (const part of request.parts()) {
-          if (part.type === 'field') {
-            if (
-              part.fieldname !== 'requestId' ||
-              requestId ||
-              typeof part.value !== 'string' ||
-              !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                part.value,
-              )
-            )
-              return reply.code(400).send({ error: 'INVALID_REQUEST_ID' });
-            requestId = part.value;
-            if (!(await db.ownsRequest(actor.id, policy.id, requestId)))
-              return reply.code(404).send({ error: 'NOT_FOUND' });
-          } else {
-            if (!requestId || part.fieldname !== 'document' || mediaType)
-              return reply.code(400).send({ error: 'INVALID_UPLOAD' });
-            let header = Buffer.alloc(0);
-            for await (const chunk of part.file) {
-              byteSize += chunk.length;
-              if (header.length < 8)
-                header = Buffer.concat([
-                  header,
-                  chunk.subarray(0, 8 - header.length),
-                ]);
-            }
-            if (part.file.truncated)
-              return reply.code(413).send({ error: 'FILE_TOO_LARGE' });
-            if (byteSize === 0)
-              return reply.code(400).send({ error: 'INVALID_UPLOAD' });
-            mediaType = fileKind(header);
-            if (!mediaType)
-              return reply.code(415).send({ error: 'UNSUPPORTED_FILE' });
-          }
-        }
-      } catch (error) {
-        if (error instanceof app.multipartErrors.RequestFileTooLargeError)
-          return reply.code(413).send({ error: 'FILE_TOO_LARGE' });
-        if (
-          error instanceof app.multipartErrors.PartsLimitError ||
-          error instanceof app.multipartErrors.FilesLimitError ||
-          error instanceof app.multipartErrors.FieldsLimitError
-        )
-          return reply.code(400).send({ error: 'INVALID_UPLOAD' });
-        throw error;
-      }
-      if (!requestId || !mediaType || byteSize === 0)
-        return reply.code(400).send({ error: 'INVALID_UPLOAD' });
-      await db.audit(actor.id, 'document-upload', now(), {
-        policyId: policy.id,
-        requestId,
-        status: 'RECEIVED_MOCK',
-        mediaType,
-        byteSize: String(byteSize),
-      });
-      return {
-        status: 'RECEIVED_MOCK',
-        explanation:
-          'Synthetic file received for demonstration only. Its contents and suitability were not verified.',
-      };
-    },
-  );
   app.post<{ Params: Params; Body: RequestInput }>(
     '/api/policies/:policyId/requests',
     {
@@ -767,12 +628,7 @@ export async function buildApp(options: AppOptions = {}) {
           }
         } else
           rules = { status: 'MISSING' as const, sourceIds: [], citations: [] };
-        const receipt = await db.hasMockReceipt(
-          actor.id,
-          policy.id,
-          request.params.requestId,
-        );
-        const decision = decideEligibility(policy, saved, rules, receipt);
+        const decision = decideEligibility(policy, saved, rules);
         const ruleVersions: { ruleId: string; version: number }[] = [];
         for (const citation of rules.citations) {
           if (

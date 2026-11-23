@@ -2,7 +2,7 @@
 
 **Title:** [Chore] Remove FR-07 mock upload code and flow dependencies
 **Labels:** `type:chore`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/120
 **Product context:** [PRD](../PRD.md)
 **Risk:** Medium — removing the upload must not weaken request authorization or change assessment behavior.
 **State:** Ready for ticket review

@@ -33,7 +33,6 @@ vi.mock('./db.js', () => {
       requestedEffectiveDate: '2026-12-01',
       correspondenceAddress: 'New address',
     })),
-    hasMockReceipt: vi.fn(async () => true),
     audit: vi.fn(),
   };
   return { database: () => db };
@@ -87,19 +86,18 @@ const ruleStore = {
   ),
 };
 afterEach(() => vi.clearAllMocks());
-it('FR-08 access: rejects absent session before policy, rule, or receipt reads', async () => {
+it('FR-08 access: rejects absent session before policy, rule, reads', async () => {
   const app = await buildApp({ schemaOnly: true });
   try {
     const response = await app.inject({ method: 'POST', url });
     expect(response.statusCode).toBe(401);
     expect(database().policy).not.toHaveBeenCalled();
-    expect(database().hasMockReceipt).not.toHaveBeenCalled();
   } finally {
     await app.close();
   }
 });
 
-it('FR-08 success: reads own receipt, cites rule, and audits before eligible response', async () => {
+it('FR-08 success: assesses without a receipt, cites rule, and audits', async () => {
   const app = await buildApp({ schemaOnly: true, ruleStore });
   try {
     const response = await app.inject({
@@ -113,7 +111,6 @@ it('FR-08 success: reads own receipt, cites rule, and audits before eligible res
       citations: [{ sourceId: 'SRC', ruleId: 'RULE-ADDRESS', version: 1 }],
     });
     expect(database().requestFor).toHaveBeenCalledWith('CUS', 'POL', 'REQ');
-    expect(database().hasMockReceipt).toHaveBeenCalledWith('CUS', 'POL', 'REQ');
     expect(database().audit).toHaveBeenCalledWith(
       'CUS',
       'eligibility-check',
@@ -172,34 +169,24 @@ it('FR-08 referral audit retains selected rule version when guidance is unknown'
   }
 });
 
-it('FR-08 failure: receipt or audit storage errors never return eligible', async () => {
+it('FR-08 failure: audit storage errors never return eligible', async () => {
   const app = await buildApp({ schemaOnly: true, ruleStore });
   try {
-    vi.mocked(database().hasMockReceipt).mockRejectedValueOnce(
-      new Error('receipt unavailable'),
-    );
-    const receipt = await app.inject({
-      method: 'POST',
-      url,
-      headers: { cookie: 'pea_session=test' },
-    });
-    expect(receipt.statusCode).toBe(503);
-    expect(database().audit).not.toHaveBeenCalled();
     vi.mocked(database().audit).mockRejectedValueOnce(
       new Error('audit unavailable'),
     );
-    const audit = await app.inject({
+    const response = await app.inject({
       method: 'POST',
       url,
       headers: { cookie: 'pea_session=test' },
     });
-    expect(audit.statusCode).toBe(503);
+    expect(response.statusCode).toBe(503);
   } finally {
     await app.close();
   }
 });
 
-it('FR-08 access: unowned policy and request have identical 404 without rule or receipt reads', async () => {
+it('FR-08 access: unowned policy and request have identical 404 without rule reads', async () => {
   const app = await buildApp({ schemaOnly: true, ruleStore });
   try {
     const unowned = await app.inject({
@@ -217,7 +204,6 @@ it('FR-08 access: unowned policy and request have identical 404 without rule or 
     expect(missing.statusCode).toBe(404);
     expect(unowned.body).toBe(missing.body);
     expect(ruleStore.selectedRuleProduct).not.toHaveBeenCalled();
-    expect(database().hasMockReceipt).not.toHaveBeenCalled();
     expect(database().audit).not.toHaveBeenCalled();
   } finally {
     await app.close();

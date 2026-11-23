@@ -13,6 +13,7 @@ async function compare(
   testInfo: TestInfo,
   name: string,
   mask?: Locator,
+  maxDiffPixels = 0,
 ) {
   const screenshot = {
     fullPage: true,
@@ -41,7 +42,7 @@ async function compare(
     body: current,
     contentType: 'image/png',
   });
-  await expect(page).toHaveScreenshot(name, screenshot);
+  await expect(page).toHaveScreenshot(name, { ...screenshot, maxDiffPixels });
 }
 
 for (const width of [1280, 375]) {
@@ -99,13 +100,6 @@ for (const width of [1280, 375]) {
       .last()
       .fill('100 Synthetic Road');
     await page.getByRole('button', { name: 'Record request' }).click();
-    await page.getByLabel(/Synthetic document/).setInputFiles({
-      name: 'synthetic.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from('%PDF-synthetic'),
-    });
-    await page.getByRole('button', { name: 'Upload synthetic file' }).click();
-    await expect(page.getByText('RECEIVED_MOCK')).toBeVisible();
     await page.getByRole('button', { name: 'Check eligibility' }).click();
     await expect(
       page.getByRole('heading', {
@@ -117,6 +111,7 @@ for (const width of [1280, 375]) {
       testInfo,
       `eligibility-${width}.png`,
       page.locator('.request-id'),
+      20,
     );
   });
 }

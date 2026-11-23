@@ -29,10 +29,7 @@ export function EligibilityCheck({
   return (
     <section aria-labelledby="eligibility-heading">
       <h3 id="eligibility-heading">Eligibility</h3>
-      <p>
-        Check this recorded request, your policy, cited rules, and this
-        request&apos;s mock receipt.
-      </p>
+      <p>Check this recorded request, your policy, and cited rules.</p>
       <button
         type="button"
         disabled={check.isPending}
@@ -58,9 +55,6 @@ export function EligibilityCheck({
                   : 'Cannot continue yet'}
             </h4>
             <p className="eligibility-next-step">{decision.nextStep}</p>
-            {decision.reasonCodes.includes('MISSING_RECEIPT') && (
-              <a href="#document-upload-heading">Go to mock document upload</a>
-            )}
             {decision.reasons.length > 0 && (
               <ul>
                 {decision.reasons.map((reason, index) => (
@@ -86,10 +80,7 @@ export function EligibilityCheck({
                   Source {sourceId}
                 </p>
               ))}
-            <p>
-              A mock receipt does not verify document suitability. No policy
-              coverage has changed.
-            </p>
+            <p>No policy coverage has changed.</p>
           </div>
         ) : (
           <p>

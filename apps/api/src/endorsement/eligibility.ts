@@ -72,7 +72,6 @@ export function decideEligibility(
   policy: Policy,
   rawRequest: unknown,
   rules: Rules,
-  hasReceipt: boolean,
 ): EligibilityResult {
   if (!Value.Check(RequestRecordSchema, rawRequest))
     return invalid(
@@ -269,15 +268,6 @@ export function decideEligibility(
         rules.sourceIds,
       );
   }
-  if (!hasReceipt)
-    return result(
-      'INELIGIBLE',
-      'MISSING_RECEIPT',
-      'Upload a synthetic file for this request.',
-      'Upload a synthetic file, then check again.',
-      rules.sourceIds,
-      citations,
-    );
   return result(
     'ELIGIBLE',
     '',
