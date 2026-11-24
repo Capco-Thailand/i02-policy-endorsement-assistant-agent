@@ -10,6 +10,8 @@ import {
   getSession,
   signIn,
   signOut,
+  prepareProposal,
+  getProposal,
 } from './api';
 
 export const queryKeys = {
@@ -27,6 +29,12 @@ export const queryKeys = {
     changeType: RequestBody['changeType'],
     requestedEffectiveDate: string,
   ) => ['policies', policyId, 'rules', changeType, requestedEffectiveDate],
+  proposal: (policyId: string, proposalId: string) => [
+    'policies',
+    policyId,
+    'proposals',
+    proposalId,
+  ],
 } as const;
 export const useSession = () =>
   useQuery({ queryKey: queryKeys.session, queryFn: getSession, retry: false });
@@ -77,3 +85,11 @@ export const useCreateRequest = (policyId: string) =>
 
 export const useEligibilityCheck = (policyId: string, requestId: string) =>
   useMutation({ mutationFn: () => checkEligibility(policyId, requestId) });
+export const usePrepareProposal = (policyId: string, requestId: string) =>
+  useMutation({ mutationFn: () => prepareProposal(policyId, requestId) });
+export const useProposal = (policyId: string, proposalId: string) =>
+  useQuery({
+    queryKey: queryKeys.proposal(policyId, proposalId),
+    queryFn: () => getProposal(policyId, proposalId),
+    retry: false,
+  });

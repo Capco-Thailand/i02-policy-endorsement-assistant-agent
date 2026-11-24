@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibilityCheck } from '../lib/queries';
 import { routes } from '../lib/routes';
+import { ProposalPrepare } from './ProposalPrepare';
 
 export function EligibilityCheck({
   policyId,
@@ -95,6 +96,9 @@ export function EligibilityCheck({
                 </p>
               ))}
             <p>No policy coverage has changed.</p>
+            {decision.outcome === 'CAN_PROCEED' && (
+              <ProposalPrepare policyId={policyId} requestId={requestId} />
+            )}
           </div>
         ) : (
           <p>
