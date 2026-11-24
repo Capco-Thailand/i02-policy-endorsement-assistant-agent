@@ -2,7 +2,7 @@
 
 **Title:** [Story] Prepare Proposed Endorsement for Customer Review
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/135
 **Feature ID:** FR-10
 **Product context:** [PRD](../PRD.md)
 **Risk:** Proposed High — a draft with incorrect evidence or status could be mistaken for approved coverage.
