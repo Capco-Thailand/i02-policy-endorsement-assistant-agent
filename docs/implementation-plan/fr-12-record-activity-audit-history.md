@@ -81,6 +81,7 @@ context:
 - Added typed history client, query invalidation after decisions, page navigation, value-bearing change summaries, empty/error states and non-binding notice. Completed policy/request/assessment/quote/proposal audit metadata without recording credentials or request address in audit.
 - Red/green: missing `approvedHistory` method, missing OpenAPI route, missing calculation audit, and missing history component each failed first and passed after implementation. Review patches added 503 for session storage failure, distinct values for same-type approvals, and public-route owner/order checks.
 - Reviewed the desktop and 375px history screenshots against the existing history mockup and UX spines. Windows Chromium baselines live beside `e2e/history.spec.ts`; each visual test attaches the baseline and current image to its report.
+- CI pass 1 exposed a pre-existing FR-11 integration fixture left in the shared database with an intentionally incomplete approved payload. The history API correctly returned `HISTORY_UNAVAILABLE`; the FR-11 test now deletes only the rows and audit events it creates in `afterAll`. Focused FR-11/FR-12 integration tests passed 7/7 after that fix.
 
 ## Plan Change Log
 
@@ -106,6 +107,7 @@ context:
 - API: focused history integration 5/5 passed. Full remote-Neon run passed 113/114; the pre-existing FR-05 80-case evaluation exceeded the local 20-second timeout. Its focused rerun with 180-second timeout passed 2/2 (80/80 applicable cases and 20/20 safety cases). CI PostgreSQL remains the full-suite gate.
 - Web: 14 files, 51/51 passed. Typecheck, format check, and production build passed.
 - Browser: full Chromium run 45 passed, 6 platform-specific visuals skipped. Report: `test-results/fr-12-record-activity-audit-history/report-20261124164429/e2e-20261124164429.html`. FR-12 desktop and 375px visual baselines passed locally on Windows; history scenarios include approved order, distinct changes, foreign history/detail denial, empty state, failure state, and unchanged policy.
+- CI pass 1: tests/typecheck/format/build passed, browser E2E failed because the FR-11 test leaked an invalid approved fixture. Fixture cleanup was added; CI rerun is the final gate.
 
 | Ticket criterion | Evidence | Result |
 |---|---|---|
