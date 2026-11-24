@@ -5,7 +5,7 @@
 **Feature ID:** FR-05
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — an incorrect or missing rule could lead to an invalid eligibility decision.
-**State:** Implementation merged in PR #112; requirements revised for endorsement flow
+**State:** Revised implementation merged in PR #124; CI verification passed
 
 ## Summary and objective
 Provide versioned synthetic endorsement rules for the three seeded products and four supported changes. Retrieve applicable, cited evidence for a product, change type, and requested effective date. Expose missing or conflicting evidence with a reason for FR-08 `NEEDS_REVIEW`.
@@ -45,7 +45,7 @@ None. The corpus, loader, and retrieval API form one reviewable slice.
 
 ## Accepted decisions and readiness
 - 2026-11-23: FR-05 provides cited rule evidence to FR-08; it has no document-guidance handoff to FR-07 in the endorsement MVP. Applicable rules may mention real-world supporting documents, but the flow collects none.
-- Implementation merged in PR #112; reconcile the existing rule retrieval contract with the revised requirement before claiming this flow complete.
+- 2026-11-23: PR #124 reconciled stale evidence handling and added immutable v2 address/rider guidance. CI run 45135833676 passed PostgreSQL tests, 80/80 rule recall, and browser E2E. The detailed coverage record is in the [implementation plan](../implementation-plan/fr-05-retrieve-endorsement-rules-with-rag.md).
 
 ## UX handoff references
 N/A — backend retrieval; FR-08 owns customer-facing assessment.
