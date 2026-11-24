@@ -104,3 +104,17 @@ export const getProposal = (policyId: string, proposalId: string) =>
   request<Proposal>(
     `/api/policies/${encodeURIComponent(policyId)}/proposals/${encodeURIComponent(proposalId)}`,
   );
+export type Decision =
+  paths['/api/policies/{policyId}/proposals/{proposalId}/decision']['post']['requestBody']['content']['application/json']['decision'];
+export const decideProposal = (
+  policyId: string,
+  proposalId: string,
+  decision: Decision,
+) =>
+  request<Proposal>(
+    `/api/policies/${encodeURIComponent(policyId)}/proposals/${encodeURIComponent(proposalId)}/decision`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ decision }),
+    },
+  );

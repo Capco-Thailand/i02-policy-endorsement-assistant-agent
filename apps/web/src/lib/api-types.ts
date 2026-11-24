@@ -1059,7 +1059,8 @@ export interface paths {
               requestId: string;
               requesterId: string;
               policyId: string;
-              status: 'DRAFT' | 'PENDING_APPROVAL';
+              status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+              decidedAt?: string;
               /** @enum {boolean} */
               binding: false;
               createdAt: string;
@@ -1280,7 +1281,8 @@ export interface paths {
               requestId: string;
               requesterId: string;
               policyId: string;
-              status: 'DRAFT' | 'PENDING_APPROVAL';
+              status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+              decidedAt?: string;
               /** @enum {boolean} */
               binding: false;
               createdAt: string;
@@ -1456,6 +1458,236 @@ export interface paths {
     };
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/policies/{policyId}/proposals/{proposalId}/decision': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          policyId: string;
+          proposalId: string;
+        };
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': {
+            decision: 'APPROVED' | 'REJECTED';
+          };
+        };
+      };
+      responses: {
+        /** @description Default Response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: string;
+              requestId: string;
+              requesterId: string;
+              policyId: string;
+              status: 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
+              decidedAt?: string;
+              /** @enum {boolean} */
+              binding: false;
+              createdAt: string;
+              requestedChange:
+                | {
+                    /** @enum {string} */
+                    changeType: 'BENEFICIARY';
+                    requestedEffectiveDate: string;
+                    beneficiaries: {
+                      name: string;
+                      allocationPercent: number;
+                    }[];
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    changeType: 'ADDRESS';
+                    requestedEffectiveDate: string;
+                    correspondenceAddress: string;
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    changeType: 'PAYMENT_FREQUENCY';
+                    requestedEffectiveDate: string;
+                    paymentFrequency:
+                      | 'MONTHLY'
+                      | 'QUARTERLY'
+                      | 'SEMI_ANNUAL'
+                      | 'ANNUAL';
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    changeType: 'ACCIDENTAL_DEATH_RIDER';
+                    requestedEffectiveDate: string;
+                    riderAction: 'ADD' | 'REMOVE';
+                    id: string;
+                    requesterId: string;
+                    policyId: string;
+                    createdAt: string;
+                  };
+              current: {
+                label: string;
+                status: 'ACTIVE' | 'EXPIRED';
+                effectiveDate: string;
+                expiryDate: string;
+                paymentFrequency: 'MONTHLY' | 'ANNUAL';
+                beneficiaries: {
+                  name: string;
+                  allocationPercent: number;
+                }[];
+                coverages: {
+                  id: string;
+                  name: string;
+                  amount: number;
+                  currency: string;
+                }[];
+              };
+              citations: (
+                | {
+                    /** @enum {string} */
+                    kind: 'POLICY';
+                    sourceId: string;
+                    version: string;
+                    sectionId: string;
+                    excerpt: string;
+                  }
+                | {
+                    /** @enum {string} */
+                    kind: 'RULE';
+                    sourceId: string;
+                    ruleId: string;
+                    version: number;
+                    sectionId: string;
+                  }
+              )[];
+              impact:
+                | {
+                    /** @enum {string} */
+                    status: 'UNCHANGED';
+                    /** @enum {string} */
+                    premiumImpact: 'UNCHANGED';
+                    /** @enum {string} */
+                    benefitImpact: 'UNCHANGED';
+                  }
+                | {
+                    /** @enum {string} */
+                    status: 'CALCULATED';
+                    quote: {
+                      /** @enum {string} */
+                      ratingVersion: 'synthetic-rating-v1';
+                      /** @enum {string} */
+                      currency: 'THB';
+                      before: {
+                        premiumPerInstallmentSatang: number;
+                        frequency:
+                          | 'ANNUAL'
+                          | 'SEMI_ANNUAL'
+                          | 'QUARTERLY'
+                          | 'MONTHLY';
+                        installmentsPerYear: number;
+                        annualizedScheduledTotalSatang: number;
+                        lifeBenefitBaht: number;
+                        riderBenefitBaht: number;
+                      };
+                      after: {
+                        premiumPerInstallmentSatang: number;
+                        frequency:
+                          | 'ANNUAL'
+                          | 'SEMI_ANNUAL'
+                          | 'QUARTERLY'
+                          | 'MONTHLY';
+                        installmentsPerYear: number;
+                        annualizedScheduledTotalSatang: number;
+                        lifeBenefitBaht: number;
+                        riderBenefitBaht: number;
+                      };
+                      difference: {
+                        premiumPerInstallmentSatang: number;
+                        annualizedScheduledTotalSatang: number;
+                        lifeBenefitBaht: number;
+                        riderBenefitBaht: number;
+                      };
+                    };
+                  };
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+      };
+    };
     delete?: never;
     options?: never;
     head?: never;

@@ -38,7 +38,11 @@ export default defineConfig({
     {
       command: 'npm run start -w apps/api',
       url: `http://localhost:${apiPort}/openapi.json`,
-      env: { CALCULATOR_URL: `http://127.0.0.1:${calculatorPort}` },
+      env: {
+        API_PORT: String(apiPort),
+        WEB_ORIGIN: `http://localhost:${webPort}`,
+        CALCULATOR_URL: `http://127.0.0.1:${calculatorPort}`,
+      },
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },
