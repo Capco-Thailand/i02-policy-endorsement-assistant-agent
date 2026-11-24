@@ -4,6 +4,7 @@ import {
   checkEligibility,
   createRequest,
   getPolicies,
+  getHistory,
   getPolicy,
   getEvidence,
   getRules,
@@ -18,6 +19,7 @@ import {
 export const queryKeys = {
   session: ['session'],
   policies: ['policies'],
+  history: ['history'],
   policy: (policyId: string) => ['policies', policyId],
   evidence: (policyId: string, query: string) => [
     'policies',
@@ -45,6 +47,8 @@ export const usePolicies = () =>
     queryFn: getPolicies,
     retry: false,
   });
+export const useHistory = () =>
+  useQuery({ queryKey: queryKeys.history, queryFn: getHistory, retry: false });
 export const usePolicy = (policyId: string) =>
   useQuery({
     queryKey: queryKeys.policy(policyId),
@@ -99,10 +103,12 @@ export const useDecideProposal = (policyId: string, proposalId: string) => {
   return useMutation({
     mutationFn: (decision: Decision) =>
       decideProposal(policyId, proposalId, decision),
-    onSuccess: (proposal) =>
+    onSuccess: (proposal) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.history });
       queryClient.setQueryData(
         queryKeys.proposal(policyId, proposalId),
         proposal,
-      ),
+      );
+    },
   });
 };
