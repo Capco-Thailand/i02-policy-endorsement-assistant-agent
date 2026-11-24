@@ -1027,6 +1027,161 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/policies/{policyId}/requests/{requestId}/quote': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          policyId: string;
+          requestId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Default Response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json':
+              | {
+                  /** @enum {string} */
+                  status: 'UNCHANGED';
+                  /** @enum {string} */
+                  premiumImpact: 'UNCHANGED';
+                  /** @enum {string} */
+                  benefitImpact: 'UNCHANGED';
+                }
+              | {
+                  /** @enum {string} */
+                  status: 'CALCULATED';
+                  quote: {
+                    /** @enum {string} */
+                    ratingVersion: 'synthetic-rating-v1';
+                    /** @enum {string} */
+                    currency: 'THB';
+                    before: {
+                      premiumPerInstallmentSatang: number;
+                      frequency:
+                        | 'ANNUAL'
+                        | 'SEMI_ANNUAL'
+                        | 'QUARTERLY'
+                        | 'MONTHLY';
+                      installmentsPerYear: number;
+                      annualizedScheduledTotalSatang: number;
+                      lifeBenefitBaht: number;
+                      riderBenefitBaht: number;
+                    };
+                    after: {
+                      premiumPerInstallmentSatang: number;
+                      frequency:
+                        | 'ANNUAL'
+                        | 'SEMI_ANNUAL'
+                        | 'QUARTERLY'
+                        | 'MONTHLY';
+                      installmentsPerYear: number;
+                      annualizedScheduledTotalSatang: number;
+                      lifeBenefitBaht: number;
+                      riderBenefitBaht: number;
+                    };
+                    difference: {
+                      premiumPerInstallmentSatang: number;
+                      annualizedScheduledTotalSatang: number;
+                      lifeBenefitBaht: number;
+                      riderBenefitBaht: number;
+                    };
+                  };
+                };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+              assessment?: {
+                outcome: 'CAN_PROCEED' | 'CANNOT_PROCEED' | 'NEEDS_REVIEW';
+                reasonCodes: string[];
+                reasons: string[];
+                nextStep: string;
+                sourceIds: string[];
+                citations: (
+                  | {
+                      /** @enum {string} */
+                      kind: 'POLICY';
+                      sourceId: string;
+                      version: string;
+                      sectionId: string;
+                      excerpt: string;
+                    }
+                  | {
+                      /** @enum {string} */
+                      kind: 'RULE';
+                      sourceId: string;
+                      ruleId: string;
+                      version: number;
+                      sectionId: string;
+                    }
+                )[];
+              };
+            };
+          };
+        };
+        /** @description Default Response */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
