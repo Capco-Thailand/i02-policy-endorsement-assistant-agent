@@ -1,8 +1,16 @@
 export const ENCODER_VERSION = 'policy-concepts-v1';
 export const VECTOR_DIMENSIONS = 8;
-export type Concept = 'status' | 'dates' | 'payment' | 'beneficiaries';
+export type Concept =
+  | 'status'
+  | 'dates'
+  | 'payment'
+  | 'beneficiaries'
+  | 'product'
+  | 'coverage'
+  | 'exclusions';
+type QueryConcept = 'status' | 'dates' | 'payment' | 'beneficiaries';
 
-const patterns: Record<Concept, RegExp> = {
+const patterns: Record<QueryConcept, RegExp> = {
   status: /\b(status|active|expired|in force|valid|lapsed)\b/i,
   dates:
     /\b(date\w*|start\w*|begin\w*|began|commenc\w*|effective|expir(?:y|e|es|ing|ation)|end(?:s|ed|ing)?|protection begin|coverage begin)\b/i,
@@ -16,6 +24,9 @@ const vectors: Record<Concept, number[]> = {
   dates: [0, 1, 0, 0, 0.2, 0.2, 0, 0],
   payment: [0, 0, 1, 0, 0.2, 0, 0.2, 0],
   beneficiaries: [0, 0, 0, 1, 0.2, 0, 0, 0.2],
+  product: [0, 0, 0, 0, 0.2, 1, 0, 0],
+  coverage: [0, 0, 0, 0, 0.2, 0, 1, 0],
+  exclusions: [0, 0, 0, 0, 0.2, 0, 0, 1],
 };
 
 function normalize(vector: number[]): number[] {
@@ -27,13 +38,30 @@ export function encodeSection(concept: Concept): number[] {
   return normalize(vectors[concept]);
 }
 
-function conceptsIn(text: string): Concept[] {
-  return (Object.keys(patterns) as Concept[]).filter((concept) =>
+function conceptsIn(text: string): QueryConcept[] {
+  return (Object.keys(patterns) as QueryConcept[]).filter((concept) =>
     patterns[concept].test(text),
   );
 }
 
 export function encodeSource(text: string, concept: Concept): number[] {
+  if (
+    concept === 'product' ||
+    concept === 'coverage' ||
+    concept === 'exclusions'
+  ) {
+    if (
+      !(
+        concept === 'product'
+          ? /\bproduct\b/i
+          : concept === 'coverage'
+            ? /\bbenefit\b/i
+            : /\bdoes not cover\b/i
+      ).test(text)
+    )
+      throw new Error(`Source concept mismatch: expected ${concept}`);
+    return encodeSection(concept);
+  }
   const found = conceptsIn(text);
   if (found.length !== 1 || found[0] !== concept)
     throw new Error(

@@ -13,6 +13,7 @@
     "db:load-rules": "tsx src/load-rules.ts"
   },
   "dependencies": {
+    "@pea/calculator": "*",
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.1.0",
     "@fastify/swagger": "^9.5.2",

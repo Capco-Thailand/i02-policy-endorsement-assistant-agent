@@ -4,11 +4,12 @@
   "workspaces": [
     "apps/ai",
     "apps/api",
+    "apps/calculator",
     "apps/web"
   ],
   "scripts": {
-    "format": "prettier --write package.json apps/ai apps/api/src apps/api/package.json apps/api/tsconfig.json apps/web/src apps/web/package.json apps/web/tsconfig.json apps/web/next.config.ts apps/web/vitest.config.ts apps/web/postcss.config.mjs apps/web/components.json playwright.config.ts e2e scripts/run-e2e.mjs",
-    "format:check": "prettier --check package.json apps/ai apps/api/src apps/api/package.json apps/api/tsconfig.json apps/web/src apps/web/package.json apps/web/tsconfig.json apps/web/next.config.ts apps/web/vitest.config.ts apps/web/postcss.config.mjs apps/web/components.json playwright.config.ts e2e scripts/run-e2e.mjs",
+    "format": "prettier --write package.json apps/ai apps/api/src apps/api/package.json apps/api/tsconfig.json apps/calculator/src apps/calculator/package.json apps/calculator/tsconfig.json apps/calculator/fixtures apps/web/src apps/web/package.json apps/web/tsconfig.json apps/web/next.config.ts apps/web/vitest.config.ts apps/web/postcss.config.mjs apps/web/components.json playwright.config.ts e2e scripts/run-e2e.mjs",
+    "format:check": "prettier --check package.json apps/ai apps/api/src apps/api/package.json apps/api/tsconfig.json apps/calculator/src apps/calculator/package.json apps/calculator/tsconfig.json apps/calculator/fixtures apps/web/src apps/web/package.json apps/web/tsconfig.json apps/web/next.config.ts apps/web/vitest.config.ts apps/web/postcss.config.mjs apps/web/components.json playwright.config.ts e2e scripts/run-e2e.mjs",
     "ticket:create": "node scripts/ticket-workflow.mjs create",
     "ticket:preflight": "node scripts/ticket-workflow.mjs preflight",
     "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue",
@@ -17,6 +18,7 @@
     "test": "node --test scripts/*.test.mjs && npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "dev:api": "npm run dev -w apps/api",
+    "dev:calculator": "npm run dev -w apps/calculator",
     "dev:web": "npm run dev -w apps/web",
     "build": "npm run build -w apps/web",
     "test:e2e": "node scripts/run-e2e.mjs"

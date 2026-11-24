@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const apiPort = Number(process.env.E2E_API_PORT ?? 3000);
 const webPort = Number(process.env.E2E_WEB_PORT ?? 3001);
+const calculatorPort = Number(process.env.E2E_CALCULATOR_PORT ?? 3002);
 
 export default defineConfig({
   testDir: './e2e',
@@ -28,8 +29,20 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
+      command: 'npm run start -w apps/calculator',
+      url: `http://localhost:${calculatorPort}/health`,
+      env: { CALCULATOR_PORT: String(calculatorPort) },
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+    },
+    {
       command: 'npm run start -w apps/api',
       url: `http://localhost:${apiPort}/openapi.json`,
+      env: {
+        API_PORT: String(apiPort),
+        WEB_ORIGIN: `http://localhost:${webPort}`,
+        CALCULATOR_URL: `http://127.0.0.1:${calculatorPort}`,
+      },
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },

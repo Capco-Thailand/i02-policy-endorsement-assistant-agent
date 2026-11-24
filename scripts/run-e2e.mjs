@@ -37,7 +37,7 @@ if (!ticketId) {
 const reportName = `report-${timestamp}`;
 const reportDir = join('test-results', ticketId, reportName);
 await mkdir(reportDir, { recursive: true });
-if (!process.env.CI) {
+if (!process.env.CI && !process.env.E2E_SKIP_BUILD) {
   const build = spawn(
     process.execPath,
     ['node_modules/next/dist/bin/next', 'build', 'apps/web'],

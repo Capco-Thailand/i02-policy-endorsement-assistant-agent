@@ -33,6 +33,9 @@ export function database(url = process.env.DATABASE_URL) {
         '001_initial.sql',
         '002_policy_corpus.sql',
         '003_endorsement_rules.sql',
+        '004_policy_terms.sql',
+        '005_proposals.sql',
+        '006_proposal_decisions.sql',
       ]) {
         const sql = await readFile(
           fileURLToPath(new URL(`../sql/${filename}`, import.meta.url)),
@@ -101,7 +104,7 @@ export function database(url = process.env.DATABASE_URL) {
           beneficiaries,
         ] of fixed) {
           await client.query(
-            'INSERT INTO policies VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (id) DO NOTHING',
+            'INSERT INTO policies(id,customer_id,label,status,effective_date,expiry_date,payment_frequency) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (id) DO NOTHING',
             [id, cid, label, status, start, end, frequency],
           );
           for (const [position, [name, allocation]] of beneficiaries.entries())
@@ -109,6 +112,59 @@ export function database(url = process.env.DATABASE_URL) {
               'INSERT INTO beneficiaries VALUES ($1,$2,$3,$4) ON CONFLICT (policy_id,position) DO NOTHING',
               [id, position, name, allocation],
             );
+          const product = {
+            insurer: 'Example Mutual (Synthetic)',
+            type: 'Life',
+            name: label,
+            version: 'v1',
+          };
+          const amount =
+            id === 'POL-NARIN-001'
+              ? 1000000
+              : id === 'POL-MALI-001'
+                ? 750000
+                : 500000;
+          const coverages = [
+            {
+              id: 'coverage.life',
+              name: 'Life benefit',
+              amount,
+              currency: 'THB',
+            },
+            ...(id === 'POL-NARIN-001'
+              ? [
+                  {
+                    id: 'coverage.accidental-death',
+                    name: 'Accidental death benefit',
+                    amount: 250000,
+                    currency: 'THB',
+                  },
+                ]
+              : []),
+          ];
+          const exclusions = [
+            {
+              id: 'exclusions.life',
+              text: 'The life benefit does not cover death caused by intentional self-injury.',
+            },
+            ...(id === 'POL-NARIN-001'
+              ? [
+                  {
+                    id: 'exclusions.accidental-death',
+                    text: 'The accidental death benefit does not cover death caused solely by illness, without an accident.',
+                  },
+                ]
+              : []),
+          ];
+          await client.query(
+            'UPDATE policies SET product_terms=$2,coverage_terms=$3,exclusion_terms=$4 WHERE id=$1 AND product_terms IS NULL AND coverage_terms IS NULL AND exclusion_terms IS NULL',
+            [
+              id,
+              JSON.stringify(product),
+              JSON.stringify(coverages),
+              JSON.stringify(exclusions),
+            ],
+          );
         }
         await client.query('COMMIT');
       } catch (error) {
@@ -224,7 +280,7 @@ export function database(url = process.env.DATABASE_URL) {
     },
     async evidenceDocument(policyId: string) {
       const result = await pool.query(
-        `SELECT d.id, d.version, d.title, d.encoder_version, d.facts_snapshot,
+        `SELECT d.id, d.product_id, d.version, d.title, d.encoder_version, d.facts_snapshot,
           COALESCE(json_agg(json_build_object('sectionId',s.section_id,'concept',s.concept,'value',s.fact_value,'excerpt',s.excerpt,'encoderVersion',s.encoder_version) ORDER BY s.section_id)
           FILTER (WHERE s.section_id IS NOT NULL),'[]') AS sections
          FROM policy_document_selection x
@@ -236,6 +292,7 @@ export function database(url = process.env.DATABASE_URL) {
       return result.rows[0] as
         | {
             id: string;
+            product_id: string;
             version: string;
             title: string;
             encoder_version: string;
@@ -337,6 +394,218 @@ export function database(url = process.env.DATABASE_URL) {
       );
       return result.rows[0]?.payload;
     },
+    async proposalForRequest(
+      customerId: string,
+      policyId: string,
+      requestId: string,
+    ): Promise<unknown | undefined> {
+      const result = await pool.query(
+        'SELECT payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND request_id=$3',
+        [customerId, policyId, requestId],
+      );
+      return result.rows[0]?.payload;
+    },
+    async proposalFor(
+      customerId: string,
+      policyId: string,
+      proposalId: string,
+    ): Promise<unknown | undefined> {
+      const result = await pool.query(
+        'SELECT payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND id=$3',
+        [customerId, policyId, proposalId],
+      );
+      return result.rows[0]?.payload;
+    },
+    async approvedHistory(customerId: string) {
+      const result = await pool.query(
+        `SELECT p.id AS proposal_id, p.policy_id, p.decided_at, p.payload
+         FROM endorsement_proposals p
+         WHERE p.requester_id=$1 AND p.status='APPROVED'
+         ORDER BY p.decided_at DESC, p.id DESC`,
+        [customerId],
+      );
+      return result.rows.map((row) => ({
+        proposalId: row.proposal_id as string,
+        policyId: row.policy_id as string,
+        decidedAt: new Date(row.decided_at).toISOString(),
+        requestedChange: row.payload.requestedChange as unknown,
+        policyLabel: row.payload.current.label as string,
+        status: 'APPROVED' as const,
+      }));
+    },
+    async saveProposal(
+      proposal: {
+        id: string;
+        requestId: string;
+        requesterId: string;
+        policyId: string;
+        status: string;
+        createdAt: string;
+        [key: string]: unknown;
+      },
+      now: number,
+    ) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const inserted = await client.query(
+          'INSERT INTO endorsement_proposals(id,request_id,requester_id,policy_id,status,payload,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (request_id) DO NOTHING RETURNING payload',
+          [
+            proposal.id,
+            proposal.requestId,
+            proposal.requesterId,
+            proposal.policyId,
+            proposal.status,
+            JSON.stringify(proposal),
+            proposal.createdAt,
+          ],
+        );
+        if (inserted.rowCount)
+          await client.query(
+            'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+            [
+              proposal.requesterId,
+              'proposal-create',
+              new Date(now),
+              JSON.stringify({
+                requestId: proposal.requestId,
+                policyId: proposal.policyId,
+                proposalId: proposal.id,
+                outcome: 'CAN_PROCEED',
+                citations: proposal.citations,
+                calculationStatus: (proposal.impact as { status: string })
+                  .status,
+                ratingVersion: (
+                  proposal.impact as { quote?: { ratingVersion?: string } }
+                ).quote?.ratingVersion,
+                status: proposal.status,
+              }),
+            ],
+          );
+        const result = inserted.rowCount
+          ? inserted
+          : await client.query(
+              'SELECT payload FROM endorsement_proposals WHERE request_id=$1',
+              [proposal.requestId],
+            );
+        await client.query('COMMIT');
+        return result.rows[0].payload as unknown;
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
+    async presentProposal(
+      customerId: string,
+      policyId: string,
+      proposalId: string,
+      now: number,
+    ): Promise<unknown | undefined> {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const result = await client.query(
+          "UPDATE endorsement_proposals SET status='PENDING_APPROVAL', payload=jsonb_set(payload,'{status}','\"PENDING_APPROVAL\"') WHERE requester_id=$1 AND policy_id=$2 AND id=$3 AND status='DRAFT' RETURNING payload",
+          [customerId, policyId, proposalId],
+        );
+        if (result.rowCount)
+          await client.query(
+            'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+            [
+              customerId,
+              'proposal-present',
+              new Date(now),
+              JSON.stringify({
+                requestId: result.rows[0].payload.requestId,
+                policyId,
+                proposalId,
+                status: 'PENDING_APPROVAL',
+                citations: result.rows[0].payload.citations,
+                calculationStatus: result.rows[0].payload.impact.status,
+                ratingVersion:
+                  result.rows[0].payload.impact.quote?.ratingVersion,
+              }),
+            ],
+          );
+        const selected = result.rowCount
+          ? result
+          : await client.query(
+              'SELECT payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND id=$3',
+              [customerId, policyId, proposalId],
+            );
+        await client.query('COMMIT');
+        return selected.rows[0]?.payload;
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
+    async decideProposal(
+      customerId: string,
+      policyId: string,
+      proposalId: string,
+      decision: 'APPROVED' | 'REJECTED',
+      now: number,
+    ) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const selected = await client.query(
+          'SELECT status, payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND id=$3 FOR UPDATE',
+          [customerId, policyId, proposalId],
+        );
+        const row = selected.rows[0];
+        if (!row) {
+          await client.query('COMMIT');
+          return { kind: 'not-found' as const };
+        }
+        if (row.status === 'DRAFT') {
+          await client.query('COMMIT');
+          return { kind: 'not-presented' as const };
+        }
+        if (row.status === 'APPROVED' || row.status === 'REJECTED') {
+          await client.query('COMMIT');
+          return row.status === decision
+            ? { kind: 'decided' as const, proposal: row.payload as unknown }
+            : { kind: 'conflict' as const };
+        }
+        const decidedAt = new Date(now).toISOString();
+        const updated = await client.query(
+          "UPDATE endorsement_proposals SET status=$4, decided_at=$5, payload=jsonb_set(jsonb_set(payload,'{status}',to_jsonb($4::text)),'{decidedAt}',to_jsonb($6::text)) WHERE requester_id=$1 AND policy_id=$2 AND id=$3 AND status='PENDING_APPROVAL' RETURNING payload",
+          [customerId, policyId, proposalId, decision, decidedAt, decidedAt],
+        );
+        if (!updated.rowCount) throw new Error('DECISION_UPDATE_FAILED');
+        await client.query(
+          'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+          [
+            customerId,
+            'proposal-decision',
+            decidedAt,
+            JSON.stringify({
+              proposalId,
+              requestId: row.payload.requestId,
+              policyId,
+              decision,
+              decidedAt,
+            }),
+          ],
+        );
+        await client.query('COMMIT');
+        return {
+          kind: 'decided' as const,
+          proposal: updated.rows[0].payload as unknown,
+        };
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
     async audit(
       actorId: string,
       action: string,
@@ -364,8 +633,17 @@ export function database(url = process.env.DATABASE_URL) {
           ],
         );
         await client.query(
-          'INSERT INTO audit_events(actor_id,action,at) VALUES ($1,$2,$3)',
-          [record.requesterId, 'request-create', new Date(now)],
+          'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+          [
+            record.requesterId,
+            'request-create',
+            new Date(now),
+            JSON.stringify({
+              requestId: record.id,
+              policyId: record.policyId,
+              changeType: record.changeType,
+            }),
+          ],
         );
         await client.query('COMMIT');
       } catch (error) {
@@ -386,6 +664,9 @@ interface PolicyRow {
   expiry_date_text: string;
   payment_frequency: Policy['paymentFrequency'];
   beneficiaries: { name: string; allocationPercent: number | string }[];
+  product_terms: Policy['productTerms'];
+  coverage_terms: Policy['coverageTerms'];
+  exclusion_terms: Policy['exclusionTerms'];
 }
 function toPolicy(row: PolicyRow): Policy {
   return {
@@ -400,5 +681,8 @@ function toPolicy(row: PolicyRow): Policy {
       name: b.name,
       allocationPercent: Number(b.allocationPercent),
     })),
+    productTerms: row.product_terms,
+    coverageTerms: row.coverage_terms,
+    exclusionTerms: row.exclusion_terms,
   };
 }

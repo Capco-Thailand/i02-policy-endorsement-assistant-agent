@@ -12,6 +12,9 @@ const ConceptSchema = Type.Union([
   Type.Literal('dates'),
   Type.Literal('payment'),
   Type.Literal('beneficiaries'),
+  Type.Literal('product'),
+  Type.Literal('coverage'),
+  Type.Literal('exclusions'),
 ]);
 const CorpusSchema = Type.Array(
   Type.Object({
@@ -49,7 +52,12 @@ export async function loadCorpus(pool: Pool, corpus?: Corpus) {
     await client.query('BEGIN');
     for (const document of input) {
       const snapshot = Object.fromEntries(
-        document.sections.map((section) => [section.concept, section.value]),
+        document.sections.map((section) => [
+          section.concept === 'coverage' || section.concept === 'exclusions'
+            ? section.id
+            : section.concept,
+          section.value,
+        ]),
       );
       await client.query(
         `INSERT INTO policy_documents(id,policy_id,product_id,version,title,encoder_version,facts_snapshot)
@@ -70,6 +78,33 @@ export async function loadCorpus(pool: Pool, corpus?: Corpus) {
         [document.documentId],
       );
       const saved = existing.rows[0];
+      const legacySnapshot = Object.fromEntries(
+        Object.entries(snapshot).filter(([concept]) =>
+          ['status', 'dates', 'payment', 'beneficiaries'].includes(concept),
+        ),
+      );
+      if (
+        saved &&
+        equalFact(saved.facts_snapshot, legacySnapshot) &&
+        !equalFact(saved.facts_snapshot, snapshot)
+      ) {
+        const legacySections = await client.query(
+          'SELECT section_id FROM policy_sections WHERE document_id=$1 ORDER BY section_id',
+          [document.documentId],
+        );
+        if (
+          !equalFact(
+            legacySections.rows.map((row) => row.section_id),
+            ['beneficiaries', 'dates', 'payment', 'status'],
+          )
+        )
+          throw new Error('Immutable corpus version differs');
+        await client.query(
+          'UPDATE policy_documents SET facts_snapshot=$2 WHERE id=$1',
+          [document.documentId, JSON.stringify(snapshot)],
+        );
+        saved.facts_snapshot = snapshot;
+      }
       if (
         saved.policy_id !== document.policyId ||
         saved.product_id !== document.productId ||

@@ -1,11 +1,11 @@
 # FR-14 — Expand Policy Detail with Product and Coverage Information
 **Title:** [Story] Show product details and coverage summary on policy detail
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Not filed
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/127
 **Feature ID:** FR-14
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — incomplete or incorrect coverage details could mislead a customer about synthetic policy terms.
-**State:** Backlog draft
+**State:** Ticket/UX handoff in review
 
 ## Summary and objective
 Expand the existing policy detail view with synthetic insurer and product metadata, coverage amounts, and key exclusions, supported by versioned policy wording evidence.
@@ -62,7 +62,7 @@ None identified; confirm during refinement.
 - 2026-11-23: Keep all insurer, product, coverage, and exclusion content synthetic. Display coverage and exclusions with versioned source citations; do not infer missing terms.
 - 2026-11-23: Customer approved the three-product synthetic coverage draft, including amounts, currency, and displayed exclusions. The exact `v1` source sections above are the implementation contract.
 - 2026-11-23: UX handoff updated to the accepted fixture terms; mockup remains a static preview rather than seeded API data.
-- Status: Backlog draft; product terms and UX handoff are defined. Ticket review and the normal PR/Issue flow remain before implementation.
+- Status: Requirements and UX handoff are ready for review. Create the tracking Issue after the ticket/UX PR merges, then run implementation preflight.
 
 ## UX handoff references
 - [Existing policy detail visual contract](../../_bmad-output/initiative-customer-authentication/ux-fr-03/DESIGN.md) — baseline only; extend during refinement.

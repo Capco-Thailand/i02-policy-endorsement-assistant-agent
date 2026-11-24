@@ -14,6 +14,8 @@ type SessionResult =
   paths['/api/auth/session']['get']['responses'][200]['content']['application/json'];
 type PoliciesResult =
   paths['/api/policies']['get']['responses'][200]['content']['application/json'];
+export type HistoryResult =
+  paths['/api/history']['get']['responses'][200]['content']['application/json'];
 export type RequestBody =
   paths['/api/policies/{policyId}/requests']['post']['requestBody']['content']['application/json'];
 export type RequestResult =
@@ -65,6 +67,7 @@ export const getSession = () => request<SessionResult>('/api/auth/session');
 export const signOut = () =>
   request<void>('/api/auth/sign-out', { method: 'POST' });
 export const getPolicies = () => request<PoliciesResult>('/api/policies');
+export const getHistory = () => request<HistoryResult>('/api/history');
 export const getPolicy = (policyId: string) =>
   request<PolicyResult>(`/api/policies/${encodeURIComponent(policyId)}`);
 export const getEvidence = (policyId: string, query: string) =>
@@ -92,4 +95,29 @@ export const checkEligibility = (policyId: string, requestId: string) =>
   request<EligibilityResult>(
     `/api/policies/${encodeURIComponent(policyId)}/requests/${encodeURIComponent(requestId)}/eligibility`,
     { method: 'POST' },
+  );
+export type Proposal =
+  paths['/api/policies/{policyId}/proposals/{proposalId}']['get']['responses'][200]['content']['application/json'];
+export const prepareProposal = (policyId: string, requestId: string) =>
+  request<Proposal>(
+    `/api/policies/${encodeURIComponent(policyId)}/requests/${encodeURIComponent(requestId)}/proposal`,
+    { method: 'POST' },
+  );
+export const getProposal = (policyId: string, proposalId: string) =>
+  request<Proposal>(
+    `/api/policies/${encodeURIComponent(policyId)}/proposals/${encodeURIComponent(proposalId)}`,
+  );
+export type Decision =
+  paths['/api/policies/{policyId}/proposals/{proposalId}/decision']['post']['requestBody']['content']['application/json']['decision'];
+export const decideProposal = (
+  policyId: string,
+  proposalId: string,
+  decision: Decision,
+) =>
+  request<Proposal>(
+    `/api/policies/${encodeURIComponent(policyId)}/proposals/${encodeURIComponent(proposalId)}/decision`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ decision }),
+    },
   );

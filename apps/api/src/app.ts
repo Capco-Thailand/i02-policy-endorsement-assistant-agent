@@ -11,9 +11,9 @@ import {
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
-import { Type, type Static } from '@sinclair/typebox';
+import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { database } from './db.js';
-import { ownsPolicy } from './auth/guards.js';
+import { mayDecideProposal, ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
 import { encodeQuery, ENCODER_VERSION } from '../../ai/retrieval.js';
 import { retrieveRules, type RuleStore } from './rules.js';
@@ -24,11 +24,22 @@ import {
 import { retrievePolicyEvidence } from './endorsement/policy-evidence.js';
 import { Value } from '@sinclair/typebox/value';
 import {
-  equalFact,
-  policyFacts,
+  matchesPolicyFactsSnapshot,
   reconcileEvidence,
   type UnresolvedReason,
 } from './evidence.js';
+import { policyTerms } from './policy-terms.js';
+import type { Policy } from './auth/data.js';
+import {
+  QuoteSchema,
+  type QuoteContract,
+  type QuoteInputContract,
+} from '@pea/calculator/contract';
+import {
+  calculatorClient as defaultCalculatorClient,
+  validQuote,
+  type CalculatorClient,
+} from './endorsement/calculator-client.js';
 
 const ErrorSchema = Type.Object({ error: Type.String() });
 const ActorSchema = Type.Object({
@@ -41,6 +52,49 @@ const PolicySchema = Type.Object({
   label: Type.String(),
   status: Type.Union([Type.Literal('ACTIVE'), Type.Literal('EXPIRED')]),
 });
+const TermCitation = Type.Object({
+  sourceId: Type.String(),
+  title: Type.String(),
+  version: Type.String(),
+  sectionId: Type.String(),
+  excerpt: Type.String(),
+});
+const TermReason = Type.Union([
+  Type.Literal('MISSING_DOCUMENT'),
+  Type.Literal('MISSING_SECTION'),
+  Type.Literal('STALE_DOCUMENT'),
+  Type.Literal('STALE_ENCODER'),
+  Type.Literal('CONFLICTING_EVIDENCE'),
+]);
+const Term = <T extends TSchema>(value: T) =>
+  Type.Union([
+    Type.Object({
+      status: Type.Literal('confirmed'),
+      value,
+      citation: TermCitation,
+    }),
+    Type.Object({
+      status: Type.Literal('unresolved'),
+      reason: TermReason,
+      citation: Type.Optional(TermCitation),
+    }),
+  ]);
+const ProductTerm = Term(
+  Type.Object({
+    insurer: Type.String(),
+    type: Type.String(),
+    name: Type.String(),
+    version: Type.String(),
+  }),
+);
+const CoverageTerm = Term(
+  Type.Object({
+    name: Type.String(),
+    amount: Type.Number(),
+    currency: Type.String(),
+  }),
+);
+const ExclusionTerm = Term(Type.String());
 const PolicyDetailSchema = Type.Object({
   ...PolicySchema.properties,
   effectiveDate: Type.String({ format: 'date' }),
@@ -52,6 +106,15 @@ const PolicyDetailSchema = Type.Object({
   beneficiaries: Type.Array(
     Type.Object({ name: Type.String(), allocationPercent: Type.Number() }),
   ),
+  terms: Type.Object({
+    product: ProductTerm,
+    coverages: Type.Array(
+      Type.Intersect([Type.Object({ id: Type.String() }), CoverageTerm]),
+    ),
+    exclusions: Type.Array(
+      Type.Intersect([Type.Object({ id: Type.String() }), ExclusionTerm]),
+    ),
+  }),
 });
 const SignInBody = Type.Object(
   {
@@ -94,6 +157,71 @@ const EligibilityResultSchema = Type.Object({
     ]),
   ),
 });
+const QuoteResultSchema = Type.Union([
+  Type.Object({
+    status: Type.Literal('UNCHANGED'),
+    premiumImpact: Type.Literal('UNCHANGED'),
+    benefitImpact: Type.Literal('UNCHANGED'),
+  }),
+  Type.Object({ status: Type.Literal('CALCULATED'), quote: QuoteSchema }),
+]);
+const ProposalSchema = Type.Object({
+  id: Type.String(),
+  requestId: Type.String(),
+  requesterId: Type.String(),
+  policyId: Type.String(),
+  status: Type.Union([
+    Type.Literal('DRAFT'),
+    Type.Literal('PENDING_APPROVAL'),
+    Type.Literal('APPROVED'),
+    Type.Literal('REJECTED'),
+  ]),
+  decidedAt: Type.Optional(Type.String()),
+  binding: Type.Literal(false),
+  createdAt: Type.String(),
+  requestedChange: RequestRecordSchema,
+  current: Type.Object({
+    label: Type.String(),
+    status: Type.Union([Type.Literal('ACTIVE'), Type.Literal('EXPIRED')]),
+    effectiveDate: Type.String(),
+    expiryDate: Type.String(),
+    paymentFrequency: Type.Union([
+      Type.Literal('MONTHLY'),
+      Type.Literal('ANNUAL'),
+    ]),
+    beneficiaries: Type.Array(
+      Type.Object({ name: Type.String(), allocationPercent: Type.Number() }),
+    ),
+    coverages: Type.Array(
+      Type.Object({
+        id: Type.String(),
+        name: Type.String(),
+        amount: Type.Number(),
+        currency: Type.String(),
+      }),
+    ),
+  }),
+  citations: EligibilityResultSchema.properties.citations,
+  impact: QuoteResultSchema,
+});
+const ProposalParams = Type.Object({
+  policyId: Type.String(),
+  proposalId: Type.String(),
+});
+const HistoryEntrySchema = Type.Object({
+  proposalId: Type.String(),
+  policyId: Type.String(),
+  policyLabel: Type.String(),
+  requestedChange: RequestRecordSchema,
+  status: Type.Literal('APPROVED'),
+  decidedAt: Type.String(),
+});
+const DecisionBody = Type.Object(
+  {
+    decision: Type.Union([Type.Literal('APPROVED'), Type.Literal('REJECTED')]),
+  },
+  { additionalProperties: false },
+);
 const EvidenceQuery = Type.Object({
   query: Type.String({ minLength: 1, maxLength: 200 }),
 });
@@ -223,6 +351,7 @@ export interface AppOptions {
     'evidenceDocument' | 'rankedEvidence'
   >;
   ruleStore?: RuleStore;
+  calculatorClient?: CalculatorClient;
 }
 export async function buildApp(options: AppOptions = {}) {
   if (!options.schemaOnly && !process.env.DATABASE_URL)
@@ -234,6 +363,7 @@ export async function buildApp(options: AppOptions = {}) {
   );
   const evidenceStore = options.evidenceStore ?? db;
   const ruleStore = options.ruleStore ?? db;
+  const calculateQuote = options.calculatorClient ?? defaultCalculatorClient;
   try {
     if (!options.schemaOnly) await db.ready();
   } catch (error) {
@@ -256,8 +386,99 @@ export async function buildApp(options: AppOptions = {}) {
   const unauthorized = { error: 'UNAUTHORIZED' };
   const actorFor = (request: { cookies: Record<string, string | undefined> }) =>
     db.session(request.cookies[COOKIE_NAME], now());
-  const record = async (actorId: string, action: string) => {
-    await db.audit(actorId, action, now());
+  const record = async (
+    actorId: string,
+    action: string,
+    metadata: Record<string, unknown> = {},
+  ) => {
+    await db.audit(actorId, action, now(), metadata);
+  };
+  const assess = async (policy: Policy, saved: RequestRecord) => {
+    const [policyResult, ruleResult] = await Promise.allSettled([
+      retrievePolicyEvidence(evidenceStore, policy, saved.changeType),
+      retrieveRules(
+        ruleStore,
+        policy.id,
+        saved.changeType,
+        saved.requestedEffectiveDate,
+      ),
+    ]);
+    if (policyResult.status === 'rejected')
+      app.log.error(
+        { err: policyResult.reason },
+        'Policy evidence retrieval failed',
+      );
+    if (ruleResult.status === 'rejected')
+      app.log.error({ err: ruleResult.reason }, 'Rule retrieval failed');
+    const policyEvidence =
+      policyResult.status === 'fulfilled'
+        ? policyResult.value
+        : { status: 'UNAVAILABLE' as const, citations: [] };
+    const rules =
+      ruleResult.status === 'fulfilled'
+        ? ruleResult.value
+        : { status: 'UNAVAILABLE' as const, sourceIds: [], citations: [] };
+    return {
+      decision: decideEligibility(policy, saved, rules, policyEvidence),
+      policyEvidence,
+      sourceVersions: 'sourceVersions' in rules ? rules.sourceVersions : [],
+    };
+  };
+  const calculateImpact = async (
+    policy: Policy,
+    checked: RequestRecord,
+  ): Promise<QuoteContract> => {
+    if (
+      checked.changeType === 'ADDRESS' ||
+      checked.changeType === 'BENEFICIARY'
+    )
+      throw new Error('CALCULATION_NOT_REQUIRED');
+    const document = await evidenceStore.evidenceDocument(policy.id);
+    const terms = policyTerms(policy, document);
+    const life = terms.coverages.find((item) => item.id === 'coverage.life');
+    const rider = terms.coverages.find(
+      (item) => item.id === 'coverage.accidental-death',
+    );
+    if (
+      !document ||
+      terms.product.status !== 'confirmed' ||
+      !terms.coverages.every((item) => item.status === 'confirmed') ||
+      !life ||
+      life.status !== 'confirmed' ||
+      !life.value ||
+      (rider && (rider.status !== 'confirmed' || !rider.value)) ||
+      life.value.currency !== 'THB' ||
+      (rider?.status === 'confirmed' && rider.value?.currency !== 'THB')
+    )
+      throw new Error('POLICY_RATING_MISMATCH');
+    const input: QuoteInputContract = {
+      contractVersion: 'v1',
+      ratingVersion: 'synthetic-rating-v1',
+      requestId: checked.id,
+      policyId: policy.id,
+      productId: document.product_id,
+      requestedEffectiveDate: checked.requestedEffectiveDate,
+      change:
+        checked.changeType === 'PAYMENT_FREQUENCY'
+          ? {
+              type: 'PAYMENT_FREQUENCY',
+              paymentFrequency: checked.paymentFrequency,
+            }
+          : {
+              type: 'ACCIDENTAL_DEATH_RIDER',
+              riderAction: checked.riderAction,
+            },
+      current: {
+        paymentFrequency: policy.paymentFrequency,
+        lifeBenefitBaht: life.value.amount,
+        riderBenefitBaht:
+          rider?.status === 'confirmed' && rider.value ? rider.value.amount : 0,
+      },
+    };
+    const quote = await calculateQuote(input);
+    if (!validQuote(input, quote))
+      throw new Error('INVALID_CALCULATOR_RESPONSE');
+    return quote;
   };
   const cookieOptions = {
     path: '/api',
@@ -354,6 +575,28 @@ export async function buildApp(options: AppOptions = {}) {
       };
     },
   );
+  app.get(
+    '/api/history',
+    {
+      schema: {
+        response: {
+          200: Type.Object({ history: Type.Array(HistoryEntrySchema) }),
+          401: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const actor = (await actorFor(request))?.actor;
+        if (!actor) return reply.code(401).send(unauthorized);
+        return { history: await db.approvedHistory(actor.id) };
+      } catch (error) {
+        app.log.error({ err: error }, 'History storage failed');
+        return reply.code(503).send({ error: 'HISTORY_UNAVAILABLE' });
+      }
+    },
+  );
   app.get<{ Params: Params }>(
     '/api/policies/:policyId',
     {
@@ -373,7 +616,8 @@ export async function buildApp(options: AppOptions = {}) {
       const policy = await db.policy(actor.id, request.params.policyId);
       if (!ownsPolicy(actor, policy))
         return reply.code(404).send({ error: 'NOT_FOUND' });
-      await record(actor.id, 'policy-read');
+      await record(actor.id, 'policy-read', { policyId: policy.id });
+      const document = await evidenceStore.evidenceDocument(policy.id);
       return {
         policy: {
           id: policy.id,
@@ -383,6 +627,7 @@ export async function buildApp(options: AppOptions = {}) {
           expiryDate: policy.expiryDate,
           paymentFrequency: policy.paymentFrequency,
           beneficiaries: policy.beneficiaries,
+          terms: policyTerms(policy, document),
         },
       };
     },
@@ -425,7 +670,7 @@ export async function buildApp(options: AppOptions = {}) {
           )
         )
           return unresolved('STALE_ENCODER');
-        if (!equalFact(document.facts_snapshot, policyFacts(policy)))
+        if (!matchesPolicyFactsSnapshot(policy, document.facts_snapshot))
           return unresolved('STALE_DOCUMENT');
         const reason = reconcileEvidence(policy, document.sections);
         if (reason) return unresolved(reason);
@@ -634,38 +879,10 @@ export async function buildApp(options: AppOptions = {}) {
               ? 'POLICY_EXPIRED'
               : 'INVALID_REQUEST',
           });
-        const [policyResult, ruleResult] = await Promise.allSettled([
-          retrievePolicyEvidence(evidenceStore, policy, checked.changeType),
-          retrieveRules(
-            ruleStore,
-            policy.id,
-            checked.changeType,
-            checked.requestedEffectiveDate,
-          ),
-        ]);
-        if (policyResult?.status === 'rejected')
-          app.log.error(
-            { err: policyResult.reason },
-            'Policy evidence retrieval failed',
-          );
-        if (ruleResult?.status === 'rejected')
-          app.log.error({ err: ruleResult.reason }, 'Rule retrieval failed');
-        const policyEvidence =
-          policyResult?.status === 'fulfilled'
-            ? policyResult.value
-            : { status: 'UNAVAILABLE' as const, citations: [] };
-        const rules =
-          ruleResult?.status === 'fulfilled'
-            ? ruleResult.value
-            : { status: 'UNAVAILABLE' as const, sourceIds: [], citations: [] };
-        const decision = decideEligibility(
+        const { decision, policyEvidence, sourceVersions } = await assess(
           policy,
-          saved,
-          rules,
-          policyEvidence,
+          checked,
         );
-        const sourceVersions =
-          'sourceVersions' in rules ? rules.sourceVersions : [];
         const ruleVersions = sourceVersions.map(({ ruleId, version }) => ({
           ruleId,
           version,
@@ -675,6 +892,7 @@ export async function buildApp(options: AppOptions = {}) {
           requestId: request.params.requestId,
           outcome: decision.outcome,
           reasonCodes: decision.reasonCodes,
+          citations: decision.citations,
           policySources: policyEvidence.source ? [policyEvidence.source] : [],
           ruleSources: sourceVersions,
           ruleVersions,
@@ -683,6 +901,313 @@ export async function buildApp(options: AppOptions = {}) {
       } catch (error) {
         app.log.error({ err: error }, 'Eligibility storage failed');
         return reply.code(503).send({ error: 'ELIGIBILITY_UNAVAILABLE' });
+      }
+    },
+  );
+  app.post<{ Params: Static<typeof EligibilityParams> }>(
+    '/api/policies/:policyId/requests/:requestId/proposal',
+    {
+      schema: {
+        params: EligibilityParams,
+        response: {
+          200: ProposalSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          409: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      try {
+        const policy = await db.policy(actor.id, request.params.policyId);
+        if (!ownsPolicy(actor, policy))
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const saved = await db.requestFor(
+          actor.id,
+          policy.id,
+          request.params.requestId,
+        );
+        if (!saved) return reply.code(404).send({ error: 'NOT_FOUND' });
+        if (!Value.Check(RequestRecordSchema, saved)) {
+          await db.audit(actor.id, 'proposal-blocked', now(), {
+            policyId: policy.id,
+            requestId: request.params.requestId,
+            outcome: 'INVALID_REQUEST',
+          });
+          return reply.code(409).send({ error: 'INVALID_REQUEST' });
+        }
+        const checked = saved as RequestRecord;
+        if (validateEligibilityRequest(policy, checked)) {
+          await db.audit(actor.id, 'proposal-blocked', now(), {
+            policyId: policy.id,
+            requestId: checked.id,
+            outcome: 'INVALID_REQUEST',
+          });
+          return reply.code(409).send({ error: 'INVALID_REQUEST' });
+        }
+        const { decision } = await assess(policy, checked);
+        if (decision.outcome !== 'CAN_PROCEED') {
+          await db.audit(actor.id, 'proposal-blocked', now(), {
+            policyId: policy.id,
+            requestId: checked.id,
+            outcome: decision.outcome,
+            reasonCodes: decision.reasonCodes,
+            citations: decision.citations,
+          });
+          return reply.code(409).send({ error: 'NOT_ELIGIBLE' });
+        }
+        const existing = await db.proposalForRequest(
+          actor.id,
+          policy.id,
+          checked.id,
+        );
+        if (existing) return existing;
+        let impact: Static<typeof QuoteResultSchema>;
+        if (
+          checked.changeType === 'ADDRESS' ||
+          checked.changeType === 'BENEFICIARY'
+        ) {
+          impact = {
+            status: 'UNCHANGED',
+            premiumImpact: 'UNCHANGED',
+            benefitImpact: 'UNCHANGED',
+          };
+        } else {
+          try {
+            impact = {
+              status: 'CALCULATED',
+              quote: await calculateImpact(policy, checked),
+            };
+          } catch (error) {
+            app.log.error({ err: error }, 'Proposal calculation failed');
+            await db.audit(actor.id, 'proposal-calculation-failed', now(), {
+              policyId: policy.id,
+              requestId: checked.id,
+              outcome: decision.outcome,
+              reasonCodes: decision.reasonCodes,
+              citations: decision.citations,
+              calculationStatus: 'FAILED',
+              reason: 'CALCULATION_UNAVAILABLE',
+            });
+            return reply.code(503).send({ error: 'CALCULATION_UNAVAILABLE' });
+          }
+        }
+        if (impact.status === 'CALCULATED')
+          await db.audit(actor.id, 'proposal-calculated', now(), {
+            policyId: policy.id,
+            requestId: checked.id,
+            calculationStatus: 'CALCULATED',
+            ratingVersion: impact.quote.ratingVersion,
+          });
+        const proposal = {
+          id: randomUUID(),
+          requestId: checked.id,
+          requesterId: actor.id,
+          policyId: policy.id,
+          status: 'DRAFT' as const,
+          binding: false as const,
+          createdAt: new Date(now()).toISOString(),
+          requestedChange: checked,
+          current: {
+            label: policy.label,
+            status: policy.status,
+            effectiveDate: policy.effectiveDate,
+            expiryDate: policy.expiryDate,
+            paymentFrequency: policy.paymentFrequency,
+            beneficiaries: policy.beneficiaries,
+            coverages: policy.coverageTerms ?? [],
+          },
+          citations: decision.citations,
+          impact,
+        };
+        return await db.saveProposal(proposal, now());
+      } catch (error) {
+        app.log.error({ err: error }, 'Proposal preparation failed');
+        return reply.code(503).send({ error: 'PROPOSAL_UNAVAILABLE' });
+      }
+    },
+  );
+  app.get<{ Params: Static<typeof ProposalParams> }>(
+    '/api/policies/:policyId/proposals/:proposalId',
+    {
+      schema: {
+        params: ProposalParams,
+        response: {
+          200: ProposalSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      try {
+        const policy = await db.policy(actor.id, request.params.policyId);
+        if (!ownsPolicy(actor, policy))
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const proposal = await db.presentProposal(
+          actor.id,
+          policy.id,
+          request.params.proposalId,
+          now(),
+        );
+        return proposal ?? reply.code(404).send({ error: 'NOT_FOUND' });
+      } catch (error) {
+        app.log.error({ err: error }, 'Proposal presentation failed');
+        return reply.code(503).send({ error: 'PROPOSAL_UNAVAILABLE' });
+      }
+    },
+  );
+  app.post<{
+    Params: Static<typeof ProposalParams>;
+    Body: Static<typeof DecisionBody>;
+  }>(
+    '/api/policies/:policyId/proposals/:proposalId/decision',
+    {
+      schema: {
+        params: ProposalParams,
+        body: DecisionBody,
+        response: {
+          200: ProposalSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          409: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      try {
+        const policy = await db.policy(actor.id, request.params.policyId);
+        if (!ownsPolicy(actor, policy))
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const proposal = await db.proposalFor(
+          actor.id,
+          policy.id,
+          request.params.proposalId,
+        );
+        if (
+          !Value.Check(ProposalSchema, proposal) ||
+          !mayDecideProposal(actor, proposal, policy)
+        )
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const result = await db.decideProposal(
+          actor.id,
+          policy.id,
+          proposal.id,
+          request.body.decision,
+          now(),
+        );
+        if (result.kind === 'not-found')
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        if (result.kind === 'not-presented')
+          return reply.code(409).send({ error: 'PROPOSAL_NOT_PRESENTED' });
+        if (result.kind === 'conflict')
+          return reply.code(409).send({ error: 'DECISION_CONFLICT' });
+        return result.proposal;
+      } catch (error) {
+        app.log.error({ err: error }, 'Proposal decision failed');
+        return reply.code(503).send({ error: 'DECISION_UNAVAILABLE' });
+      }
+    },
+  );
+  app.post<{ Params: Static<typeof EligibilityParams> }>(
+    '/api/policies/:policyId/requests/:requestId/quote',
+    {
+      schema: {
+        params: EligibilityParams,
+        response: {
+          200: QuoteResultSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          409: Type.Object({
+            error: Type.String(),
+            assessment: Type.Optional(EligibilityResultSchema),
+          }),
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      const policy = await db.policy(actor.id, request.params.policyId);
+      if (!ownsPolicy(actor, policy))
+        return reply.code(404).send({ error: 'NOT_FOUND' });
+      const saved = await db.requestFor(
+        actor.id,
+        policy.id,
+        request.params.requestId,
+      );
+      if (!saved) return reply.code(404).send({ error: 'NOT_FOUND' });
+      if (!Value.Check(RequestRecordSchema, saved))
+        return reply.code(409).send({ error: 'INVALID_REQUEST' });
+      const checked = saved as RequestRecord;
+      const rejected = validateEligibilityRequest(policy, checked);
+      if (rejected)
+        return reply
+          .code(409)
+          .send({ error: 'INVALID_REQUEST', assessment: rejected });
+      const { decision, policyEvidence, sourceVersions } = await assess(
+        policy,
+        checked,
+      );
+      if (decision.outcome !== 'CAN_PROCEED') {
+        await db.audit(actor.id, 'quote-blocked', now(), {
+          policyId: policy.id,
+          requestId: checked.id,
+          outcome: decision.outcome,
+          reasonCodes: decision.reasonCodes,
+        });
+        return reply
+          .code(409)
+          .send({ error: 'NOT_ELIGIBLE', assessment: decision });
+      }
+      if (
+        checked.changeType === 'ADDRESS' ||
+        checked.changeType === 'BENEFICIARY'
+      ) {
+        await db.audit(actor.id, 'quote-unchanged', now(), {
+          policyId: policy.id,
+          requestId: checked.id,
+          outcome: decision.outcome,
+          policySources: policyEvidence.source ? [policyEvidence.source] : [],
+          ruleSources: sourceVersions,
+        });
+        return {
+          status: 'UNCHANGED',
+          premiumImpact: 'UNCHANGED',
+          benefitImpact: 'UNCHANGED',
+        };
+      }
+      try {
+        const quote = await calculateImpact(policy, checked);
+        await db.audit(actor.id, 'quote-calculated', now(), {
+          policyId: policy.id,
+          requestId: checked.id,
+          outcome: decision.outcome,
+          ratingVersion: quote.ratingVersion,
+          policySources: policyEvidence.source ? [policyEvidence.source] : [],
+          ruleSources: sourceVersions,
+          quote,
+        });
+        return { status: 'CALCULATED', quote };
+      } catch (error) {
+        app.log.error({ err: error }, 'Calculation failed');
+        await db.audit(actor.id, 'quote-failed', now(), {
+          policyId: policy.id,
+          requestId: checked.id,
+          outcome: decision.outcome,
+          reason: 'CALCULATION_UNAVAILABLE',
+        });
+        return reply.code(503).send({ error: 'CALCULATION_UNAVAILABLE' });
       }
     },
   );

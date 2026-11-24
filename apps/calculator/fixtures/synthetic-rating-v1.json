@@ -1,0 +1,32 @@
+[
+  {
+    "policyId": "POL-NARIN-001",
+    "productId": "FAMILY_PROTECTION",
+    "ratingVersion": "synthetic-rating-v1",
+    "lifeBenefitBaht": 1000000,
+    "currentFrequency": "MONTHLY",
+    "riderBenefitBaht": 250000,
+    "annualLifeRateSatangPerThousand": 1200,
+    "annualRiderRateSatangPerThousand": 600
+  },
+  {
+    "policyId": "POL-MALI-001",
+    "productId": "SECURE_FUTURE",
+    "ratingVersion": "synthetic-rating-v1",
+    "lifeBenefitBaht": 750000,
+    "currentFrequency": "ANNUAL",
+    "riderBenefitBaht": 0,
+    "annualLifeRateSatangPerThousand": 1200,
+    "annualRiderRateSatangPerThousand": 600
+  },
+  {
+    "policyId": "POL-NARIN-002",
+    "productId": "CLASSIC_LIFE",
+    "ratingVersion": "synthetic-rating-v1",
+    "lifeBenefitBaht": 500000,
+    "currentFrequency": "ANNUAL",
+    "riderBenefitBaht": 0,
+    "annualLifeRateSatangPerThousand": 1000,
+    "annualRiderRateSatangPerThousand": 600
+  }
+]

@@ -1,20 +1,25 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { RequestBody } from './api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { Decision, RequestBody } from './api';
 import {
   checkEligibility,
   createRequest,
   getPolicies,
+  getHistory,
   getPolicy,
   getEvidence,
   getRules,
   getSession,
   signIn,
   signOut,
+  prepareProposal,
+  getProposal,
+  decideProposal,
 } from './api';
 
 export const queryKeys = {
   session: ['session'],
   policies: ['policies'],
+  history: ['history'],
   policy: (policyId: string) => ['policies', policyId],
   evidence: (policyId: string, query: string) => [
     'policies',
@@ -27,6 +32,12 @@ export const queryKeys = {
     changeType: RequestBody['changeType'],
     requestedEffectiveDate: string,
   ) => ['policies', policyId, 'rules', changeType, requestedEffectiveDate],
+  proposal: (policyId: string, proposalId: string) => [
+    'policies',
+    policyId,
+    'proposals',
+    proposalId,
+  ],
 } as const;
 export const useSession = () =>
   useQuery({ queryKey: queryKeys.session, queryFn: getSession, retry: false });
@@ -36,6 +47,8 @@ export const usePolicies = () =>
     queryFn: getPolicies,
     retry: false,
   });
+export const useHistory = () =>
+  useQuery({ queryKey: queryKeys.history, queryFn: getHistory, retry: false });
 export const usePolicy = (policyId: string) =>
   useQuery({
     queryKey: queryKeys.policy(policyId),
@@ -77,3 +90,25 @@ export const useCreateRequest = (policyId: string) =>
 
 export const useEligibilityCheck = (policyId: string, requestId: string) =>
   useMutation({ mutationFn: () => checkEligibility(policyId, requestId) });
+export const usePrepareProposal = (policyId: string, requestId: string) =>
+  useMutation({ mutationFn: () => prepareProposal(policyId, requestId) });
+export const useProposal = (policyId: string, proposalId: string) =>
+  useQuery({
+    queryKey: queryKeys.proposal(policyId, proposalId),
+    queryFn: () => getProposal(policyId, proposalId),
+    retry: false,
+  });
+export const useDecideProposal = (policyId: string, proposalId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (decision: Decision) =>
+      decideProposal(policyId, proposalId, decision),
+    onSuccess: (proposal) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.history });
+      queryClient.setQueryData(
+        queryKeys.proposal(policyId, proposalId),
+        proposal,
+      );
+    },
+  });
+};
