@@ -2,7 +2,7 @@
 
 **Title:** [Story] Calculate Premium and Benefit Impact (Mock Quote)
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/131
 **Feature ID:** FR-09
 **Product context:** [PRD](../PRD.md)
 **Risk:** Medium — a wrong estimate could mislead a customer despite being non-binding.
