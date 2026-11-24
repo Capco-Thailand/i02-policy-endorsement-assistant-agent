@@ -84,6 +84,7 @@ API proposal creation and presentation, PostgreSQL migration, generated web type
 - high, patch: An internal quote request repeated assessment and could persist mismatched citations; calculation now uses the same fresh assessment snapshot.
 - high, patch: PostgreSQL migration used text for a UUID request foreign key; it now uses UUID, and migration passed on a disposable database.
 - low, patch: Playwright used an unsupported locator and strict matches for multiple citations; locators were corrected, and both FR-10 scenarios passed.
+- medium, patch: CI FR-08 eligibility screenshots changed because FR-10 adds the proposal action; inspected CI current images and updated the Linux desktop and narrow baselines.
 
 ## Design Notes
 
