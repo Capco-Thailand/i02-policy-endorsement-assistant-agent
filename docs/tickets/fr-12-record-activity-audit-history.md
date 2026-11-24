@@ -2,7 +2,7 @@
 
 **Title:** [Story] Customer Change History and Audit
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/143
 **Feature ID:** FR-12
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a cross-account history leak or incomplete audit would misrepresent a customer's decision.
