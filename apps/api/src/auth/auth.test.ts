@@ -153,7 +153,7 @@ describe('FR-01 customer authentication', () => {
   it('limits proposal decisions to the actor owning the linked policy', () => {
     const proposal = {
       id: 'PROP-001',
-      customerId: 'CUS-001',
+      requesterId: 'CUS-001',
       policyId: 'POL-NARIN-001',
     };
     expect(mayDecideProposal(customers[0], proposal, policies[0])).toBe(true);

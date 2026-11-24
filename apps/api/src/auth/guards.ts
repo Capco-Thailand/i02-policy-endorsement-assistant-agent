@@ -7,7 +7,7 @@ export const ownsPolicy = (
 
 export interface Proposal {
   id: string;
-  customerId: string;
+  requesterId: string;
   policyId: string;
 }
 export const mayDecideProposal = (
@@ -19,6 +19,6 @@ export const mayDecideProposal = (
     proposal &&
       policy &&
       proposal.policyId === policy.id &&
-      proposal.customerId === actor.id &&
+      proposal.requesterId === actor.id &&
       ownsPolicy(actor, policy),
   );

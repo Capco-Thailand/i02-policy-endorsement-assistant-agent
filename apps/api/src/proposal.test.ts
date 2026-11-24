@@ -105,14 +105,147 @@ vi.mock('./db.js', () => {
       state.proposal = proposal;
       return proposal;
     }),
-    presentProposal: vi.fn(async () =>
-      state.proposal
-        ? { ...state.proposal, status: 'PENDING_APPROVAL' }
-        : undefined,
+    presentProposal: vi.fn(async () => {
+      if (state.proposal?.status === 'DRAFT')
+        state.proposal = { ...state.proposal, status: 'PENDING_APPROVAL' };
+      return state.proposal;
+    }),
+    proposalFor: vi.fn(async () => state.proposal),
+    decideProposal: vi.fn(
+      async (
+        _customerId: string,
+        _policyId: string,
+        _proposalId: string,
+        decision: string,
+        now: number,
+      ) => {
+        if (!state.proposal) return { kind: 'not-found' };
+        if (state.proposal.status === 'DRAFT') return { kind: 'not-presented' };
+        if (
+          state.proposal.status === 'APPROVED' ||
+          state.proposal.status === 'REJECTED'
+        )
+          return state.proposal.status === decision
+            ? { kind: 'decided', proposal: state.proposal }
+            : { kind: 'conflict' };
+        state.proposal = {
+          ...state.proposal,
+          status: decision,
+          decidedAt: new Date(now).toISOString(),
+        };
+        return { kind: 'decided', proposal: state.proposal };
+      },
     ),
     audit: vi.fn(),
   };
   return { database: () => db };
+});
+
+it('FR-11 approves a presented owned proposal with server time', async () => {
+  const app = await buildApp({
+    schemaOnly: true,
+    now: () => Date.parse('2026-11-24T00:00:00Z'),
+  });
+  try {
+    const created = await app.inject({
+      method: 'POST',
+      url: path,
+      headers: cookie,
+    });
+    const id = created.json().id;
+    await app.inject({
+      method: 'GET',
+      url: `/api/policies/POL/proposals/${id}`,
+      headers: cookie,
+    });
+    const result = await app.inject({
+      method: 'POST',
+      url: `/api/policies/POL/proposals/${id}/decision`,
+      headers: cookie,
+      payload: { decision: 'APPROVED' },
+    });
+    expect(result.statusCode).toBe(200);
+    expect(result.json()).toMatchObject({
+      status: 'APPROVED',
+      decidedAt: '2026-11-24T00:00:00.000Z',
+    });
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-11 requires presentation and keeps the first decision on retry or conflict', async () => {
+  const app = await buildApp({
+    schemaOnly: true,
+    now: () => Date.parse('2026-11-24T00:00:00Z'),
+  });
+  try {
+    const created = await app.inject({
+      method: 'POST',
+      url: path,
+      headers: cookie,
+    });
+    const url = `/api/policies/POL/proposals/${created.json().id}/decision`;
+    const decide = (decision: string) =>
+      app.inject({
+        method: 'POST',
+        url,
+        headers: cookie,
+        payload: { decision },
+      });
+    expect((await decide('APPROVED')).statusCode).toBe(409);
+    await app.inject({
+      method: 'GET',
+      url: url.replace('/decision', ''),
+      headers: cookie,
+    });
+    const first = await decide('REJECTED');
+    expect(first.statusCode).toBe(200);
+    expect(first.json().status).toBe('REJECTED');
+    expect((await decide('REJECTED')).json()).toEqual(first.json());
+    expect((await decide('APPROVED')).statusCode).toBe(409);
+    expect(database().decideProposal).toHaveBeenCalledTimes(4);
+  } finally {
+    await app.close();
+  }
+});
+
+it('FR-11 hides unauthorized and foreign decisions and rejects extra fields', async () => {
+  const app = await buildApp({ schemaOnly: true });
+  try {
+    const url = '/api/policies/POL/proposals/PROP/decision';
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url,
+          payload: { decision: 'APPROVED' },
+        })
+      ).statusCode,
+    ).toBe(401);
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: url.replace('/POL/', '/FOREIGN/'),
+          headers: cookie,
+          payload: { decision: 'APPROVED' },
+        })
+      ).statusCode,
+    ).toBe(404);
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url,
+          headers: cookie,
+          payload: { decision: 'INVALID' },
+        })
+      ).statusCode,
+    ).toBe(400);
+  } finally {
+    await app.close();
+  }
 });
 
 const path = '/api/policies/POL/requests/REQ/proposal';

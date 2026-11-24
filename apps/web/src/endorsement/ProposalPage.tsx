@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useProposal } from '../lib/queries';
+import { useDecideProposal, useProposal } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { ProposalReview } from './ProposalReview';
+import { ProposalDecision } from './ProposalDecision';
 
 export function ProposalPage({
   policyId,
@@ -13,6 +14,7 @@ export function ProposalPage({
   proposalId: string;
 }) {
   const proposal = useProposal(policyId, proposalId);
+  const decision = useDecideProposal(policyId, proposalId);
   return (
     <>
       <Link className="policy-back" href={routes.policy(policyId)}>
@@ -33,7 +35,16 @@ export function ProposalPage({
           </button>
         </section>
       ) : (
-        <ProposalReview proposal={proposal.data} />
+        <>
+          <ProposalReview proposal={proposal.data} />
+          {proposal.data.status === 'PENDING_APPROVAL' && (
+            <ProposalDecision
+              onDecide={(choice) => decision.mutate(choice)}
+              isPending={decision.isPending}
+              isError={decision.isError}
+            />
+          )}
+        </>
       )}
     </>
   );

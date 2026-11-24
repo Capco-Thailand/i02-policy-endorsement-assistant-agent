@@ -35,6 +35,7 @@ export function database(url = process.env.DATABASE_URL) {
         '003_endorsement_rules.sql',
         '004_policy_terms.sql',
         '005_proposals.sql',
+        '006_proposal_decisions.sql',
       ]) {
         const sql = await readFile(
           fileURLToPath(new URL(`../sql/${filename}`, import.meta.url)),
@@ -514,6 +515,68 @@ export function database(url = process.env.DATABASE_URL) {
             );
         await client.query('COMMIT');
         return selected.rows[0]?.payload;
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
+    async decideProposal(
+      customerId: string,
+      policyId: string,
+      proposalId: string,
+      decision: 'APPROVED' | 'REJECTED',
+      now: number,
+    ) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const selected = await client.query(
+          'SELECT status, payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND id=$3 FOR UPDATE',
+          [customerId, policyId, proposalId],
+        );
+        const row = selected.rows[0];
+        if (!row) {
+          await client.query('COMMIT');
+          return { kind: 'not-found' as const };
+        }
+        if (row.status === 'DRAFT') {
+          await client.query('COMMIT');
+          return { kind: 'not-presented' as const };
+        }
+        if (row.status === 'APPROVED' || row.status === 'REJECTED') {
+          await client.query('COMMIT');
+          return row.status === decision
+            ? { kind: 'decided' as const, proposal: row.payload as unknown }
+            : { kind: 'conflict' as const };
+        }
+        const decidedAt = new Date(now).toISOString();
+        const updated = await client.query(
+          "UPDATE endorsement_proposals SET status=$4, decided_at=$5, payload=jsonb_set(jsonb_set(payload,'{status}',to_jsonb($4::text)),'{decidedAt}',to_jsonb($6::text)) WHERE requester_id=$1 AND policy_id=$2 AND id=$3 AND status='PENDING_APPROVAL' RETURNING payload",
+          [customerId, policyId, proposalId, decision, decidedAt, decidedAt],
+        );
+        if (!updated.rowCount) throw new Error('DECISION_UPDATE_FAILED');
+        await client.query(
+          'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+          [
+            customerId,
+            'proposal-decision',
+            decidedAt,
+            JSON.stringify({
+              proposalId,
+              requestId: row.payload.requestId,
+              policyId,
+              decision,
+              decidedAt,
+            }),
+          ],
+        );
+        await client.query('COMMIT');
+        return {
+          kind: 'decided' as const,
+          proposal: updated.rows[0].payload as unknown,
+        };
       } catch (error) {
         await client.query('ROLLBACK');
         throw error;

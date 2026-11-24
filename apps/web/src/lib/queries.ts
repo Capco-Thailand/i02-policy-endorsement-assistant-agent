@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { RequestBody } from './api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { Decision, RequestBody } from './api';
 import {
   checkEligibility,
   createRequest,
@@ -12,6 +12,7 @@ import {
   signOut,
   prepareProposal,
   getProposal,
+  decideProposal,
 } from './api';
 
 export const queryKeys = {
@@ -93,3 +94,15 @@ export const useProposal = (policyId: string, proposalId: string) =>
     queryFn: () => getProposal(policyId, proposalId),
     retry: false,
   });
+export const useDecideProposal = (policyId: string, proposalId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (decision: Decision) =>
+      decideProposal(policyId, proposalId, decision),
+    onSuccess: (proposal) =>
+      queryClient.setQueryData(
+        queryKeys.proposal(policyId, proposalId),
+        proposal,
+      ),
+  });
+};

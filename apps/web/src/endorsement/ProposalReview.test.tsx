@@ -130,3 +130,57 @@ it('FR-10 unchanged review labels premium, schedule and benefits unchanged', () 
   expect(screen.getByText('Benefits: Unchanged')).toBeInTheDocument();
   expect(screen.getByText('100 Synthetic Road')).toBeInTheDocument();
 });
+
+it('FR-11 recorded review shows the dated decision after the notice', () => {
+  const proposal: Proposal = {
+    id: 'PROP',
+    requestId: 'REQ',
+    requesterId: 'CUS',
+    policyId: 'POL',
+    status: 'APPROVED',
+    decidedAt: '2026-11-24T00:00:00Z',
+    binding: false,
+    createdAt: '2026-11-20T00:00:00Z',
+    requestedChange: {
+      id: 'REQ',
+      requesterId: 'CUS',
+      policyId: 'POL',
+      createdAt: '2026-11-20T00:00:00Z',
+      changeType: 'ADDRESS',
+      requestedEffectiveDate: '2027-01-01',
+      correspondenceAddress: '100 Synthetic Road',
+    },
+    current: {
+      label: 'Synthetic',
+      status: 'ACTIVE',
+      effectiveDate: '2025-01-01',
+      expiryDate: '2035-12-31',
+      paymentFrequency: 'MONTHLY',
+      beneficiaries: [],
+      coverages: [],
+    },
+    citations: [],
+    impact: {
+      status: 'UNCHANGED',
+      premiumImpact: 'UNCHANGED',
+      benefitImpact: 'UNCHANGED',
+    },
+  };
+  const view = render(
+    <ProposalReview
+      proposal={{
+        ...proposal,
+        status: 'PENDING_APPROVAL',
+        decidedAt: undefined,
+      }}
+    />,
+  );
+  view.rerender(<ProposalReview proposal={proposal} />);
+  expect(screen.getByText(/Your decision was recorded/)).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { name: 'Your decision was recorded' }),
+  ).toHaveFocus();
+  expect(
+    screen.queryByRole('button', { name: 'Approve proposal' }),
+  ).not.toBeInTheDocument();
+});

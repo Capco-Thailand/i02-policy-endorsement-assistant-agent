@@ -13,7 +13,7 @@ import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { database } from './db.js';
-import { ownsPolicy } from './auth/guards.js';
+import { mayDecideProposal, ownsPolicy } from './auth/guards.js';
 import { COOKIE_NAME, SESSION_LIFETIME_MS } from './auth/session.js';
 import { encodeQuery, ENCODER_VERSION } from '../../ai/retrieval.js';
 import { retrieveRules, type RuleStore } from './rules.js';
@@ -170,7 +170,13 @@ const ProposalSchema = Type.Object({
   requestId: Type.String(),
   requesterId: Type.String(),
   policyId: Type.String(),
-  status: Type.Union([Type.Literal('DRAFT'), Type.Literal('PENDING_APPROVAL')]),
+  status: Type.Union([
+    Type.Literal('DRAFT'),
+    Type.Literal('PENDING_APPROVAL'),
+    Type.Literal('APPROVED'),
+    Type.Literal('REJECTED'),
+  ]),
+  decidedAt: Type.Optional(Type.String()),
   binding: Type.Literal(false),
   createdAt: Type.String(),
   requestedChange: RequestRecordSchema,
@@ -202,6 +208,12 @@ const ProposalParams = Type.Object({
   policyId: Type.String(),
   proposalId: Type.String(),
 });
+const DecisionBody = Type.Object(
+  {
+    decision: Type.Union([Type.Literal('APPROVED'), Type.Literal('REJECTED')]),
+  },
+  { additionalProperties: false },
+);
 const EvidenceQuery = Type.Object({
   query: Type.String({ minLength: 1, maxLength: 200 }),
 });
@@ -1003,6 +1015,61 @@ export async function buildApp(options: AppOptions = {}) {
       } catch (error) {
         app.log.error({ err: error }, 'Proposal presentation failed');
         return reply.code(503).send({ error: 'PROPOSAL_UNAVAILABLE' });
+      }
+    },
+  );
+  app.post<{
+    Params: Static<typeof ProposalParams>;
+    Body: Static<typeof DecisionBody>;
+  }>(
+    '/api/policies/:policyId/proposals/:proposalId/decision',
+    {
+      schema: {
+        params: ProposalParams,
+        body: DecisionBody,
+        response: {
+          200: ProposalSchema,
+          401: ErrorSchema,
+          404: ErrorSchema,
+          409: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const actor = (await actorFor(request))?.actor;
+      if (!actor) return reply.code(401).send(unauthorized);
+      try {
+        const policy = await db.policy(actor.id, request.params.policyId);
+        if (!ownsPolicy(actor, policy))
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const proposal = await db.proposalFor(
+          actor.id,
+          policy.id,
+          request.params.proposalId,
+        );
+        if (
+          !Value.Check(ProposalSchema, proposal) ||
+          !mayDecideProposal(actor, proposal, policy)
+        )
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        const result = await db.decideProposal(
+          actor.id,
+          policy.id,
+          proposal.id,
+          request.body.decision,
+          now(),
+        );
+        if (result.kind === 'not-found')
+          return reply.code(404).send({ error: 'NOT_FOUND' });
+        if (result.kind === 'not-presented')
+          return reply.code(409).send({ error: 'PROPOSAL_NOT_PRESENTED' });
+        if (result.kind === 'conflict')
+          return reply.code(409).send({ error: 'DECISION_CONFLICT' });
+        return result.proposal;
+      } catch (error) {
+        app.log.error({ err: error }, 'Proposal decision failed');
+        return reply.code(503).send({ error: 'DECISION_UNAVAILABLE' });
       }
     },
   );

@@ -1,4 +1,5 @@
 import type { Proposal } from '../lib/api';
+import { useEffect, useRef } from 'react';
 
 const money = (satang: number) =>
   `THB ${(satang / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -133,6 +134,16 @@ function ProposalEvidence({ citations }: { citations: Proposal['citations'] }) {
 }
 
 export function ProposalReview({ proposal }: { proposal: Proposal }) {
+  const priorStatus = useRef(proposal.status);
+  const recordedHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (
+      priorStatus.current === 'PENDING_APPROVAL' &&
+      (proposal.status === 'APPROVED' || proposal.status === 'REJECTED')
+    )
+      recordedHeading.current?.focus();
+    priorStatus.current = proposal.status;
+  }, [proposal.status]);
   return (
     <div className="proposal-review">
       <div className="policy-heading">
@@ -153,11 +164,26 @@ export function ProposalReview({ proposal }: { proposal: Proposal }) {
       <section className="request-panel" role="note">
         <h2>This is a non-binding proposal.</h2>
         <p>
-          Approval later records your decision in history only. The underlying
-          policy and coverage stay unchanged.
+          Approval records your decision only. The underlying policy and
+          coverage stay unchanged.
         </p>
         <p>Synthetic policy and calculation data for this prototype.</p>
       </section>
+      {(proposal.status === 'APPROVED' || proposal.status === 'REJECTED') && (
+        <section className="request-panel" aria-live="polite">
+          <h2 ref={recordedHeading} tabIndex={-1}>
+            Your decision was recorded
+          </h2>
+          <p>
+            {proposal.status === 'APPROVED' ? 'Approved' : 'Rejected'} on{' '}
+            {proposal.decidedAt
+              ? new Date(proposal.decidedAt).toLocaleString()
+              : 'date unavailable'}
+            .
+          </p>
+          <p>This does not change your policy or coverage.</p>
+        </section>
+      )}
     </div>
   );
 }
