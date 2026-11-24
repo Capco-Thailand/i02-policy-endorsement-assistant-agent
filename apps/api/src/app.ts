@@ -208,6 +208,14 @@ const ProposalParams = Type.Object({
   policyId: Type.String(),
   proposalId: Type.String(),
 });
+const HistoryEntrySchema = Type.Object({
+  proposalId: Type.String(),
+  policyId: Type.String(),
+  policyLabel: Type.String(),
+  requestedChange: RequestRecordSchema,
+  status: Type.Literal('APPROVED'),
+  decidedAt: Type.String(),
+});
 const DecisionBody = Type.Object(
   {
     decision: Type.Union([Type.Literal('APPROVED'), Type.Literal('REJECTED')]),
@@ -378,8 +386,12 @@ export async function buildApp(options: AppOptions = {}) {
   const unauthorized = { error: 'UNAUTHORIZED' };
   const actorFor = (request: { cookies: Record<string, string | undefined> }) =>
     db.session(request.cookies[COOKIE_NAME], now());
-  const record = async (actorId: string, action: string) => {
-    await db.audit(actorId, action, now());
+  const record = async (
+    actorId: string,
+    action: string,
+    metadata: Record<string, unknown> = {},
+  ) => {
+    await db.audit(actorId, action, now(), metadata);
   };
   const assess = async (policy: Policy, saved: RequestRecord) => {
     const [policyResult, ruleResult] = await Promise.allSettled([
@@ -563,6 +575,28 @@ export async function buildApp(options: AppOptions = {}) {
       };
     },
   );
+  app.get(
+    '/api/history',
+    {
+      schema: {
+        response: {
+          200: Type.Object({ history: Type.Array(HistoryEntrySchema) }),
+          401: ErrorSchema,
+          503: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const actor = (await actorFor(request))?.actor;
+        if (!actor) return reply.code(401).send(unauthorized);
+        return { history: await db.approvedHistory(actor.id) };
+      } catch (error) {
+        app.log.error({ err: error }, 'History storage failed');
+        return reply.code(503).send({ error: 'HISTORY_UNAVAILABLE' });
+      }
+    },
+  );
   app.get<{ Params: Params }>(
     '/api/policies/:policyId',
     {
@@ -582,7 +616,7 @@ export async function buildApp(options: AppOptions = {}) {
       const policy = await db.policy(actor.id, request.params.policyId);
       if (!ownsPolicy(actor, policy))
         return reply.code(404).send({ error: 'NOT_FOUND' });
-      await record(actor.id, 'policy-read');
+      await record(actor.id, 'policy-read', { policyId: policy.id });
       const document = await evidenceStore.evidenceDocument(policy.id);
       return {
         policy: {
@@ -858,6 +892,7 @@ export async function buildApp(options: AppOptions = {}) {
           requestId: request.params.requestId,
           outcome: decision.outcome,
           reasonCodes: decision.reasonCodes,
+          citations: decision.citations,
           policySources: policyEvidence.source ? [policyEvidence.source] : [],
           ruleSources: sourceVersions,
           ruleVersions,
@@ -919,6 +954,7 @@ export async function buildApp(options: AppOptions = {}) {
             policyId: policy.id,
             requestId: checked.id,
             outcome: decision.outcome,
+            reasonCodes: decision.reasonCodes,
             citations: decision.citations,
           });
           return reply.code(409).send({ error: 'NOT_ELIGIBLE' });
@@ -951,12 +987,21 @@ export async function buildApp(options: AppOptions = {}) {
               policyId: policy.id,
               requestId: checked.id,
               outcome: decision.outcome,
+              reasonCodes: decision.reasonCodes,
               citations: decision.citations,
               calculationStatus: 'FAILED',
+              reason: 'CALCULATION_UNAVAILABLE',
             });
             return reply.code(503).send({ error: 'CALCULATION_UNAVAILABLE' });
           }
         }
+        if (impact.status === 'CALCULATED')
+          await db.audit(actor.id, 'proposal-calculated', now(), {
+            policyId: policy.id,
+            requestId: checked.id,
+            calculationStatus: 'CALCULATED',
+            ratingVersion: impact.quote.ratingVersion,
+          });
         const proposal = {
           id: randomUUID(),
           requestId: checked.id,

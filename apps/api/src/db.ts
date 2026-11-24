@@ -416,6 +416,23 @@ export function database(url = process.env.DATABASE_URL) {
       );
       return result.rows[0]?.payload;
     },
+    async approvedHistory(customerId: string) {
+      const result = await pool.query(
+        `SELECT p.id AS proposal_id, p.policy_id, p.decided_at, p.payload
+         FROM endorsement_proposals p
+         WHERE p.requester_id=$1 AND p.status='APPROVED'
+         ORDER BY p.decided_at DESC, p.id DESC`,
+        [customerId],
+      );
+      return result.rows.map((row) => ({
+        proposalId: row.proposal_id as string,
+        policyId: row.policy_id as string,
+        decidedAt: new Date(row.decided_at).toISOString(),
+        requestedChange: row.payload.requestedChange as unknown,
+        policyLabel: row.payload.current.label as string,
+        status: 'APPROVED' as const,
+      }));
+    },
     async saveProposal(
       proposal: {
         id: string;
@@ -458,6 +475,9 @@ export function database(url = process.env.DATABASE_URL) {
                 citations: proposal.citations,
                 calculationStatus: (proposal.impact as { status: string })
                   .status,
+                ratingVersion: (
+                  proposal.impact as { quote?: { ratingVersion?: string } }
+                ).quote?.ratingVersion,
                 status: proposal.status,
               }),
             ],
@@ -504,6 +524,8 @@ export function database(url = process.env.DATABASE_URL) {
                 status: 'PENDING_APPROVAL',
                 citations: result.rows[0].payload.citations,
                 calculationStatus: result.rows[0].payload.impact.status,
+                ratingVersion:
+                  result.rows[0].payload.impact.quote?.ratingVersion,
               }),
             ],
           );
@@ -611,8 +633,17 @@ export function database(url = process.env.DATABASE_URL) {
           ],
         );
         await client.query(
-          'INSERT INTO audit_events(actor_id,action,at) VALUES ($1,$2,$3)',
-          [record.requesterId, 'request-create', new Date(now)],
+          'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+          [
+            record.requesterId,
+            'request-create',
+            new Date(now),
+            JSON.stringify({
+              requestId: record.id,
+              policyId: record.policyId,
+              changeType: record.changeType,
+            }),
+          ],
         );
         await client.query('COMMIT');
       } catch (error) {

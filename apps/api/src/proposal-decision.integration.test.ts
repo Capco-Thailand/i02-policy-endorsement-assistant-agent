@@ -9,11 +9,25 @@ integration('FR-11 PostgreSQL decision transaction', () => {
   const db = database(url ?? 'postgresql://localhost/unused');
   const policyId = 'POL-NARIN-001';
   const customerId = 'CUS-001';
+  const requestIds: string[] = [];
+  const proposalIds: string[] = [];
   beforeAll(async () => {
     await db.migrate();
     await db.seed();
   });
   afterAll(async () => {
+    await db.pool.query(
+      "DELETE FROM audit_events WHERE action='proposal-decision' AND metadata->>'proposalId'=ANY($1::text[])",
+      [proposalIds],
+    );
+    await db.pool.query(
+      'DELETE FROM endorsement_proposals WHERE id=ANY($1::text[])',
+      [proposalIds],
+    );
+    await db.pool.query(
+      'DELETE FROM endorsement_requests WHERE id=ANY($1::uuid[])',
+      [requestIds],
+    );
     await db.close();
   });
 
@@ -39,6 +53,7 @@ integration('FR-11 PostgreSQL decision transaction', () => {
         JSON.stringify({ id: requestId }),
       ],
     );
+    requestIds.push(requestId);
     await db.pool.query(
       'INSERT INTO endorsement_proposals(id,request_id,requester_id,policy_id,status,payload,created_at) VALUES ($1,$2,$3,$4,$5,$6,now())',
       [
@@ -50,6 +65,7 @@ integration('FR-11 PostgreSQL decision transaction', () => {
         JSON.stringify(payload),
       ],
     );
+    proposalIds.push(proposalId);
     return { requestId, proposalId };
   }
 

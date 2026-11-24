@@ -213,6 +213,120 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/history': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Default Response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              history: {
+                proposalId: string;
+                policyId: string;
+                policyLabel: string;
+                requestedChange:
+                  | {
+                      /** @enum {string} */
+                      changeType: 'BENEFICIARY';
+                      requestedEffectiveDate: string;
+                      beneficiaries: {
+                        name: string;
+                        allocationPercent: number;
+                      }[];
+                      id: string;
+                      requesterId: string;
+                      policyId: string;
+                      createdAt: string;
+                    }
+                  | {
+                      /** @enum {string} */
+                      changeType: 'ADDRESS';
+                      requestedEffectiveDate: string;
+                      correspondenceAddress: string;
+                      id: string;
+                      requesterId: string;
+                      policyId: string;
+                      createdAt: string;
+                    }
+                  | {
+                      /** @enum {string} */
+                      changeType: 'PAYMENT_FREQUENCY';
+                      requestedEffectiveDate: string;
+                      paymentFrequency:
+                        | 'MONTHLY'
+                        | 'QUARTERLY'
+                        | 'SEMI_ANNUAL'
+                        | 'ANNUAL';
+                      id: string;
+                      requesterId: string;
+                      policyId: string;
+                      createdAt: string;
+                    }
+                  | {
+                      /** @enum {string} */
+                      changeType: 'ACCIDENTAL_DEATH_RIDER';
+                      requestedEffectiveDate: string;
+                      riderAction: 'ADD' | 'REMOVE';
+                      id: string;
+                      requesterId: string;
+                      policyId: string;
+                      createdAt: string;
+                    };
+                /** @enum {string} */
+                status: 'APPROVED';
+                decidedAt: string;
+              }[];
+            };
+          };
+        };
+        /** @description Default Response */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+        /** @description Default Response */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              error: string;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/policies/{policyId}': {
     parameters: {
       query?: never;

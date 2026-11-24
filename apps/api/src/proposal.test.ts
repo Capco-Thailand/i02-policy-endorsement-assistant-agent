@@ -436,6 +436,17 @@ it('FR-10 calculated preparation uses one assessment and stores its citations wi
       ],
       impact: { status: 'CALCULATED', quote },
     });
+    expect(database().audit).toHaveBeenCalledWith(
+      'CUS',
+      'proposal-calculated',
+      expect.any(Number),
+      expect.objectContaining({
+        policyId: 'POL',
+        requestId: 'REQ',
+        ratingVersion: 'synthetic-rating-v1',
+        calculationStatus: 'CALCULATED',
+      }),
+    );
   } finally {
     await app.close();
   }

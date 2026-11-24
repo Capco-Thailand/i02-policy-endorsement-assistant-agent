@@ -14,6 +14,8 @@ type SessionResult =
   paths['/api/auth/session']['get']['responses'][200]['content']['application/json'];
 type PoliciesResult =
   paths['/api/policies']['get']['responses'][200]['content']['application/json'];
+export type HistoryResult =
+  paths['/api/history']['get']['responses'][200]['content']['application/json'];
 export type RequestBody =
   paths['/api/policies/{policyId}/requests']['post']['requestBody']['content']['application/json'];
 export type RequestResult =
@@ -65,6 +67,7 @@ export const getSession = () => request<SessionResult>('/api/auth/session');
 export const signOut = () =>
   request<void>('/api/auth/sign-out', { method: 'POST' });
 export const getPolicies = () => request<PoliciesResult>('/api/policies');
+export const getHistory = () => request<HistoryResult>('/api/history');
 export const getPolicy = (policyId: string) =>
   request<PolicyResult>(`/api/policies/${encodeURIComponent(policyId)}`);
 export const getEvidence = (policyId: string, query: string) =>
