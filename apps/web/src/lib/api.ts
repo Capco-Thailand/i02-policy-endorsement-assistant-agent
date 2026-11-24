@@ -93,3 +93,14 @@ export const checkEligibility = (policyId: string, requestId: string) =>
     `/api/policies/${encodeURIComponent(policyId)}/requests/${encodeURIComponent(requestId)}/eligibility`,
     { method: 'POST' },
   );
+export type Proposal =
+  paths['/api/policies/{policyId}/proposals/{proposalId}']['get']['responses'][200]['content']['application/json'];
+export const prepareProposal = (policyId: string, requestId: string) =>
+  request<Proposal>(
+    `/api/policies/${encodeURIComponent(policyId)}/requests/${encodeURIComponent(requestId)}/proposal`,
+    { method: 'POST' },
+  );
+export const getProposal = (policyId: string, proposalId: string) =>
+  request<Proposal>(
+    `/api/policies/${encodeURIComponent(policyId)}/proposals/${encodeURIComponent(proposalId)}`,
+  );

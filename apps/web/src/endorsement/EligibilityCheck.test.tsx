@@ -4,7 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EligibilityCheck } from './EligibilityCheck';
 import { useEligibilityCheck } from '../lib/queries';
 
-vi.mock('../lib/queries', () => ({ useEligibilityCheck: vi.fn() }));
+vi.mock('../lib/queries', () => ({
+  useEligibilityCheck: vi.fn(),
+  usePrepareProposal: () => ({
+    isPending: false,
+    isError: false,
+    mutateAsync: vi.fn(),
+  }),
+}));
 const replace = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace }) }));
 afterEach(() => vi.clearAllMocks());

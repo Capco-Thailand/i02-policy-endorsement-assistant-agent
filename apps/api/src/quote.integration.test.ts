@@ -285,4 +285,67 @@ integration('FR-09 quote API', () => {
       expect(await db.policy('CUS-001', 'POL-NARIN-001')).toEqual(before);
     },
   );
+
+  it('FR-10 persists the exact calculated quote once and presents the proposal without changing policy', async () => {
+    const id = await create(paymentChange);
+    const before = await db.policy('CUS-001', 'POL-NARIN-001');
+    const endpoint = `/api/policies/POL-NARIN-001/requests/${id}/proposal`;
+    calculator.mockClear();
+    const first = await app.inject({
+      method: 'POST',
+      url: endpoint,
+      headers: { cookie: narin },
+    });
+    expect(first.statusCode).toBe(200);
+    expect(first.json()).toMatchObject({
+      status: 'DRAFT',
+      binding: false,
+      impact: { status: 'CALCULATED', quote },
+    });
+    expect(first.json().citations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'POLICY',
+          version: expect.any(String),
+        }),
+        expect.objectContaining({ kind: 'RULE', version: expect.any(Number) }),
+      ]),
+    );
+    expect(calculator).toHaveBeenCalledOnce();
+    const second = await app.inject({
+      method: 'POST',
+      url: endpoint,
+      headers: { cookie: narin },
+    });
+    expect(second.json()).toEqual(first.json());
+    expect(calculator).toHaveBeenCalledOnce();
+    const audit = await db.pool.query(
+      "SELECT count(*)::int AS total FROM audit_events WHERE action='proposal-create' AND metadata->>'requestId'=$1",
+      [id],
+    );
+    expect(audit.rows[0].total).toBe(1);
+    const read = await app.inject({
+      method: 'GET',
+      url: `/api/policies/POL-NARIN-001/proposals/${first.json().id}`,
+      headers: { cookie: narin },
+    });
+    expect(read.json().status).toBe('PENDING_APPROVAL');
+    expect(await db.policy('CUS-001', 'POL-NARIN-001')).toEqual(before);
+  });
+
+  it('FR-10 does not create a proposal when calculation fails', async () => {
+    const id = await create(paymentChange);
+    calculator.mockRejectedValueOnce(new Error('calculator unavailable'));
+    const result = await app.inject({
+      method: 'POST',
+      url: `/api/policies/POL-NARIN-001/requests/${id}/proposal`,
+      headers: { cookie: narin },
+    });
+    expect(result.statusCode).toBe(503);
+    const rows = await db.pool.query(
+      'SELECT id FROM endorsement_proposals WHERE request_id=$1',
+      [id],
+    );
+    expect(rows.rowCount).toBe(0);
+  });
 });

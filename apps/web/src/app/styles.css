@@ -668,3 +668,33 @@ textarea:focus-visible,
     grid-template-columns: 1fr;
   }
 }
+.proposal-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.proposal-comparison > div {
+  border: 1px solid var(--border, #d0d4d8);
+  border-radius: 6px;
+  padding: 1rem;
+}
+.proposal-comparison dl {
+  display: grid;
+  gap: 0.3rem;
+}
+.proposal-comparison dt {
+  margin-top: 0.7rem;
+  font-weight: 600;
+}
+.proposal-comparison dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.proposal-review li {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .proposal-comparison {
+    grid-template-columns: 1fr;
+  }
+}

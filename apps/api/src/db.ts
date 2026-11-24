@@ -34,6 +34,7 @@ export function database(url = process.env.DATABASE_URL) {
         '002_policy_corpus.sql',
         '003_endorsement_rules.sql',
         '004_policy_terms.sql',
+        '005_proposals.sql',
       ]) {
         const sql = await readFile(
           fileURLToPath(new URL(`../sql/${filename}`, import.meta.url)),
@@ -391,6 +392,134 @@ export function database(url = process.env.DATABASE_URL) {
         [requestId, customerId, policyId],
       );
       return result.rows[0]?.payload;
+    },
+    async proposalForRequest(
+      customerId: string,
+      policyId: string,
+      requestId: string,
+    ): Promise<unknown | undefined> {
+      const result = await pool.query(
+        'SELECT payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND request_id=$3',
+        [customerId, policyId, requestId],
+      );
+      return result.rows[0]?.payload;
+    },
+    async proposalFor(
+      customerId: string,
+      policyId: string,
+      proposalId: string,
+    ): Promise<unknown | undefined> {
+      const result = await pool.query(
+        'SELECT payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND id=$3',
+        [customerId, policyId, proposalId],
+      );
+      return result.rows[0]?.payload;
+    },
+    async saveProposal(
+      proposal: {
+        id: string;
+        requestId: string;
+        requesterId: string;
+        policyId: string;
+        status: string;
+        createdAt: string;
+        [key: string]: unknown;
+      },
+      now: number,
+    ) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const inserted = await client.query(
+          'INSERT INTO endorsement_proposals(id,request_id,requester_id,policy_id,status,payload,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (request_id) DO NOTHING RETURNING payload',
+          [
+            proposal.id,
+            proposal.requestId,
+            proposal.requesterId,
+            proposal.policyId,
+            proposal.status,
+            JSON.stringify(proposal),
+            proposal.createdAt,
+          ],
+        );
+        if (inserted.rowCount)
+          await client.query(
+            'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+            [
+              proposal.requesterId,
+              'proposal-create',
+              new Date(now),
+              JSON.stringify({
+                requestId: proposal.requestId,
+                policyId: proposal.policyId,
+                proposalId: proposal.id,
+                outcome: 'CAN_PROCEED',
+                citations: proposal.citations,
+                calculationStatus: (proposal.impact as { status: string })
+                  .status,
+                status: proposal.status,
+              }),
+            ],
+          );
+        const result = inserted.rowCount
+          ? inserted
+          : await client.query(
+              'SELECT payload FROM endorsement_proposals WHERE request_id=$1',
+              [proposal.requestId],
+            );
+        await client.query('COMMIT');
+        return result.rows[0].payload as unknown;
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    },
+    async presentProposal(
+      customerId: string,
+      policyId: string,
+      proposalId: string,
+      now: number,
+    ): Promise<unknown | undefined> {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const result = await client.query(
+          "UPDATE endorsement_proposals SET status='PENDING_APPROVAL', payload=jsonb_set(payload,'{status}','\"PENDING_APPROVAL\"') WHERE requester_id=$1 AND policy_id=$2 AND id=$3 AND status='DRAFT' RETURNING payload",
+          [customerId, policyId, proposalId],
+        );
+        if (result.rowCount)
+          await client.query(
+            'INSERT INTO audit_events(actor_id,action,at,metadata) VALUES ($1,$2,$3,$4)',
+            [
+              customerId,
+              'proposal-present',
+              new Date(now),
+              JSON.stringify({
+                requestId: result.rows[0].payload.requestId,
+                policyId,
+                proposalId,
+                status: 'PENDING_APPROVAL',
+                citations: result.rows[0].payload.citations,
+                calculationStatus: result.rows[0].payload.impact.status,
+              }),
+            ],
+          );
+        const selected = result.rowCount
+          ? result
+          : await client.query(
+              'SELECT payload FROM endorsement_proposals WHERE requester_id=$1 AND policy_id=$2 AND id=$3',
+              [customerId, policyId, proposalId],
+            );
+        await client.query('COMMIT');
+        return selected.rows[0]?.payload;
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
     },
     async audit(
       actorId: string,
