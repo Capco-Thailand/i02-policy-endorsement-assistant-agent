@@ -1,7 +1,7 @@
 # FR-11 — Customer Review and Decision
 **Title:** [Story] Customer Review and Decision
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/139
 **Feature ID:** FR-11
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a cross-account decision or misleading approval could expose a proposal or imply coverage changed.
