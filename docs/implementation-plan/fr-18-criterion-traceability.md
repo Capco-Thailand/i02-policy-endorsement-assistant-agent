@@ -6,6 +6,8 @@ Evidence: [dated local HTML report](../../test-results/fr-18-redesign-decision-h
 
 After review patches, the [targeted owner-flow report](../../test-results/fr-18-redesign-decision-history/report-20261125212324/e2e-20261125212324.html) still shows the same shared-database 503. The [final no-update visual report](../../test-results/fr-18-redesign-decision-history/report-20261125212531/e2e-20261125212531.html) passes both FR-18 baselines after restoring mobile DOM/visual reading order. Root `npm test` passed: script 17/17, API 65 passed with 49 dedicated-database cases skipped, calculator 10/10, web 63/63. Root typecheck and format check passed.
 
+The first [fresh-database CI browser run](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/actions/runs/45634706903) reached the exact approved proposal after history loaded. It exposed a stale test expectation for the proposal detail's non-binding sentence; the assertion now uses the existing detail wording. Its final rerun remains the merge gate.
+
 | Ticket criterion | Test seam and expected result | Local result / remaining check |
 | --- | --- | --- |
 | Approved records, rejection exclusion, policy/request identity, exact proposal | `e2e/history.spec.ts` real owner flow plus `ChangeHistory.test.tsx` approved identity and safe-summary tests. Rows show date, policy, request ID, Approved, exact links; rejected proposal absent. | Component passed; real browser flow blocked by shared DB 503. CI fresh-database browser result required. |

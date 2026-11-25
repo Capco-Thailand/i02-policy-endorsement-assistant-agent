@@ -129,7 +129,7 @@ test('FR-18 owner sees approved requests, rejection exclusion, original detail, 
     .click();
   await expect(page).toHaveURL(newestProposalPath);
   await expect(
-    page.getByText(/policy and coverage did not change/),
+    page.getByText('This does not change your policy or coverage.'),
   ).toBeVisible();
   const afterPolicyResponse = await page.request.get(policyUrl, {
     headers: { cookie: ownerCookie },
