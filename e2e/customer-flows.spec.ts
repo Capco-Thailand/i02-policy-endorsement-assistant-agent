@@ -83,7 +83,7 @@ test('FR-03 AC1-AC2: linked policy selection shows facts and returns to the list
   ).toBeVisible();
   await expect(page.getByText('1 January 2025')).toBeVisible();
   await expect(page.getByText('Arisa K.')).toBeVisible();
-  await expect(page.getByText('60%')).toBeVisible();
+  await expect(page.getByText('60%', { exact: true })).toBeVisible();
   await page.getByRole('link', { name: /Back to policies/ }).click();
   await expect(
     page.getByRole('heading', { name: 'Your policies' }),

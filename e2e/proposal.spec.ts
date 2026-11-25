@@ -26,8 +26,10 @@ async function start(page: Page, type: 'ADDRESS' | 'PAYMENT_FREQUENCY') {
     .getByRole('button', { name: 'Prepare proposal for review' })
     .click();
   await expect(
-    page.getByRole('heading', { name: 'Review proposed change' }),
-  ).toBeVisible();
+    page.getByRole('heading', {
+      name: 'What would this request change and cost?',
+    }),
+  ).toBeVisible({ timeout: 20_000 });
 }
 
 test.afterEach(async ({ page }, info) => {
@@ -151,13 +153,34 @@ test('FR-11 foreign customer sees the same unavailable proposal state as an unkn
 test('FR-10 calculated proposal: narrow review shows exact THB values and owner boundary', async ({
   page,
 }, info) => {
-  await page.setViewportSize({ width: 375, height: 800 });
+  await page.setViewportSize({ width: 320, height: 800 });
   await start(page, 'PAYMENT_FREQUENCY');
-  await expect(page.getByText('THB 1,215.00')).toBeVisible();
+  await expect(
+    page.getByRole('group', { name: 'Premium per installment' }),
+  ).toContainText('THB 1,215.00');
   await expect(page.getByText('THB 13,500.00').first()).toBeVisible();
-  await expect(page.getByText(/THB 1,000,000 · Unchanged/)).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Life benefit' })).toContainText(
+    'Unchanged',
+  );
+  await expect(
+    page.getByRole('group', { name: 'Annualized total' }),
+  ).toContainText('THB 14,580.00');
+  await expect(
+    page.getByRole('group', { name: 'Annualized total' }),
+  ).toContainText('THB 13,500.00');
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
   await info.attach('Narrow proposal review', {
     body: await page.screenshot({ fullPage: true, animations: 'disabled' }),
+    contentType: 'image/png',
+  });
+  await info.attach('Accepted FR-15 proposal 320px reference', {
+    body: await readFile(
+      '_bmad-output/initiative-customer-ui-redesign/ux-fr-15/mockups/proposal-review-mobile-320.png',
+    ),
     contentType: 'image/png',
   });
   const proposalPath = new URL(page.url()).pathname;
@@ -167,6 +190,46 @@ test('FR-10 calculated proposal: narrow review shows exact THB values and owner 
   ).toBeVisible();
   await page.goto(proposalPath);
   await expect(page).toHaveURL(/\?ended=1$/);
+});
+
+test('FR-15 calculated proposal desktop reference capture', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await start(page, 'PAYMENT_FREQUENCY');
+  await expect(
+    page.getByRole('region', { name: 'Annualized scheduled total' }),
+  ).toBeVisible();
+  await info.attach('FR-15 proposal desktop', {
+    body: await page.screenshot({ fullPage: true, animations: 'disabled' }),
+    contentType: 'image/png',
+  });
+  await info.attach('Accepted FR-15 proposal desktop reference', {
+    body: await readFile(
+      '_bmad-output/initiative-customer-ui-redesign/ux-fr-15/mockups/proposal-review-desktop.png',
+    ),
+    contentType: 'image/png',
+  });
+});
+
+test('FR-15 missing quote has no amount or decision control', async ({
+  page,
+}) => {
+  await start(page, 'PAYMENT_FREQUENCY');
+  await page.route('**/api/policies/*/proposals/*', async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    delete body.impact.quote;
+    await route.fulfill({ response, json: body });
+  });
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { name: 'Proposal quote unavailable' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Approve proposal' }),
+  ).toHaveCount(0);
+  await expect(page.getByText('THB 13,500.00')).toHaveCount(0);
 });
 
 for (const width of [1280, 375]) {

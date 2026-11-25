@@ -32,14 +32,24 @@ function RequestedChange({ proposal }: { proposal: Proposal }) {
   return (
     <section className="request-panel">
       <h2>Requested change</h2>
-      <div className="proposal-comparison">
+      <div
+        className="proposal-field"
+        role="group"
+        aria-label="Requested change"
+      >
         <div>
-          <h3>Current</h3>
-          <p>{current}</p>
+          <span>Current policy</span>
+          <strong>{current}</strong>
         </div>
         <div>
-          <h3>Proposed</h3>
-          <p>{proposed}</p>
+          <span>Proposed</span>
+          <strong>{proposed}</strong>
+          <span className="proposal-change">
+            {change.changeType === 'PAYMENT_FREQUENCY' &&
+            change.paymentFrequency === proposal.current.paymentFrequency
+              ? 'Unchanged'
+              : 'Changed'}
+          </span>
         </div>
       </div>
       <p>Requested effective date: {change.requestedEffectiveDate}</p>
@@ -47,11 +57,41 @@ function RequestedChange({ proposal }: { proposal: Proposal }) {
   );
 }
 
+type ComparisonField = {
+  label: string;
+  current: string;
+  proposed: string;
+  currentUnit?: string;
+  proposedUnit?: string;
+  changed: boolean;
+};
+
+function ComparisonRow({ field }: { field: ComparisonField }) {
+  return (
+    <div className="proposal-field" role="group" aria-label={field.label}>
+      <h3>{field.label}</h3>
+      <div>
+        <span>Current policy</span>
+        <strong>{field.current}</strong>
+        {field.currentUnit && <small>{field.currentUnit}</small>}
+      </div>
+      <div>
+        <span>Proposed</span>
+        <strong>{field.proposed}</strong>
+        {field.proposedUnit && <small>{field.proposedUnit}</small>}
+        <span className="proposal-change">
+          {field.changed ? 'Changed' : 'Unchanged'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function ImpactComparison({ impact }: { impact: Proposal['impact'] }) {
   if (impact.status === 'UNCHANGED')
     return (
-      <section className="request-panel">
-        <h2>Payment and benefits</h2>
+      <section className="request-panel" aria-labelledby="comparison-heading">
+        <h2 id="comparison-heading">Current and proposed values</h2>
         <p>Premium: Unchanged</p>
         <p>Payment schedule: Unchanged</p>
         <p>Annualized total: Unchanged</p>
@@ -59,55 +99,67 @@ function ImpactComparison({ impact }: { impact: Proposal['impact'] }) {
       </section>
     );
   const { before, after } = impact.quote;
+  const fields: ComparisonField[] = [
+    {
+      label: 'Payment frequency',
+      current: before.frequency,
+      proposed: after.frequency,
+      changed: before.frequency !== after.frequency,
+    },
+    {
+      label: 'Premium per installment',
+      current: money(before.premiumPerInstallmentSatang),
+      proposed: money(after.premiumPerInstallmentSatang),
+      currentUnit: `per ${before.frequency.toLowerCase()} payment`,
+      proposedUnit: `per ${after.frequency.toLowerCase()} payment`,
+      changed:
+        before.premiumPerInstallmentSatang !==
+          after.premiumPerInstallmentSatang ||
+        before.frequency !== after.frequency,
+    },
+    {
+      label: 'Payment schedule',
+      current: `${before.installmentsPerYear} payments per year`,
+      proposed: `${after.installmentsPerYear} payments per year`,
+      changed: before.installmentsPerYear !== after.installmentsPerYear,
+    },
+    {
+      label: 'Annualized total',
+      current: money(before.annualizedScheduledTotalSatang),
+      proposed: money(after.annualizedScheduledTotalSatang),
+      currentUnit: 'per year',
+      proposedUnit: 'per year',
+      changed:
+        before.annualizedScheduledTotalSatang !==
+        after.annualizedScheduledTotalSatang,
+    },
+    {
+      label: 'Life benefit',
+      current: amount(before.lifeBenefitBaht),
+      proposed: amount(after.lifeBenefitBaht),
+      changed: before.lifeBenefitBaht !== after.lifeBenefitBaht,
+    },
+    {
+      label: 'Accidental death benefit',
+      current: amount(before.riderBenefitBaht),
+      proposed: amount(after.riderBenefitBaht),
+      changed: before.riderBenefitBaht !== after.riderBenefitBaht,
+    },
+  ];
   return (
     <section className="request-panel" aria-labelledby="comparison-heading">
       <h2 id="comparison-heading">Current and proposed values</h2>
-      <div className="proposal-comparison">
-        <div>
-          <h3>Current</h3>
-          <dl>
-            <dt>Payment amount</dt>
-            <dd>{money(before.premiumPerInstallmentSatang)}</dd>
-            <dt>Payment schedule</dt>
-            <dd>
-              {before.frequency} · {before.installmentsPerYear} payments per
-              year
-            </dd>
-            <dt>Annualized total</dt>
-            <dd>{money(before.annualizedScheduledTotalSatang)}</dd>
-            <dt>Life benefit</dt>
-            <dd>{amount(before.lifeBenefitBaht)}</dd>
-            <dt>Accidental death benefit</dt>
-            <dd>{amount(before.riderBenefitBaht)}</dd>
-          </dl>
-        </div>
-        <div>
-          <h3>Proposed</h3>
-          <dl>
-            <dt>Payment amount</dt>
-            <dd>{money(after.premiumPerInstallmentSatang)}</dd>
-            <dt>Payment schedule</dt>
-            <dd>
-              {after.frequency} · {after.installmentsPerYear} payments per year
-            </dd>
-            <dt>Annualized total</dt>
-            <dd>{money(after.annualizedScheduledTotalSatang)}</dd>
-            <dt>Life benefit</dt>
-            <dd>
-              {after.lifeBenefitBaht === before.lifeBenefitBaht
-                ? `${amount(after.lifeBenefitBaht)} · Unchanged`
-                : amount(after.lifeBenefitBaht)}
-            </dd>
-            <dt>Accidental death benefit</dt>
-            <dd>
-              {after.riderBenefitBaht === before.riderBenefitBaht
-                ? `${amount(after.riderBenefitBaht)} · Unchanged`
-                : amount(after.riderBenefitBaht)}
-            </dd>
-          </dl>
-        </div>
+      <div className="proposal-fields">
+        {fields.map((field) => (
+          <ComparisonRow key={field.label} field={field} />
+        ))}
       </div>
       <p>Calculation source: {impact.quote.ratingVersion}</p>
+      <p>
+        Premium per installment uses different periods when the schedule
+        changes. Compare annualized totals to understand the yearly amount.
+        Benefits are separate coverages.
+      </p>
     </section>
   );
 }
@@ -133,6 +185,24 @@ function ProposalEvidence({ citations }: { citations: Proposal['citations'] }) {
   );
 }
 
+function QuoteSummary({ impact }: { impact: Proposal['impact'] }) {
+  if (impact.status === 'UNCHANGED') return null;
+  return (
+    <section
+      className="request-panel proposal-quote-summary"
+      aria-labelledby="quote-summary-heading"
+    >
+      <h2 id="quote-summary-heading">Annualized scheduled total</h2>
+      <p>
+        Current {money(impact.quote.before.annualizedScheduledTotalSatang)} per
+        year · proposed{' '}
+        {money(impact.quote.after.annualizedScheduledTotalSatang)} per year
+      </p>
+      <p>Server quote {impact.quote.ratingVersion}</p>
+    </section>
+  );
+}
+
 export function ProposalReview({ proposal }: { proposal: Proposal }) {
   const priorStatus = useRef(proposal.status);
   const recordedHeading = useRef<HTMLHeadingElement>(null);
@@ -148,7 +218,7 @@ export function ProposalReview({ proposal }: { proposal: Proposal }) {
     <div className="proposal-review">
       <div className="policy-heading">
         <div>
-          <h1>Review proposed change</h1>
+          <h1>What would this request change and cost?</h1>
           <p className="policy-id">
             {proposal.current.label} · Policy {proposal.policyId} · Proposal{' '}
             {proposal.id}
@@ -158,10 +228,7 @@ export function ProposalReview({ proposal }: { proposal: Proposal }) {
           {proposal.status.replace('_', ' ')}
         </span>
       </div>
-      <RequestedChange proposal={proposal} />
-      <ImpactComparison impact={proposal.impact} />
-      <ProposalEvidence citations={proposal.citations} />
-      <section className="request-panel" role="note">
+      <section className="request-panel proposal-boundary" role="note">
         <h2>This is a non-binding proposal.</h2>
         <p>
           Approval records your decision only. The underlying policy and
@@ -169,6 +236,10 @@ export function ProposalReview({ proposal }: { proposal: Proposal }) {
         </p>
         <p>Synthetic policy and calculation data for this prototype.</p>
       </section>
+      <QuoteSummary impact={proposal.impact} />
+      <RequestedChange proposal={proposal} />
+      <ImpactComparison impact={proposal.impact} />
+      <ProposalEvidence citations={proposal.citations} />
       {(proposal.status === 'APPROVED' || proposal.status === 'REJECTED') && (
         <section className="request-panel" aria-live="polite">
           <h2 ref={recordedHeading} tabIndex={-1}>

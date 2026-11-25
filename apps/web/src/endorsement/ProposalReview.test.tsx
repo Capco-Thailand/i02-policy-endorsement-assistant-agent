@@ -80,7 +80,7 @@ it('FR-10 review shows exact quote, citations, and non-binding boundary', () => 
       }}
     />,
   );
-  expect(screen.getAllByText(/THB 13,500.00/)).toHaveLength(2);
+  expect(screen.getAllByText(/THB 13,500.00/).length).toBeGreaterThanOrEqual(2);
   expect(screen.getAllByText(/THB 1,000,000/)).toHaveLength(2);
   expect(screen.getAllByText(/THB 250,000/)).toHaveLength(2);
   expect(screen.getAllByText(/Unchanged/).length).toBeGreaterThanOrEqual(2);
@@ -88,6 +88,22 @@ it('FR-10 review shows exact quote, citations, and non-binding boundary', () => 
   expect(
     screen.getByText(/underlying policy and coverage stay unchanged/),
   ).toBeInTheDocument();
+  const payment = screen.getByRole('group', {
+    name: 'Premium per installment',
+  });
+  expect(payment).toHaveTextContent('THB 1,215.00');
+  expect(payment).toHaveTextContent('THB 13,500.00');
+  expect(payment).toHaveTextContent('Changed');
+  expect(
+    screen.getByRole('note').compareDocumentPosition(payment) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  const summary = screen.getByRole('region', {
+    name: 'Annualized scheduled total',
+  });
+  expect(summary).toHaveTextContent('THB 14,580.00');
+  expect(summary).toHaveTextContent('THB 13,500.00');
+  expect(summary).toHaveTextContent('synthetic-rating-v1');
 });
 
 it('FR-10 unchanged review labels premium, schedule and benefits unchanged', () => {
@@ -124,11 +140,30 @@ it('FR-10 unchanged review labels premium, schedule and benefits unchanged', () 
       benefitImpact: 'UNCHANGED',
     },
   };
-  render(<ProposalReview proposal={proposal} />);
+  const view = render(<ProposalReview proposal={proposal} />);
   expect(screen.getByText('Premium: Unchanged')).toBeInTheDocument();
   expect(screen.getByText('Payment schedule: Unchanged')).toBeInTheDocument();
   expect(screen.getByText('Benefits: Unchanged')).toBeInTheDocument();
   expect(screen.getByText('100 Synthetic Road')).toBeInTheDocument();
+  view.rerender(
+    <ProposalReview
+      proposal={{
+        ...proposal,
+        requestedChange: {
+          id: 'REQ-2',
+          requesterId: 'CUS',
+          policyId: 'POL',
+          createdAt: '2026-11-24T00:00:00Z',
+          changeType: 'PAYMENT_FREQUENCY',
+          requestedEffectiveDate: '2027-01-01',
+          paymentFrequency: 'MONTHLY',
+        },
+      }}
+    />,
+  );
+  expect(
+    screen.getByRole('group', { name: 'Requested change' }),
+  ).toHaveTextContent('Unchanged');
 });
 
 it('FR-11 recorded review shows the dated decision after the notice', () => {

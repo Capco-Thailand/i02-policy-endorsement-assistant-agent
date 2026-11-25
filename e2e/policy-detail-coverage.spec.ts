@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 const api = `http://localhost:${process.env.E2E_API_PORT ?? 3000}`;
 async function signIn(
@@ -44,11 +45,13 @@ test('FR-14 accepted terms: Family Protection shows cited active coverage at 320
   await expect(
     page.getByRole('heading', { name: 'Product and plan' }),
   ).toBeVisible();
-  await expect(page.getByText('Example Mutual (Synthetic)')).toBeVisible();
+  await expect(
+    page.getByText('Example Mutual (Synthetic)', { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText('Life', { exact: true })).toBeVisible();
   await expect(page.getByText('v1', { exact: true })).toBeVisible();
-  await expect(page.getByText('THB 1,000,000')).toBeVisible();
-  await expect(page.getByText('THB 250,000')).toBeVisible();
+  await expect(page.getByText('THB 1,000,000', { exact: true })).toBeVisible();
+  await expect(page.getByText('THB 250,000', { exact: true })).toBeVisible();
   for (const section of [
     'product',
     'coverage.life',
@@ -57,21 +60,47 @@ test('FR-14 accepted terms: Family Protection shows cited active coverage at 320
     'exclusions.accidental-death',
   ])
     await expect(
-      page.getByText(
-        `Source: Family Protection Plan synthetic policy, version v1, section ${section}`,
+      page.locator(`#source-${section.replaceAll('.', '-')}`),
+    ).toContainText('Version v1');
+  await expect(
+    page
+      .getByRole('region', { name: 'Key exclusions and limitations' })
+      .getByText(
+        'The life benefit does not cover death caused by intentional self-injury.',
       ),
-    ).toBeVisible();
-  await expect(
-    page.getByText(
-      'The life benefit does not cover death caused by intentional self-injury.',
-    ),
   ).toBeVisible();
   await expect(
-    page.getByText(
-      'The accidental death benefit does not cover death caused solely by illness, without an accident.',
-    ),
+    page
+      .getByRole('region', { name: 'Key exclusions and limitations' })
+      .getByText(
+        'The accidental death benefit does not cover death caused solely by illness, without an accident.',
+      ),
   ).toBeVisible();
-  await expect(page.getByText('Arisa K.')).toBeVisible();
+  await expect(page.getByText('Arisa K.', { exact: true })).toBeVisible();
+  for (const section of ['status', 'dates', 'payment', 'beneficiaries']) {
+    const sourceLink = page
+      .getByRole('link', { name: `View source · ${section}` })
+      .first();
+    await expect(sourceLink).toBeVisible();
+    await sourceLink.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator(`#source-${section}`)).toBeFocused();
+    await expect(page.locator(`#source-${section}`)).toContainText(
+      'Version v1',
+    );
+  }
+  await expect(
+    page.getByRole('link', { name: 'View source · dates' }),
+  ).toHaveCount(2);
+  const lifeSource = page.getByRole('link', {
+    name: 'View source · coverage.life',
+  });
+  await lifeSource.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#source-coverage-life')).toBeFocused();
+  await expect(page.locator('#source-coverage-life')).toContainText(
+    'Life benefit: THB 1,000,000.',
+  );
   await expect(
     page.getByRole('link', { name: 'Start a change request' }),
   ).toBeVisible();
@@ -84,10 +113,75 @@ test('FR-14 accepted terms: Family Protection shows cited active coverage at 320
     body: await page.screenshot({ fullPage: true, animations: 'disabled' }),
     contentType: 'image/png',
   });
+  await testInfo.attach('Accepted FR-15 policy 320px reference', {
+    body: await readFile(
+      '_bmad-output/initiative-customer-ui-redesign/ux-fr-15/mockups/policy-detail-mobile-320.png',
+    ),
+    contentType: 'image/png',
+  });
   const after = await (
     await page.request.get(`${api}/api/policies/POL-NARIN-001`)
   ).json();
   expect(after).toEqual(before);
+});
+
+test('FR-15 active policy desktop reference capture', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page);
+  await page.goto('/policies/POL-NARIN-001');
+  await expect(
+    page.getByRole('heading', { name: 'Family Protection Plan' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Source wording' }),
+  ).toBeVisible();
+  await testInfo.attach('FR-15 active detail desktop', {
+    body: await page.screenshot({ fullPage: true, animations: 'disabled' }),
+    contentType: 'image/png',
+  });
+  await testInfo.attach('Accepted FR-15 policy desktop reference', {
+    body: await readFile(
+      '_bmad-output/initiative-customer-ui-redesign/ux-fr-15/mockups/policy-detail-desktop.png',
+    ),
+    contentType: 'image/png',
+  });
+});
+
+test('FR-15 unavailable payment evidence explains the gap without a broken source link', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.route(
+    '**/api/policies/POL-NARIN-001/evidence?query=*',
+    async (route) => {
+      if (
+        new URL(route.request().url()).searchParams.get('query') ===
+        'How are premiums paid?'
+      )
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'unresolved',
+            reason: 'MISSING_SECTION',
+            citations: [],
+          }),
+        });
+      else await route.continue();
+    },
+  );
+  await page.goto('/policies/POL-NARIN-001');
+  await expect(
+    page.getByText(
+      /Source unavailable for payment frequency: Policy evidence is unresolved \(MISSING_SECTION\)/,
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'View source · payment' }),
+  ).toHaveCount(0);
+  await expect(page.getByText('Monthly', { exact: true })).toBeVisible();
 });
 
 test('FR-14 accepted terms: Secure Future has life coverage and no accidental death benefit', async ({
@@ -95,12 +189,10 @@ test('FR-14 accepted terms: Secure Future has life coverage and no accidental de
 }) => {
   await signIn(page, 'mali', 'MaliDemo123!');
   await page.goto('/policies/POL-MALI-001');
-  await expect(page.getByText('THB 750,000')).toBeVisible();
-  await expect(
-    page.getByText(
-      'Source: Secure Future Plan synthetic policy, version v1, section coverage.life',
-    ),
-  ).toBeVisible();
+  await expect(page.getByText('THB 750,000', { exact: true })).toBeVisible();
+  await expect(page.locator('#source-coverage-life')).toContainText(
+    'Secure Future Plan synthetic policy',
+  );
   await expect(page.getByText(/accidental death benefit/i)).toHaveCount(0);
   await expect(
     page.getByRole('link', { name: 'Start a change request' }),
@@ -112,12 +204,10 @@ test('FR-14 accepted terms: expired Classic Life shows historical amount without
 }) => {
   await signIn(page);
   await page.goto('/policies/POL-NARIN-002');
-  await expect(page.getByText('THB 500,000')).toBeVisible();
-  await expect(
-    page.getByText(
-      'Source: Classic Life Plan synthetic policy, version v1, section coverage.life',
-    ),
-  ).toBeVisible();
+  await expect(page.getByText('THB 500,000', { exact: true })).toBeVisible();
+  await expect(page.locator('#source-coverage-life')).toContainText(
+    'Classic Life Plan synthetic policy',
+  );
   await expect(page.getByText('EXPIRED', { exact: true })).toBeVisible();
   await expect(
     page.getByText('This policy is expired. Change requests are unavailable.'),
@@ -144,7 +234,9 @@ test('FR-14 owner boundary: missing session is unauthorized and foreign and unkn
     page.getByRole('heading', { name: 'This policy is unavailable.' }),
   ).toBeVisible();
   await expect(page.getByText('Example Mutual (Synthetic)')).toHaveCount(0);
-  await expect(page.getByText(/Source: .*section/)).toHaveCount(0);
+  await expect(
+    page.getByRole('heading', { name: 'Source wording' }),
+  ).toHaveCount(0);
 });
 
 for (const reason of [
@@ -171,7 +263,11 @@ for (const reason of [
     await expect(
       page.getByText(/Unresolved: We can't confirm this coverage detail/),
     ).toBeVisible();
-    await expect(page.getByText('THB 1,000,000')).toHaveCount(0);
-    await expect(page.getByText('THB 250,000')).toBeVisible();
-    await expect(page.getByText('Example Mutual (Synthetic)')).toBeVisible();
+    await expect(page.getByText('THB 1,000,000', { exact: true })).toHaveCount(
+      0,
+    );
+    await expect(page.getByText('THB 250,000', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('Example Mutual (Synthetic)', { exact: true }),
+    ).toBeVisible();
   });
