@@ -2,7 +2,7 @@
 
 **Title:** [Story] Compare sourced policy facts and proposed changes clearly
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/153
 **Feature ID:** FR-15
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a misleading comparison could make a non-binding proposal look like issued coverage.
