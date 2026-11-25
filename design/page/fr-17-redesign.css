@@ -1,0 +1,226 @@
+@import url('fr-16-redesign.css');
+
+.fr17-shell {
+  max-width: 880px;
+  margin: auto;
+  padding: 36px 28px 72px;
+}
+.fr17-kicker {
+  margin: 0 0 10px;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fr17-shell h1 {
+  max-width: 720px;
+  margin: 0 0 10px;
+  font-size: 34px;
+  line-height: 1.15;
+}
+.fr17-lead {
+  max-width: 65ch;
+  color: var(--muted-foreground);
+}
+.fr17-boundary {
+  margin: 26px 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--primary);
+  background: var(--muted);
+}
+.fr17-panel {
+  margin: 24px 0;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.fr17-panel h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+.fr17-panel h3 {
+  margin: 22px 0 10px;
+  font-size: 17px;
+}
+.fr17-field {
+  margin: 18px 0;
+}
+.fr17-field label,
+.fr17-field legend {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+.fr17-field input,
+.fr17-field select,
+.fr17-field textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+}
+.fr17-field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+.fr17-field small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted-foreground);
+}
+.fr17-fieldset {
+  padding: 0;
+  border: 0;
+}
+.fr17-value-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+.fr17-value-pair span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fr17-value-pair strong {
+  overflow-wrap: anywhere;
+}
+.fr17-beneficiary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px;
+  gap: 12px;
+  align-items: end;
+  border-top: 1px solid var(--border);
+  padding: 14px 0;
+}
+.fr17-beneficiary .fr17-field {
+  margin: 0;
+}
+.fr17-remove {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 40px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.fr17-total {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  padding: 13px 0;
+  border-top: 1px solid var(--border);
+  font-weight: 700;
+}
+.fr17-total strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.fr17-total em {
+  font-style: normal;
+  color: var(--warning-foreground);
+}
+.fr17-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.fr17-action.secondary {
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+}
+.fr17-state {
+  padding: 16px;
+  border-left: 3px solid var(--primary);
+  background: var(--muted);
+}
+.fr17-state h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+.fr17-state p:last-child {
+  margin-bottom: 0;
+}
+.fr17-source {
+  margin: 10px 0;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+.fr17-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 35px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.fr17-preview a,
+.fr17-shell a:not(.fr17-action) {
+  color: var(--primary);
+}
+.fr17-shell :is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.fr17-error {
+  color: var(--destructive);
+  font-weight: 700;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 600px) {
+  .fr17-shell {
+    padding: 28px 16px 56px;
+  }
+  .fr17-shell h1 {
+    font-size: 28px;
+  }
+  .fr17-panel {
+    padding: 18px;
+  }
+  .fr17-value-pair {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .fr17-beneficiary {
+    grid-template-columns: minmax(0, 1fr) 90px;
+  }
+  .fr17-action {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

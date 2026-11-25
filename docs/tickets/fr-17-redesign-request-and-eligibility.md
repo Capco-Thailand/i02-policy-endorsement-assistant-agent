@@ -2,11 +2,11 @@
 
 **Title:** [Story] Understand a requested change and its eligibility result
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Not filed
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-17
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — confusing recorded requests with eligible changes could mislead customers.
-**State:** Backlog draft; UX review pending
+**State:** Selected; accepted UX handoff ready for ticket/UX PR
 
 ## Summary and objective
 
@@ -20,10 +20,11 @@ As a customer, I can see what I requested, whether it can proceed, why, and what
 
 - Source: [initiative R4, R5, R8 and shared R9](../../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md). FR-02 owns request rules; FR-08 owns eligibility and citations.
 - Current and requested values may be shown together only when the current value is available from an authorized source. An absent value must be labeled, not invented.
+- Current beneficiaries and payment frequency come from the owner-authorized policy detail response. The response has no current correspondence address or rider on/off field. A confirmed cited accidental-death coverage term can be shown as coverage context, never as an inferred rider state. The browser may sum entered beneficiary percentages for form feedback; eligibility remains a server decision.
 
 ## Acceptance criteria
 
-- [ ] Beneficiary, address, payment-frequency, and accidental-death-rider entry each identify the current value when available and requested value before recording; unavailable current values are explicit.
+- [ ] Beneficiary, address, payment-frequency, and accidental-death-rider entry identify the authorized current value when available and the requested value before recording. The current address and rider state are explicitly unavailable; a confirmed accidental-death coverage term is labeled as coverage, with source access, not as rider state.
 - [ ] Beneficiary entry shows each allocation percentage and the exact numeric total; any visual allocation aid also retains names, percentages, and an over/under/100% text state.
 - [ ] After submission, the recorded request and its ID are distinct from the later eligibility result; the customer sees the next action and no suggestion that coverage changed.
 - [ ] Can proceed, cannot proceed, and needs review each show a plain-language reason and next action; missing or conflicting evidence remains unresolved with available policy and rule citations.
@@ -48,12 +49,15 @@ None identified.
 
 ## Accepted decisions and readiness
 
-- Readiness: backlog draft. Confirm current-value sources and complete UX mockups before the ticket/UX PR.
+- 2026-11-25: The customer invoked `bmad do fr-17`, selecting the feature for delivery.
+- 2026-11-25: The customer chose existing authorized policy detail fields for current-value context. Beneficiaries and payment frequency are available; the current correspondence address is not supplied. Confirmed cited accidental-death coverage may be shown, but the UI must not infer a rider on/off state.
+- 2026-11-25: The customer accepted the proposed request and eligibility desktop/320px layouts as implementation references, including the previewed states.
+- Readiness: accepted UX contracts and mockups are linked below; the ticket/UX PR and Issue link must merge before implementation preflight.
 
 ## UX handoff references
 
 - [Initiative handoff](../UX_REDESIGN_HANDOFF.md) and [theme preview](../../design/page/shadcn-theme-preview.html).
-- New `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable request and eligibility mockups: pending `bmad-ux` review.
+- Accepted [visual contract](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/DESIGN.md), [experience contract](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/EXPERIENCE.md), and browser-viewable [request](../../design/page/fr-17-request.html) and [eligibility](../../design/page/fr-17-eligibility.html) mockups. [Validation record](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/validation-report.md) covers preview states and responsive widths.
 
 ## Definition of Done
 
