@@ -1,0 +1,5 @@
+[agent]
+persistent_facts = [
+  "file:{project-root}/docs/TICKETING.md",
+  "Treat FR-15 reference layouts as proposed until the customer's dated acceptance is recorded. A final UX run or successful validation does not select a ticket for delivery.",
+]
