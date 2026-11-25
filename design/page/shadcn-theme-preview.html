@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shadcn theme preview · Policy Endorsement Assistant</title>
+    <style>
+      :root { font-family: 'Public Sans', system-ui, sans-serif; color: oklch(.148 .004 228.8); background: oklch(.987 .002 197.1); --primary: oklch(.514 .222 16.935); --border: oklch(.925 .005 214.3); --muted: oklch(.56 .021 213.5); }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      header { border-bottom: 1px solid var(--border); background: white; padding: 18px max(20px, calc((100vw - 1040px)/2)); font-weight: 700; }
+      main { max-width: 1040px; margin: auto; padding: 48px 20px 70px; }
+      h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 12px; letter-spacing: -.04em; }
+      h2 { font-size: 1.3rem; margin: 0 0 18px; }
+      p { line-height: 1.55; }
+      .eyebrow { color: var(--primary); font-size: .73rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+      .intro { max-width: 680px; color: var(--muted); }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 36px; }
+      .panel { border: 1px solid var(--border); border-radius: 10px; background: white; padding: 26px; }
+      label { display: block; margin: 16px 0 6px; font-size: .875rem; font-weight: 600; }
+      input { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font: inherit; }
+      button { min-height: 42px; padding: 8px 16px; border: 1px solid var(--primary); border-radius: 7px; background: var(--primary); color: white; font: 600 .875rem 'Public Sans', system-ui, sans-serif; cursor: pointer; }
+      button.secondary { background: white; color: var(--primary); }
+      button:focus-visible, input:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+      .status { display: inline-block; border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; font-size: .75rem; font-weight: 700; }
+      dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 20px 0 0; }
+      dt { color: var(--muted); font-size: .75rem; }
+      dd { margin: 3px 0 0; font-weight: 650; }
+      .notice { margin-top: 20px; border-left: 4px solid var(--primary); background: oklch(.969 .015 12.422); padding: 13px 16px; }
+      .notice p { margin: 0; }
+      .wide { grid-column: 1 / -1; }
+      @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } .wide { grid-column: 1; } dl { grid-template-columns: 1fr; } main { padding-top: 34px; } }
+    </style>
+  </head>
+  <body>
+    <header>PEA <small>· Synthetic policy servicing</small></header>
+    <main>
+      <p class="eyebrow">Visual handoff · shadcn preset b51GFh7y6</p>
+      <h1>One theme across the customer journey</h1>
+      <p class="intro">Representative sign-in, policy, and proposal states. Existing screen mockups and UX contracts define their full content and behavior.</p>
+      <div class="grid">
+        <section class="panel" aria-labelledby="sign-in-title">
+          <h2 id="sign-in-title">Customer sign-in</h2>
+          <label for="account">Account ID</label><input id="account" placeholder="Enter account ID" />
+          <label for="password">Password</label><input id="password" type="password" placeholder="Enter password" />
+          <div class="actions"><button type="button">Sign in</button></div>
+          <p class="intro">Synthetic demo accounts only.</p>
+        </section>
+        <section class="panel" aria-labelledby="policy-title">
+          <p class="eyebrow">Your policies</p><h2 id="policy-title">Life protection plan</h2>
+          <span class="status">Active</span>
+          <dl><div><dt>Policy ID</dt><dd>POL-001</dd></div><div><dt>Payment frequency</dt><dd>Monthly</dd></div></dl>
+          <div class="actions"><button type="button">View policy</button></div>
+        </section>
+        <section class="panel wide" aria-labelledby="proposal-title">
+          <p class="eyebrow">Proposal review</p><h2 id="proposal-title">Review a proposed change</h2>
+          <dl><div><dt>Current</dt><dd>Monthly payment</dd></div><div><dt>Proposed</dt><dd>Quarterly payment</dd></div></dl>
+          <div class="notice"><p>This is a synthetic, non-binding proposal. Recording your decision does not update your policy or coverage.</p></div>
+          <div class="actions"><button type="button">Approve proposal</button><button class="secondary" type="button">Reject proposal</button></div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
