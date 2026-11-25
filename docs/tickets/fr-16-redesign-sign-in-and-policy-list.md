@@ -2,11 +2,11 @@
 
 **Title:** [Story] Find the right synthetic policy quickly
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/156
 **Feature ID:** FR-16
 **Product context:** [PRD](../PRD.md)
 **Risk:** Medium — changing list presentation must preserve owner isolation and session handling.
-**State:** Selected; accepted UX handoff ready for ticket/UX PR
+**State:** Selected; accepted UX handoff merged; implementation pending
 
 ## Summary and objective
 
@@ -50,7 +50,7 @@ None identified.
 - 2026-11-25: The customer chose current list fields only: policy label, ID, and status. No authorized summary API expansion is in FR-16.
 - 2026-11-25: The customer invoked `bmad do fr-16`, selecting the feature for delivery.
 - 2026-11-25: The customer accepted the proposed sign-in and policy-list layouts as the implementation reference at desktop and 320px. No layout changes were requested.
-- Readiness: accepted UX handoff; ticket/UX PR and linked Issue remain before implementation.
+- Readiness: accepted UX handoff merged in PR #155; active Issue #156 created. Reciprocal ticket link and implementation preflight remain before build.
 
 ## UX handoff references
 
