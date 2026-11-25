@@ -2,6 +2,7 @@
 <!-- Verified 2026-11-16 against the monorepo workspace setup and ticket workflow. Managed by bmad-project-context. -->
 
 ## BMad delivery workflow
+For a new app setup, read [README.md](README.md) for the ordered setup steps, questions for the user, and readiness checks before feature delivery.
 
 This repository preserves the ticket, UX, implementation, and GitHub delivery flow for a new project. Before using it, replace `docs/PRD.md` with that project's business scope and boundaries, update [TICKETING.md](docs/TICKETING.md) with its ticket rules, and replace [ADR.md](docs/ADR.md) with its architecture decisions. The roles share the repository; folder routes indicate usual work areas, not exclusive ownership.
 
