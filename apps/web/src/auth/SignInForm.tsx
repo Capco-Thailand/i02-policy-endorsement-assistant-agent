@@ -114,7 +114,7 @@ export function SignInForm({ onSignIn }: Props) {
       <Button className="mt-6 h-11 w-full" type="submit" disabled={pending}>
         {pending ? 'Signing in…' : 'Sign in'}
       </Button>
-      <p className="auth-note">Synthetic demo accounts only</p>
+      <p className="auth-note">Synthetic demo account</p>
     </form>
   );
 }

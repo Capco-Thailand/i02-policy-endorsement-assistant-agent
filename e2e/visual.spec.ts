@@ -45,8 +45,62 @@ async function compare(
   await expect(page).toHaveScreenshot(name, { ...screenshot, maxDiffPixels });
 }
 
+async function captureFr16(
+  page: Page,
+  testInfo: TestInfo,
+  screen: 'sign-in' | 'policy-list',
+  width: 1280 | 320,
+) {
+  const name = `fr-16-${screen}-${width}.png`;
+  const reference = `_bmad-output/initiative-customer-ui-redesign/ux-fr-16/mockups/${screen}-${width}.png`;
+  await testInfo.attach('Accepted UX reference', {
+    body: await readFile(reference),
+    contentType: 'image/png',
+  });
+  const screenshot = {
+    fullPage: true,
+    animations: 'disabled' as const,
+    style: 'nextjs-portal { display: none !important; }',
+  };
+  await testInfo.attach('Current screenshot', {
+    body: await page.screenshot(screenshot),
+    contentType: 'image/png',
+  });
+  if (existsSync(testInfo.snapshotPath(name))) {
+    await testInfo.attach('Reviewed baseline', {
+      body: await readFile(testInfo.snapshotPath(name)),
+      contentType: 'image/png',
+    });
+  }
+  await expect(page).toHaveScreenshot(name, screenshot);
+}
+
+for (const width of [1280, 320] as const) {
+  test(`FR-16 sign-in and policy list visual capture at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      process.platform !== 'win32',
+      'FR-16 reviewed Chromium baselines are recorded on Windows',
+    );
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/');
+    await expect(
+      page.getByRole('heading', { name: 'Sign in to view your policies' }),
+    ).toBeVisible();
+    await captureFr16(page, testInfo, 'sign-in', width);
+    await page.getByLabel('Account ID').fill('narin');
+    await page.getByLabel('Password').fill('NarinDemo123!');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page.getByText('POL-NARIN-001')).toBeVisible({
+      timeout: 15_000,
+    });
+    await captureFr16(page, testInfo, 'policy-list', width);
+  });
+}
+
 for (const width of [1280, 375]) {
-  test(`FR-01, FR-03, FR-02 visual baseline at ${width}px`, async ({
+  test(`FR-03, FR-02 visual baseline at ${width}px`, async ({
     page,
   }, testInfo) => {
     test.skip(
@@ -56,14 +110,12 @@ for (const width of [1280, 375]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto('/');
     await expect(
-      page.getByRole('heading', { name: 'Sign in to view your policies.' }),
+      page.getByRole('heading', { name: 'Sign in to view your policies' }),
     ).toBeVisible();
-    await compare(page, testInfo, `sign-in-${width}.png`);
     await page.getByLabel('Account ID').fill('narin');
     await page.getByLabel('Password').fill('NarinDemo123!');
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page.getByText('POL-NARIN-001')).toBeVisible();
-    await compare(page, testInfo, `policies-${width}.png`);
     await page.getByRole('link', { name: /Family Protection Plan/ }).click();
     await expect(
       page.getByRole('heading', { name: 'Family Protection Plan' }),

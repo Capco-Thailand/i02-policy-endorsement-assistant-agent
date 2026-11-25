@@ -16,17 +16,18 @@ export default function PoliciesPage() {
         </span>
         <SignOutButton />
       </header>
-      <main className="policy-shell">
+      <main className="policy-shell policy-list-shell">
         <p className="auth-kicker">Customer access / Policies</p>
         <FocusHeading>Your policies</FocusHeading>
-        <p>Select a policy to review its current details.</p>
+        <p>Choose a policy to review its current details.</p>
+        <p>Only policies linked to this demo account appear here.</p>
         <Link className="history-nav" href={routes.history}>
           Customer change history
         </Link>
         <PolicyList />
         <p className="policy-note">
-          Synthetic policy data for this prototype. Viewing a policy does not
-          change coverage.
+          These are synthetic policies. Viewing a policy does not change
+          coverage; expired policy values are historical.
         </p>
       </main>
     </SessionGate>

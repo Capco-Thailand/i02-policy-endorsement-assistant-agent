@@ -129,7 +129,7 @@ test('FR-11 foreign customer sees the same unavailable proposal state as an unkn
   const ownedPath = new URL(page.url()).pathname;
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Sign in to view your policies.' }),
+    page.getByRole('heading', { name: 'Sign in to view your policies' }),
   ).toBeVisible();
   await page.getByLabel('Account ID').fill('mali');
   await page.getByLabel('Password').fill('MaliDemo123!');
@@ -186,7 +186,7 @@ test('FR-10 calculated proposal: narrow review shows exact THB values and owner 
   const proposalPath = new URL(page.url()).pathname;
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Sign in to view your policies.' }),
+    page.getByRole('heading', { name: 'Sign in to view your policies' }),
   ).toBeVisible();
   await page.goto(proposalPath);
   await expect(page).toHaveURL(/\?ended=1$/);

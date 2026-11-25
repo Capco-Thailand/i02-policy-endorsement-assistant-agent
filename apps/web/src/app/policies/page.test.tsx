@@ -14,6 +14,23 @@ vi.mock('../../policies/PolicyList', () => ({
 }));
 
 describe('FR-03 policy list page', () => {
+  it('FR-16 explains authorized records and historical expired values', () => {
+    render(<PoliciesPage />);
+    expect(
+      screen.getByText(
+        'Only policies linked to this demo account appear here.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/expired policy values are historical/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Customer change history' }),
+    ).toHaveAttribute('href', '/history');
+    expect(
+      screen.getByRole('button', { name: 'Sign out' }),
+    ).toBeInTheDocument();
+  });
   it('focuses the visible route heading after navigation', () => {
     render(<PoliciesPage />);
     expect(
