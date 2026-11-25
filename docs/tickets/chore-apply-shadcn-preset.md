@@ -2,7 +2,7 @@
 
 **Title:** [Chore] Apply the shadcn preset across the customer web app
 **Labels:** `type:story`, `role:dev`, `role:ux`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/147
 **Product context:** [PRD](../PRD.md)
 **Risk:** Medium — inconsistent styling or component replacement could obscure policy status, form errors, or the non-binding proposal boundary.
 **Requirements owner:** This file.
