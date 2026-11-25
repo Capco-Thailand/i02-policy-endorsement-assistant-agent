@@ -1,6 +1,6 @@
 # Visual and UX Constraints
 
-Use this document when creating or changing product screens in `design/` or `apps/web/`. The customer policy list and detail flow should feel purpose-built for the Policy Endorsement Assistant, not assembled from a generic SaaS template.
+Use this document when creating or changing product screens in `design/` or the new application's UI. These are the default visual preferences for the reusable workflow; replace them when the new project's brand or user research calls for a different direction. Screens should feel purpose-built for their users and tasks, not assembled from a generic SaaS template.
 
 ## Avoid these visual patterns
 
@@ -42,5 +42,5 @@ Use this document when creating or changing product screens in `design/` or `app
 - Establish a clear typographic hierarchy before adding decoration.
 - Make each component answer a user need. Remove components that do not help the user understand or complete a task.
 - Prefer simple, flat, restrained treatments when decoration does not add meaning.
-- Keep the interface specific to synthetic policy servicing and endorsement review. Make policy status, key policy facts, beneficiaries, and the path to an endorsement request easy to understand where relevant.
-- Preserve the product boundary: policy data and proposed updated-policy views are synthetic. Customers review their own proposals; approval adds a non-binding history record. Never present that record as issued coverage or a live policy update.
+- Keep the interface specific to the new project's content and tasks. Make key states, facts, next actions, and consequences easy to understand where relevant.
+- Preserve the product's actual data and action boundaries. Clearly distinguish drafts, previews, submitted work, and completed changes; never imply a consequential action occurred before the system confirms it.

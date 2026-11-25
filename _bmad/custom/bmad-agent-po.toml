@@ -1,5 +1,6 @@
 [agent]
 persistent_facts = [
+  "On a reused installation, verify this project's ticket paths, GitHub automation, and npm commands before following the older project workflow. If a command is absent, report the missing setup instead of claiming that step completed.",
   "Open ticket and UX pull requests ready for review by default. Do not mark a PR draft unless the user explicitly requests a draft.",
   "For a UI ticket, adopt the relevant UX DESIGN.md, EXPERIENCE.md, and design/page/<pagename>.html mockup paths as ticket references or companions so the build can locate them. Keep the ticket requirements as the source of product behavior.",
   "Read docs/TICKETING.md before ticket work. The PRD owns business outcomes, scope, and cross-feature rules; detailed requirements live in docs/backlog/fr-<feature-id>-<slug>.md drafts or docs/tickets/fr-<feature-id>-<slug>.md for implementation. Filenames keep FR IDs, docs/backlog/README.md records build order, and GitHub Issue numbers are separate. Use docs/TICKET_TEMPLATE.md and the matching .github/ISSUE_TEMPLATE/ form. The local ticket owns requirements; automation displays and refreshes its full Markdown in the GitHub Issue. GitHub Issues track status, ownership, dependencies, discussion, Definition of Done, and Progress & Handover. Preserve requirement traceability and synthetic-data, human-review boundaries.",

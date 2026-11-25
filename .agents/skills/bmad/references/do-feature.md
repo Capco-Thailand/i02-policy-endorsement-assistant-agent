@@ -1,4 +1,5 @@
 # Deliver a feature
+Before following this workflow in a new project, verify that its referenced ticket files, npm scripts, and CI checks exist and match that project's process. On this reuse branch, ticket artifacts and application checks are absent; report missing setup instead of executing an old-project command.
 
 Use this workflow for `bmad do fr-<number>`. Read `{project-root}/AGENTS.md` and `{project-root}/docs/TICKETING.md`. The FR identifies a feature, not a GitHub Issue. The local ticket is the build specification.
 

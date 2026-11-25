@@ -1,5 +1,6 @@
 [workflow]
 persistent_facts = [
+  "On a reused installation, verify the project's design standards, ticket paths, and PR workflow exist before using this handoff process.",
   "For UI work, read the ticket requirements first. Then read {project-root}/docs/DESIGN_STANDARD.md and {project-root}/docs/VISUAL_UX_CONSTRAINTS.md before shaping DESIGN.md, EXPERIENCE.md, or mockups.",
   "A UI handoff includes browser-viewable design/page/<pagename>.html files for relevant screens and a design/page/index.html page linking to them. Use the spines as the authoritative design and behavior contracts.",
 ]

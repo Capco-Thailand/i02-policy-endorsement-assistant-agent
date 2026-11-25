@@ -1,6 +1,6 @@
 # Testing standard
 
-QA/Sec works across the API, web app, and data/RAG code. Use synthetic policies, rules, requests, and rating data only. Tie each test case to a goal, workflow step, safety boundary, or success measure in [PRD.md](PRD.md), and record the expected state, tool calls, and audit result.
+QA/Sec works across the components the new project actually builds. Use test data that follows its privacy and safety rules. Tie each test case to a goal, workflow step, safety boundary, or success measure in [PRD.md](PRD.md), and record the expected state, external calls, and audit result where applicable. Replace the previous project's PRD before using its measures as a test source.
 
 ## Test-driven development
 
@@ -12,19 +12,19 @@ Record the test name and red/green commands or results in the implementation han
 
 ## Coverage
 
-- Test policy- and rule-vector filtering, required fields, authorization, cited assistant assessments, calculation inputs, and proposal gates at the unit or component level.
-- Test Fastify endpoints and their Swagger/OpenAPI contracts for valid input, rejected input, authorization failures, and mock-tool errors.
-- Test web screens for missing-data prompts, policy and rule citations, preliminary assessment, unchanged calculation results, the proposed updated-policy view, visible non-binding `PENDING_APPROVAL` status, customer decision, and history record. The endorsement flow has no upload step.
-- Test the full request-to-proposal flow with mock services. `CANNOT_PROCEED`, `NEEDS_REVIEW`, unsupported, and unauthorized requests must not call the calculation service or create a proposal. For `NEEDS_REVIEW`, assert that the customer receives a specific readable reason and unresolved item, with citations when available. Eligible beneficiary and address changes must not call the calculator; payment-frequency and accidental-death-rider changes must call it and show exact values from versioned synthetic fixtures.
-- Include adversarial cases: prompt injection in requests or rules, conflicting rules, ambiguous dates, contradictory policy data, repeated submission, calculation failures, and attempts to bind coverage.
+- Test required fields, validation, authorization, domain decisions, and side-effect gates at the unit or component level.
+- Test API contracts for valid and rejected input, authorization failures, dependency failures, and documented error responses when the project has an API.
+- Test user-facing screens for relevant loading, empty, success, error, and access states when the project has a UI.
+- Test complete workflows with controlled external dependencies. Assert which calls and state changes occur, and which must be blocked for rejected, unsupported, or unauthorized requests. Compare outputs with versioned expected fixtures rather than values calculated by the implementation under test.
+- Include adversarial and boundary cases relevant to the project's risks, such as conflicting data, ambiguous dates, repeated submission, dependency failures, and prompt injection when AI consumes untrusted text.
 
-Keep component tests beside the code they cover. When a shared flow spans apps, keep one labeled scenario and its synthetic fixtures reusable across the relevant tests. Verify the audit trail contains request ID, cited policy and rule versions, assessment outcome, calculation calls, and final status without unnecessary personal data.
+Keep component tests beside the code they cover. When a shared flow spans components, reuse a labeled scenario and its permitted test fixtures across the relevant tests. Verify that audit records contain the identifiers, decisions, calls, and final state needed to explain the result without unnecessary personal data.
 
 ## Browser E2E and visual checks
 
 Treat a request to "run E2E" as authorization to prepare and run the browser suite. If no ticket or feature is named, use the active ticket or feature evident from the current checkout and recent test evidence; if none is identifiable, run all implemented user-facing flows. Record the chosen scope in the report. Do not pause to confirm the target or ask permission to add the dependency, configuration, browser, fixtures, or runnable tests needed for the run. Ask only when the scope cannot be determined from the repository or an external decision is required.
 
-Before claiming browser coverage, check for a Playwright dependency, configuration, test command, and runnable browser tests. If any piece is missing, set up the Playwright runner, install the browser, configure API and web app startup, provide synthetic fixtures, and add at least one runnable browser test before running E2E or claiming browser coverage. An E2E request includes this setup work. Do not report a manual browser walkthrough or component test as automated E2E evidence.
+Before claiming browser coverage, check for a Playwright dependency, configuration, test command, and runnable browser tests. If any piece is missing, set up the Playwright runner, install the browser, configure the new application's startup and permitted test fixtures, and add at least one runnable browser test before running E2E or claiming browser coverage. An E2E request includes this setup work. Do not report a manual browser walkthrough or component test as automated E2E evidence.
 
 When asked to run E2E for a ticket or feature, cover every acceptance criterion that can be exercised through the implemented UI and API in the current checkout. Include applicable success, rejection, and boundary cases; do not stop after a smoke test or one representative criterion. Use browser scenarios for behavior that crosses the UI and API boundary, and API or lower-layer tests for claims a browser cannot directly observe. Before reporting the run, compare the scenarios against every current criterion and add feasible missing cases. For behavior blocked by an unimplemented dependency, record the exact missing check, its owning ticket, and why it could not run. Do not count those criteria as verified.
 
@@ -32,7 +32,7 @@ Run browser E2E scenarios through the public UI against the API and web app when
 
 For a screen with a reviewed UX handoff, compare stable desktop and narrow viewport screenshots to baselines reviewed against its `DESIGN.md`, `EXPERIENCE.md`, and browser-viewable mockup. A passing screenshot comparison proves the current UI matches that baseline; it does not prove exact pixel identity with the mockup or cover states and pages absent from the test. Remove development-only overlays from captures and review intended design changes before updating baselines. Attach both the reference and current images to the HTML result even when a visual test passes.
 
-Save each Playwright HTML result under a ticket-specific folder, `test-results/<ticket-id>/`, with the local run date and time in the HTML filename. Keep its image and trace assets beside that file so older reports remain viewable. Keep `test-results/index.html` pointing to the latest run across all ticket folders. Use the ticket ID from the active ticket (for example, `fr-01-authenticate-customers`) and Asia/Bangkok time for the timestamp. The harness must provide `npm run test:e2e`; after adding its dependency and configuration, install Chromium with `npx playwright install chromium` and run that command.
+Save each Playwright HTML result under a ticket-specific folder, `test-results/<ticket-id>/`, with the local run date and time in the HTML filename. Keep its image and trace assets beside that file so older reports remain viewable. Keep `test-results/index.html` pointing to the latest run across all ticket folders. Use the ID from the active ticket and the new project's configured timezone for the timestamp. Before browser E2E becomes a delivery gate, provide a working `npm run test:e2e` command, install Chromium with `npx playwright install chromium`, and run the suite. The current root package provides ticket tests only.
 
 ## Acceptance criteria traceability
 
@@ -48,8 +48,8 @@ For evaluation runs, report fixture or dataset version, sample count, pass count
 
 ## Evaluation protocol
 
-Use a versioned synthetic evaluation set fixed before each run. Cover all four change types with at least 20 cases each for intent classification, policy retrieval, rule retrieval, and eligibility (at least 80 cases per measure). Include eligible, ineligible, expired-policy, missing-rule, conflicting-rule, and unauthorized cases. Evaluate proposal completeness and calculation agreement on every applicable case. Include sign-in, sign-out, session expiry, cross-account access, approval of the customer's own proposal, blocked cross-account decisions, history visibility, duplicate submission, and attempted binding in the safety set; every unauthorized action and binding attempt must be blocked.
+When the product has measurable model, retrieval, or decision quality targets, fix a versioned evaluation set before each run. Cover each supported input or outcome category at the sample size specified in the new project's PRD. Include success, rejection, missing or conflicting evidence, unauthorized use, and dependency failure cases where applicable. Evaluate output completeness and agreement with deterministic sources on every relevant case.
 
-For each measure, report the fixture version, denominator, passing count, percentage, and failed case IDs. Record a baseline on the first run; no baseline is claimed in this PRD. Also report false referrals of eligible requests, incorrect successful drafts, and retrieval failures by change type as counter-metrics, with counts and denominators. Investigate any increase from the baseline before declaring the MVP ready. A percentage alone, or a result below the minimum sample size, does not satisfy a release target.
+For each measure, report the fixture version, denominator, passing count, percentage, and failed case IDs. Record a baseline on the first run and report counter-metrics that reveal harmful successes or unnecessary rejections, with counts and denominators. Investigate regressions against the baseline before declaring a release target met. A percentage alone, or a result below the specified sample size, does not satisfy a release target.
 
-Test sign-in, sign-out, expired/invalid sessions, cross-account policy access, customer approval of their own proposal, blocked cross-account approval, approved-change history visibility, unchanged underlying policy data after a decision, active/expired policies, unavailable/conflicting RAG evidence, premium changes and zero-delta quotes, duplicate submissions, and tool failure handling. Test the existing FR-07 upload capability separately from the endorsement flow.
+Build the safety set from the new project's authorization and side-effect boundaries. Include session and cross-account checks when those concepts exist, repeated submissions, attempts to bypass approval gates, and external-tool failures. Assert the blocked action and unchanged state, not only the visible error.

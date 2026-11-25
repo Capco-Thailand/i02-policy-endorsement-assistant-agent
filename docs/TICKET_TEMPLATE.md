@@ -2,9 +2,9 @@
 
 Use this file to draft one requirement in `docs/backlog/` or `docs/tickets/`, following [TICKETING.md](TICKETING.md). The local file is the detailed requirements source. Keep the PRD at the business level; put feature IDs, ticket-specific behavior, business rules, data contracts, edge cases, and acceptance criteria here. Link the PRD for product context and any relevant UX or architecture documents.
 
-Name backlog and implementation files by feature ID, for example `docs/backlog/fr-02-create-endorsement-request.md` and `docs/tickets/fr-02-create-endorsement-request.md`. Keep the FR ID when moving a draft; the build order in [backlog/README.md](backlog/README.md) and GitHub Issue number are separate. Link the Issue and local file in both directions; automation displays the complete ticket Markdown in the GitHub Issue and refreshes it after ticket changes merge. GitHub tracks status, ownership, discussion, Definition of Done, and Progress & Handover. Use native sub-issues and blocking dependencies where available.
+Name backlog and implementation files by feature ID, for example `docs/backlog/fr-02-example-feature.md` and `docs/tickets/fr-02-example-feature.md`. `FR` remains the current prefix until changed consistently in scripts, templates, and tests. Keep the feature ID when moving a draft; create `docs/backlog/README.md` to record build order separately from GitHub Issue numbers. Link the Issue and local file in both directions; the ticket tooling displays the complete ticket Markdown in the GitHub Issue and refreshes it after ticket changes merge. GitHub tracks status, ownership, discussion, Definition of Done, and Progress & Handover. Use native sub-issues and blocking dependencies where available.
 
-Choose **one** body below for the local file. Use `##` headings in the ticket; the examples use `###` only to nest them here. Keep draft criteria and unresolved decisions explicit until refinement. Replace prompts and remove unused optional detail. After moving it into `docs/tickets/`, commit it in a ticket/UX PR with the Issue pending. Merge automation creates the Issue and adds the link. Add the matching type label and at least one relevant role label after creation. Apply `needs:human-review` only while a human decision is pending. Record accepted scope decisions in this file before a build.
+Choose **one** body below for the local file. Use `##` headings in the ticket; the examples use `###` only to nest them here. Keep draft criteria and unresolved decisions explicit until refinement. Replace prompts and remove unused optional detail. After moving it into `docs/tickets/`, commit it in a ticket/UX PR with the Issue pending. After that PR merges, use `npm run ticket:create -- docs/tickets/<file>.md` to create or reuse the Issue and add the reciprocal link. Add the matching type label and at least one relevant role label after creation. Apply `needs:human-review` only while a human decision is pending. Record accepted scope decisions in this file before a build.
 
 ## Story body (`story.yml`)
 
@@ -12,7 +12,7 @@ Choose **one** body below for the local file. Use `##` headings in the ticket; t
 **Labels:** `type:story`, `[role:...]`
 **GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-[number]
-**Product context:** [PRD](../PRD.md)
+**Product context:** [Link to the PRD relative to the ticket's final location]
 **Risk:** [Low / Medium / High — reason]
 **State:** Backlog draft
 
@@ -28,7 +28,7 @@ As a [user or role], I want [capability], so that [benefit].
 
 ### Business or technical context
 
-[Why this is needed; relevant PRD, decision, UX, and API links; applicable synthetic-data and human-review boundaries. Use N/A if none.]
+[Why this is needed; relevant PRD, decision, UX, and API links; applicable data, authorization, and human-review boundaries. Use N/A if none.]
 
 [Add ticket-specific business rules or data contracts here when needed. State each rule in testable terms, including exceptions and source. Do not duplicate broad PRD text.]
 
@@ -36,7 +36,7 @@ As a [user or role], I want [capability], so that [benefit].
 
 - [ ] [Observable success outcome and its conditions.]
 - [ ] [Relevant error, empty, authorization, or edge-case outcome.]
-- [ ] [Required safety behavior: no unintended quote, draft, policy write, or binding where applicable.]
+- [ ] [Required safety behavior: no unauthorized side effect or state change where applicable.]
 
 ### Scope and out of scope
 
@@ -88,7 +88,7 @@ Out of scope:
 
 ### Steps to reproduce
 
-1. [Prerequisite and synthetic input.]
+1. [Prerequisite and permitted test input.]
 2. [Action.]
 3. [Observed result.]
 
@@ -154,4 +154,4 @@ Actual: [Observed behavior.]
 
 [Copy the Definition of Done section from the story body.]
 
-Update **Progress & Handover** in the Issue before stopping or transferring work. Use `Not Started`, `In Progress`, `Blocked`, or `In Review` while implementation is underway. After an implementation PR merges, automation sets the status to `Done` and records the merged PR.
+Update **Progress & Handover** in the Issue before stopping or transferring work. Use `Not Started`, `In Progress`, `Blocked`, or `In Review` while implementation is underway. When the Issue workflow is enabled, an implementation PR merge sets the status to `Done` and records the merged PR; until then, update the Issue manually.

@@ -10,6 +10,8 @@ permissions:
   pull-requests: write
 jobs:
   enable-auto-merge:
+    # Enable after validation and branch rules are configured for the new project.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

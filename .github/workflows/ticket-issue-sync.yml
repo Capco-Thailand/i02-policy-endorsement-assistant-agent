@@ -11,6 +11,8 @@ permissions:
   pull-requests: write
 jobs:
   sync:
+    # Enable after the new project's ticket paths and Issue tracker are configured.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

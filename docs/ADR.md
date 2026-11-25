@@ -1,46 +1,28 @@
-# ADR-001: Application stack and API boundary
+# Architecture decisions
 
-**Status:** Accepted
+This is the decision register for the next project. No architecture choice has been accepted yet. The previous project's stack and data choices remain in Git history and do not apply here.
 
-**Date:** 2026-11-10
+## What belongs here
 
-**Scope:** Policy Endorsement Assistant prototype
+Record a choice when changing it later would be costly, the reason would not be obvious from code, and there were genuine alternatives. Keep product outcomes and safety requirements in the PRD, feature behavior in tickets, and coding rules in `CODING_STANDARDS.md`. A ticket links the architecture decisions it depends on.
 
-## Context
+Resolve only the questions a selected ticket needs. Before its implementation plan is approved, check:
 
-The frontend, API, and retrieval workspaces need one consistent stack and contract boundary. The product uses synthetic insurance data and must keep authorization, eligibility, quoting, and draft decisions on the server. FR-01 through FR-03 use server-side PostgreSQL persistence described in the [Neon ticket](tickets/chore-migrate-persistence-to-neon.md).
+- **System boundaries:** Which components own the UI, API, domain decisions, external calls, and persistent data? Which interfaces cross those boundaries?
+- **Trust and side effects:** Where is identity established, where is authorization enforced, and which component may write data or call a side-effecting service?
+- **Contracts:** What defines request and response schemas, error shapes, versioning, and client types? How are consumers updated when a contract changes?
+- **Persistence:** Which store owns each kind of state? How are migrations, test data, backups, and startup dependencies handled?
+- **AI or retrieval, when used:** What evidence may a model see, which decisions stay deterministic, and what happens when evidence or a tool is missing or contradictory?
+- **Operations:** Which services run in each environment? Where do secrets live, and what must CI verify before merge?
 
-## Decision
+Mark an unanswered question in the ticket or plan with its owner. Make the decision before implementing work that depends on it. A topic that does not apply to the project needs no ADR.
 
-- Build `apps/web` with React, Next.js App Router, and shadcn/ui. Use `@tanstack/react-query` for client-side server state and API reads or mutations; use Next.js Server Components for appropriate server-rendered data fetching.
-- Build `apps/api` with TypeScript and Fastify. Fastify owns the REST API, authentication, policy access, workflow decisions, and writes.
-- Define request and response schemas at Fastify route boundaries. Derive OpenAPI documentation and frontend client types from those schemas so runtime validation and TypeScript contracts stay aligned.
-- Keep RAG retrieval behind the API. Authorize policy access before retrieval; verify decision fields against structured records. The browser does not access RAG or storage directly.
-- Use hosted Neon PostgreSQL for synthetic customers, policies, sessions, endorsement requests, and audit events. The API workspace owns database connections, migrations, and seeding; Fastify owns application reads, authorization, and writes. The browser never connects directly.
-- Keep the synthetic FR-04 policy corpus and fixed encoder in `apps/ai`; `apps/api` owns corpus loading, filtered vector queries, reconciliation, and the public evidence route. FR-05 uses separate versioned rule tables, a fixed change/section encoder, and an immutable loader. The API resolves the selected FR-04 document's product after ownership, filters exact product/change/date, resolves numeric versions, then ranks bounded sections with pgvector. Missing evidence, cross-rule contradictions, stale encoder data, and unavailable evidence require referral; retrieval never makes eligibility or coverage decisions.
+## Decision records
 
-## Consequences
+Create `docs/adr/0001-<decision>.md` when the first decision is made; use the next number for each later record. Start with a short title and one to three sentences stating the context, choice, and reason. Add status (`proposed`, `accepted`, `deprecated`, or `superseded`), alternatives, and consequences only when they help a future reader understand the trade-off. Link each accepted record below and from affected tickets.
 
-- Next.js and Fastify run as separate services; local development reserves port 3001 for Next.js and port 3000 for Fastify.
-- The web app displays server results and does not recalculate eligibility or premiums.
-- Changes to route schemas require regenerated or rederived client types and updated API consumers.
-- Neon credentials stay in server-side configuration. Local and CI tests use isolated synthetic databases. FR-13 Compose starts the application services and connects them to Neon rather than launching a local PostgreSQL service.
-- The API requires database configuration and connectivity at startup. Sessions, requests, and audit events survive API restarts; migrations and synthetic seeding run explicitly.
-- The planned Next.js app replaced the earlier Vite shell direction.
+| Decision | Status | Record |
+| --- | --- | --- |
+| No decisions yet | Open | — |
 
-## Alternatives considered
-
-- **React with Vite:** simpler frontend runtime, but the selected stack is Next.js App Router.
-- **FastAPI:** appeared in an earlier PRD draft; TypeScript/Fastify matches the selected API stack and supports one language across the web and API workspaces.
-- **Local PostgreSQL container:** was planned for the MVP, but hosted Neon PostgreSQL is now the selected application database. Compose still runs the application services.
-
-## Decision update
-2026-11-17: Selected Neon PostgreSQL for all API-owned persistence. The [migration ticket](tickets/chore-migrate-persistence-to-neon.md) owns the implementation; this ADR records the target architecture.
-
-This record captures the stack decision. Product behavior and safety boundaries remain in [PRD.md](PRD.md); implementation rules remain in [CODING_STANDARDS.md](CODING_STANDARDS.md).
-
-2026-11-23: The product flow now requires an assistant assessment grounded in vector-retrieved policy wording and endorsement rules. Fastify continues to enforce ownership, active status, structured-field reconciliation, tool access, and persistence. A separate deterministic internal HTTP calculation service supplies revised premium or benefit values when the assessed change requires them. FR-09 owns its versioned contract and synthetic rating fixtures; FR-13 runs it as an internal Compose service. This supersedes the earlier description of backend-only eligibility decisions.
-
-The API uses the `pg` server-side client, explicit SQL migration, and synthetic seed commands. The browser receives data only through Fastify. Session token digests, requests, and audit events persist in PostgreSQL.
-
-2026-11-19: FR-04 uses pgvector in the same PostgreSQL database as the structured synthetic policy records. A versioned document selection and B-tree document filter precede exact cosine ranking over eight-dimensional, normalized `policy-concepts-v1` vectors. The small corpus does not warrant an approximate index. The API authorizes the policy before reading corpus tables and reconciles status, dates, payment frequency, and beneficiaries with structured records before issuing a citation. Unknown queries, missing or stale documents, and contradictions remain unresolved. Storage errors return a separate service failure. No external embedding service or additional retrieval server is used for FR-04.
+When a choice changes, record the new decision and mark the earlier one superseded. Update affected tickets, contracts, tests, and implementation guidance in the same change. Do not silently rewrite the reason for an accepted choice.

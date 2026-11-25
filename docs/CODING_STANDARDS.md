@@ -1,95 +1,47 @@
 # Coding standards
 
-Apply these rules to code and infrastructure changes. [PRD.md](PRD.md) defines product behavior; [TESTING_STANDARD.md](TESTING_STANDARD.md) defines test coverage.
-
-The repository has `apps/api` and `apps/web` npm workspaces plus the `apps/ai` placeholder. Install dependencies from the root with `npm ci` and keep one root `package-lock.json`. Add dependencies to the workspace that uses them. The AI workspace has no runtime until a concrete retrieval or data need exists.
+Apply these rules to application code and infrastructure changes. [PRD.md](PRD.md) defines product behavior, [ADR.md](ADR.md) records accepted architecture choices, and [TESTING_STANDARD.md](TESTING_STANDARD.md) defines verification. The new application's stack is undecided; the root npm package currently runs ticket tooling only. Record its real workspaces and commands here after they exist.
 
 ## Implementation order
 
-For a feature or bug fix that changes behavior, use test-driven development as defined in [TESTING_STANDARD.md](TESTING_STANDARD.md). Agree on the observable test seams during planning, then work one vertical slice at a time: write a focused failing test, confirm it fails for the intended reason, add only enough code to pass, and repeat. Leave broader refactoring for review after the behavior is green. Documentation-only, formatting-only, and other changes without observable behavior do not need a failing test.
+For a behavior-changing feature or fix, choose observable test seams during planning and work one vertical slice at a time: write a focused failing test, confirm the expected failure, implement enough to pass, and repeat. Refactor after the behavior is green. Documentation, formatting, and other changes without observable behavior need relevant checks rather than a failing test.
 
-## Formatting
+Implement one supported user flow end to end before generalizing it. Reuse established structure and dependencies. Add a shared abstraction, package, service, or configuration when a current requirement or a second concrete use needs it. Keep tests beside the code they exercise.
 
-- Use Prettier for application source and configuration. Prettier is a root dev dependency with project configuration and ignore rules. When application source returns, expand the root `format` and `format:check` scripts to include it. Exclude the root lockfile, generated files, build output, and documents; do not reformat unrelated files.
-- Run `npm run format` on code in scope after the red-to-green cycles and `npm run format:check` before review. A failed or missing format check leaves a code change unfinished.
-- Keep JSX and CSS readable after formatting: give meaningful sections and conditional states clear structure. Formatting does not replace the component responsibility rules below.
+## Formatting and dependencies
 
-## Start with the smallest useful slice
+Use the formatter and linter selected for the new stack. For a JavaScript or TypeScript application, keep Prettier as a root development dependency with project configuration and scoped `format` and `format:check` scripts. Exclude generated files, lockfiles, build output, and documents; format only code in scope. Run the configured format check before review. A missing check is setup work, not evidence of a pass.
 
-- Implement one supported endorsement flow end to end before generalizing it to other change types.
-- Reuse app structure and dependencies where present. Add a shared abstraction, package, service, or configuration only when a current requirement or a second concrete use needs it.
-- In `apps/web/`, use React with Next.js App Router and shadcn/ui. Use `@tanstack/react-query` for client-side server state and API reads or mutations; add and configure it in the web workspace when implementing those flows. Keep server-rendered data fetching in Next.js Server Components when appropriate.
-- Keep product values, API paths, cookie names, and other repeated literals in named `const` declarations in the narrowest shared module that owns them. Do not repeat URL strings or behavior-defining values across screens.
-- Keep HTTP calls in the API client under `apps/web/src/lib/`. Screens and UI components must not call `fetch` directly. Put client-side reads and writes behind feature hooks (for example, `useSignOut`); hooks call the API client and expose typed data, pending, and error state to screens.
-- Define a typed route map for every implemented screen in `apps/web/src/lib/routes.ts`. Use route constants/helpers for links, redirects, and navigation so screen paths autocomplete; do not scatter path strings through components. Dynamic routes should use typed helper functions.
-- In `apps/web/`, build page UI from focused React components with clear responsibilities. Extract a component when it represents a meaningful UI section, owns reusable behavior or state, or makes a page easier to understand; avoid both monolithic page components and components that only wrap a trivial element without adding value.
-- Share a component when the same UI and behavior are used in more than one place. Keep shared components in a clear shared area, expose differences through a small, explicit prop API, and keep page-specific components near their page or feature. Do not generalize for hypothetical future use; promote a component when a second concrete use appears.
-- When AI tools create or change React code, follow the conventions below and the existing patterns in the affected feature. Prefer small, reviewable changes that meet the requirement; do not add dependencies, architecture, or abstractions without a concrete need.
-- In `apps/api/`, use TypeScript and Fastify. Derive API types and OpenAPI output from validated route schemas; keep frontend client types aligned with the published contract.
-- Use vector retrieval for versioned synthetic policy wording and endorsement rules as required by the PRD. The assistant assesses cited passages from both sources for endorsement eligibility; verify structured decision fields against database records. Only the separate deterministic calculation service supplies changed premium or benefit values.
+Keep one root lockfile if using npm workspaces. Add each dependency to the workspace that uses it. Record the actual install, test, typecheck, build, and browser E2E commands after the application exists; the current root package does not provide application checks.
 
-## Example folder structure
+## Boundaries and contracts
 
-This illustrates one endorsement flow, not a scaffold to create in advance. TypeScript filenames are examples; use JavaScript equivalents if that language is chosen. Add a folder when its first file is needed, and keep tests beside the code they exercise.
+- Keep transport handlers focused on input validation, authorization, calling a workflow or service, and mapping its result to a response. Put domain decisions in testable modules with explicit dependencies.
+- Define request and response schemas at the boundary. Derive or generate client types and API documentation from the published contract when the selected stack supports it; avoid separate handwritten shapes that can drift.
+- Validate client input and establish the actor before reading protected data or calling side-effecting tools. A client-supplied identity or role is data, not authority.
+- Keep database access and secrets in the owning server component. Give each state change a clear owner and transaction boundary. The UI displays server results and does not recalculate authoritative decisions.
+- Return consistent, documented failures without secrets, stack traces, or unnecessary personal data. Do not turn a failed dependency into an apparent success.
+- When an API or shared rule contract changes, update its consumers, tests, and documentation in the same change.
 
-```text
-apps/
-  api/
-    src/
-      app.ts                         # Fastify setup and Swagger registration
-      endorsement/
-        route.ts                     # HTTP schema, validation, and response
-        workflow.ts                  # authorization, rule, quote, draft order
-        rules.ts                     # versioned lookup and eligibility checks
-        mock-tools.ts                # synthetic quote and draft operations
-        workflow.test.ts
-  web/
-    src/
-      app/
-        page.tsx                     # Next.js App Router entry
-      endorsement/
-        EndorsementPage.tsx          # request form and result states
-        api.ts                       # calls to the Fastify API
-        EndorsementPage.test.tsx
-  ai/                              # synthetic policy and rule retrieval
-design/
-  component/                       # reusable HTML fragments
-  page/                            # previewable HTML pages
-  global.css
-docs/
-  PRD.md
-  CODING_STANDARDS.md
-  DESIGN_STANDARD.md
-  TESTING_STANDARD.md
-```
+## UI implementation, when the project has a UI
 
-Keep API validation, authorization, assessment orchestration, calculation calls, draft, and audit decisions on the server. The web page presents those results and uses `api.ts` as its request boundary; it does not recalculate eligibility, premiums, or benefits. Start with one page and one route. Compose the page from focused components as the UI warrants, add shared components when a second concrete use appears, and add routing when another real flow needs it.
+- Keep HTTP calls behind one API client or equivalent boundary. Screens use feature-level reads and writes rather than scattering request details across components.
+- Give repeated paths and behavior-defining values named owners. Use route constants or helpers for navigation when the UI has multiple routes.
+- Build pages from focused components. Extract a component when it owns meaningful behavior, represents a clear section, or improves readability; avoid trivial wrappers and premature shared components. Promote a component when a second concrete use appears.
+- Use semantic HTML and accessible labels, names, focus, and keyboard behavior. Handle loading, empty, error, and success states. Keep failures visible and actionable.
 
-## React implementation rules
+If React is selected, use function components with descriptive names at module scope. Derive values during render instead of copying props into state; use effects for synchronization with external systems. Keep event-driven work in handlers, use functional state updates when needed, and use stable keys for changing lists. Use memoization for measured cost or an integration that requires stable identity, not by default. If TanStack Query is selected, use queries for reads, mutations for writes, and invalidate or update cached data after a successful mutation; keep ephemeral UI state local.
 
-- Use function components and compose them from focused components. Keep component and hook names descriptive; define components at module scope, not inside another component.
-- Keep state minimal. Derive values from props or existing state during render instead of copying them into state or synchronizing them with an effect. Use effects only to synchronize with external systems, and include every reactive dependency they use.
-- Keep event-driven work in event handlers. Use functional state updates when the next value depends on the previous value. Do not add `useMemo`, `useCallback`, or `memo` by default; use them for measured or clearly expensive work, or when stable identity is required by an integration.
-- Use stable, unique keys when rendering lists. Avoid array indexes when items can be inserted, removed, or reordered.
-- Use TanStack Query for client-side API data: queries for reads, mutations for writes, and query invalidation or updates after successful mutations. Do not fetch server data in effects and copy it into local component state. Keep ephemeral UI state (such as form inputs, focus, and a pending button indicator) in React state. Server-rendered data may use Next.js Server Components. All requests go through the API boundary; never reproduce server-side eligibility, quote, or premium decisions in the browser.
-- Use semantic HTML and accessible labels, names, and keyboard behavior. Prefer the project's shadcn/ui components where they fit, and preserve their accessibility behavior when composing them.
-- Handle loading, empty, error, and success states for asynchronous UI. Keep errors visible and actionable; never turn a failed request into an apparent approval or successful draft.
-- Follow the repository's TypeScript and formatting conventions. Avoid `any` and unsafe type assertions when a concrete type or runtime validation is available.
+## API implementation, when the project has an API
 
-## TypeScript and Fastify implementation rules
+Give route inputs, domain values, and responses explicit types where the language supports them. Prefer narrow outcome types and runtime validation at external boundaries. Pass repositories, clocks, and external services into workflow code explicitly. Await asynchronous operations and propagate failures through the server's error path.
 
-- Use TypeScript for API code. Give route inputs, domain values, and responses explicit types; prefer narrow types and discriminated unions for workflow outcomes. Avoid `any`, non-null assertions, and type assertions that bypass validation.
-- Define request and response validation schemas at the route boundary. Derive TypeScript types and Swagger/OpenAPI documentation from those schemas, and generate or derive frontend client types from the published contract; do not maintain separate handwritten API shapes.
-- Keep route handlers focused on HTTP concerns: validate and authorize the request, call the workflow/service, and map its result to the response. Keep eligibility, quote, draft, and audit decisions in domain/workflow code, not in route handlers.
-- Register related routes through Fastify plugins and use Fastify's encapsulation for feature-specific hooks and dependencies. Keep shared infrastructure in app setup; avoid global mutable state and hidden cross-request state.
-- Use Fastify's request logger and error handling. Return consistent, documented error responses without exposing stack traces, secrets, or unnecessary policyholder data. Do not swallow errors or convert failures into successful or eligible outcomes.
-- Pass dependencies such as mock tools and repositories into workflow code explicitly so behavior stays testable. Keep asynchronous operations awaited and propagate failures through Fastify's error path.
-- Keep authorization and validation before side-effecting tools. Call quote and draft tools only at the workflow gates defined by the PRD, and preserve the non-binding `PENDING_APPROVAL` result.
-- When AI tools create or change API code, follow these rules and the existing Fastify patterns in the affected feature. Prefer the smallest correct change; do not introduce plugins, type-provider libraries, or abstractions without a concrete requirement.
+If Fastify is selected, derive OpenAPI and TypeScript types from route schemas, group related routes with plugins, and use encapsulation for feature-specific hooks. Use the request logger and a consistent error handler. Do not introduce a plugin or type-provider library without a concrete requirement.
 
-## Preserve the hard gates
+## AI or retrieval, when used
 
-- Check authorization and required fields deterministically before retrieving evidence. Require a cited `CAN_PROCEED` assessment based on both policy wording and applicable rules before calling the separate calculation service; use its returned amounts and benefit values unchanged.
-- Call `create_endorsement_draft` only after the required gates pass. Keep the result non-binding; submission moves it from `DRAFT` to `PENDING_APPROVAL`.
-- Keep the audit trail needed to explain each result: request ID, cited rule IDs and versions, validation result, tool calls, and final status. Exclude unnecessary personal data.
-- When changing an API or rule contract, update its consumers and the tests for the changed behavior in the same change.
+Keep source retrieval behind an authorized service boundary. Treat retrieved text and model output as evidence or proposals, not authority to change protected state. Reconcile structured claims with authoritative records and keep deterministic validation before side effects. Define missing, stale, conflicting, and unavailable evidence outcomes in the ticket and test them. Record the versions and sources needed to explain a result without storing unnecessary personal data.
+
+## Completion
+
+Run the checks relevant to the change, review the diff and generated artifacts, update affected documents, and record any unverified criterion in the handoff. Prefer the smallest correct change that satisfies the ticket and accepted ADRs.

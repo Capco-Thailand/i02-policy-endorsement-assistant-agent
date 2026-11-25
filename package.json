@@ -1,0 +1,12 @@
+{
+  "name": "bmad-ticket-workflow",
+  "private": true,
+  "scripts": {
+    "plan:issues": "node scripts/plan-role-dev-issues.mjs",
+    "test": "node --test scripts/*.test.mjs",
+    "ticket:create": "node scripts/ticket-workflow.mjs create",
+    "ticket:preflight": "node scripts/ticket-workflow.mjs preflight",
+    "ticket:reset": "node scripts/reset-ticket-workflow.mjs",
+    "ticket:sync": "node scripts/ticket-workflow.mjs sync-issue"
+  }
+}

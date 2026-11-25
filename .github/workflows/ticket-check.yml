@@ -8,6 +8,8 @@ permissions:
   pull-requests: read
 jobs:
   check:
+    # Ticket scripts are restored; application checks still need a new project.
+    if: false
     runs-on: ubuntu-latest
     services:
       postgres:
