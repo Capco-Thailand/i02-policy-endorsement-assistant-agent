@@ -22,4 +22,4 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 | 15 | FR-15 Redesign Policy Detail and Proposal Review | [Ticket](../tickets/fr-15-redesign-policy-detail-and-proposal-review.md) | Selected; ticket/UX handoff in review |
 | 16 | FR-16 Redesign Sign-in and Policy List | [Ticket](../tickets/fr-16-redesign-sign-in-and-policy-list.md) | Implementation merged in PR #158; [Issue #156](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/156) Done |
 | 17 | FR-17 Redesign Request and Eligibility | [Ticket](../tickets/fr-17-redesign-request-and-eligibility.md) | Accepted handoff merged in PR #159; [Issue #160](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/160) open |
-| 18 | FR-18 Redesign Decision History | [Draft](fr-18-redesign-decision-history.md) | Backlog; follows accepted FR-15 UX patterns |
+| 18 | FR-18 Redesign Decision History | [Ticket](../tickets/fr-18-redesign-decision-history.md) | Selected; approved-only history UX accepted, ticket/UX handoff pending |

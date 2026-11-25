@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FR-18 history reference · Policy Endorsement Assistant</title>
+    <link rel="stylesheet" href="fr-18-history.css" />
+    <script src="fr-18-history.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <span class="brand-mark" aria-hidden="true">PE</span>
+        <span class="brand-name">Policy Endorsement Assistant<small>Synthetic customer records</small></span>
+        <span class="site-header__trail">Reference screen · FR-18</span>
+      </div>
+    </header>
+    <main class="fr18-shell">
+      <p class="fr18-kicker">Your account / Decision history</p>
+      <p><a class="fr18-back" href="fr-16-policy-list.html">← Back to policies</a></p>
+      <h1>Customer change history</h1>
+      <p class="fr18-lead">Find the proposals you approved for your synthetic policies.</p>
+      <p class="fr18-boundary">Approval records your decision on a synthetic proposal. Your underlying policy and coverage did not change.</p>
+
+      <section class="fr18-content" aria-labelledby="fr18-list-heading" data-state="multiple">
+        <div class="fr18-section-head"><h2 id="fr18-list-heading">Approved decisions</h2><span>2 records</span></div>
+        <ol class="fr18-list">
+          <li class="fr18-record">
+            <div class="fr18-record-main">
+              <h3>Payment frequency · Requested annual</h3>
+              <p class="fr18-policy">Family Protection Plan · POL-NARIN-001</p>
+              <p class="fr18-request">Request ID: <span>4c213f3d-625b-4aa2-aad8-64353f909e06</span></p>
+              <a href="fr-15-proposal-review.html?decision=APPROVED">View recorded proposal for Family Protection Plan</a>
+            </div>
+            <div class="fr18-meta"><strong>Approved</strong><time datetime="2026-11-25T09:15:00+07:00">25 Nov 2026 · 09:15</time></div>
+          </li>
+          <li class="fr18-record" data-second-record>
+            <div class="fr18-record-main">
+              <h3>Correspondence address change</h3>
+              <p class="fr18-policy">Family Protection Plan · POL-NARIN-001</p>
+              <p class="fr18-request">Request ID: <span>65d23ea9-4560-4305-93e2-908abbf252ce</span></p>
+              <a href="fr-15-proposal-review.html?decision=APPROVED">View recorded proposal for earlier request</a>
+            </div>
+            <div class="fr18-meta"><strong>Approved</strong><time datetime="2026-11-18T10:42:00+07:00">18 Nov 2026 · 10:42</time></div>
+          </li>
+        </ol>
+        <p class="fr18-note">Rejected decisions remain on their recorded proposal detail; they are not listed here.</p>
+      </section>
+
+      <section class="fr18-state" data-state="loading" hidden role="status"><h2>Loading your change history…</h2><p>Checking your approved decisions.</p></section>
+      <section class="fr18-state" data-state="empty" hidden><h2>No approved decisions yet</h2><p>When you approve a synthetic proposal, its record will appear here. Rejected decisions remain on their proposal detail.</p><a href="fr-16-policy-list.html">View your policies</a></section>
+      <section class="fr18-state" data-state="error" hidden role="alert"><h2>History unavailable</h2><p>We could not load your change history. Try again.</p><button type="button" id="fr18-retry">Try again</button></section>
+      <section class="fr18-state" data-state="ended" hidden role="alert"><h2>Session ended</h2><p>Sign in again to view your approved decisions.</p><a href="fr-16-sign-in.html?ended=1">Sign in again</a></section>
+
+      <aside class="fr18-preview" aria-label="Reference state previews">
+        <h2>Reference state previews</h2>
+        <p>These controls are for reviewing the mockup.</p>
+        <div class="fr18-preview-controls">
+          <button type="button" data-preview="multiple" aria-pressed="true">Multiple</button>
+          <button type="button" data-preview="one" aria-pressed="false">One record</button>
+          <button type="button" data-preview="empty" aria-pressed="false">Empty</button>
+          <button type="button" data-preview="loading" aria-pressed="false">Loading</button>
+          <button type="button" data-preview="error" aria-pressed="false">Error</button>
+          <button type="button" data-preview="ended" aria-pressed="false">Session ended</button>
+        </div>
+      </aside>
+    </main>
+  </body>
+</html>
