@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FR-16 sign-in · Policy Endorsement Assistant</title>
+    <link rel="stylesheet" href="fr-16-redesign.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <span class="brand-mark" aria-hidden="true">PE</span
+        ><span class="brand-name"
+          >Policy Endorsement Assistant<small
+            >Synthetic customer records</small
+          ></span
+        ><span class="site-header__trail">Reference screen · FR-16</span>
+      </div>
+    </header>
+    <main class="fr16-shell fr16-auth">
+      <section aria-labelledby="signin-title">
+        <p class="fr16-kicker">Customer access / Sign in</p>
+        <h1 id="signin-title">Sign in to view your policies</h1>
+        <p class="fr16-intro">
+          Use your synthetic demo account to find policies linked to you and
+          review their details.
+        </p>
+        <p class="fr16-boundary">
+          <strong>Prototype only.</strong> No live policy or coverage changes
+          here.
+        </p>
+      </section>
+      <section class="fr16-form" aria-labelledby="form-title">
+        <h2 id="form-title">Your demo account</h2>
+        <p id="signin-state" class="fr16-state" role="status" hidden>
+          Your session ended. Sign in again.
+        </p>
+        <form id="signin-form" novalidate>
+          <div class="fr16-field">
+            <label for="account">Account ID</label
+            ><input
+              id="account"
+              name="account"
+              autocomplete="username"
+              required
+              aria-describedby="account-error"
+            />
+            <p id="account-error" class="fr16-error" hidden>
+              Enter your account ID.
+            </p>
+          </div>
+          <div class="fr16-field">
+            <label for="password">Password</label
+            ><input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              aria-describedby="password-error"
+            />
+            <p id="password-error" class="fr16-error" hidden>
+              Enter your password.
+            </p>
+          </div>
+          <button class="fr16-action" type="submit">Sign in</button>
+        </form>
+        <p class="fr16-intro">
+          Synthetic demo accounts only. This preview never creates a session.
+        </p>
+      </section>
+    </main>
+    <nav class="fr16-shell fr16-preview" aria-label="Mockup states">
+      Preview: <a href="?state=initial">Initial</a
+      ><a href="?state=invalid">Invalid credentials</a
+      ><a href="?state=ended">Session ended</a
+      ><a href="?state=error">Service unavailable</a>
+    </nav>
+    <script src="fr-16-sign-in.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,185 @@
+@import url('fr-15-redesign.css');
+
+.fr16-shell {
+  max-width: 1040px;
+  margin: auto;
+  padding: 36px 28px 72px;
+}
+.fr16-kicker {
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fr16-intro {
+  max-width: 60ch;
+  color: var(--muted-foreground);
+}
+.fr16-boundary {
+  border-left: 3px solid var(--primary);
+  padding: 10px 16px;
+  background: var(--muted);
+  margin: 28px 0;
+}
+.fr16-auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+  gap: 56px;
+  align-items: start;
+}
+.fr16-form {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  background: var(--card);
+}
+.fr16-form h2 {
+  margin-bottom: 24px;
+}
+.fr16-field {
+  margin-bottom: 20px;
+}
+.fr16-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.fr16-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+}
+.fr16-field input:focus-visible,
+.fr16-action:focus-visible,
+.fr16-row:focus-visible,
+.fr16-preview a:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.fr16-error {
+  color: var(--destructive, #a51c30);
+  font-weight: 650;
+}
+.fr16-action {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+.fr16-action:hover {
+  text-decoration: underline;
+}
+.fr16-form .fr16-action {
+  width: 100%;
+}
+.fr16-state {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0 0 22px;
+}
+.fr16-state[role='alert'] {
+  border-color: var(--destructive, #a51c30);
+}
+.fr16-list {
+  list-style: none;
+  padding: 0;
+  margin: 28px 0;
+  border-top: 1px solid var(--border);
+}
+.fr16-list li {
+  border-bottom: 1px solid var(--border);
+}
+.fr16-row {
+  color: var(--foreground);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 22px;
+  padding: 22px 4px;
+  text-decoration: none;
+}
+.fr16-row:hover .fr16-view {
+  text-decoration: underline;
+}
+.fr16-name {
+  display: block;
+  font-size: 1.16rem;
+  font-weight: 750;
+}
+.fr16-id {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.fr16-status {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.fr16-view {
+  color: var(--primary);
+  font-size: 0.88rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.fr16-preview {
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  padding-top: 18px;
+  font-size: 0.82rem;
+}
+.fr16-preview a {
+  margin-right: 14px;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 680px) {
+  .fr16-auth {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .fr16-shell {
+    padding: 28px 16px 56px;
+  }
+  .fr16-form {
+    padding: 20px;
+  }
+  .fr16-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .fr16-view {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 360px) {
+  .fr16-row {
+    grid-template-columns: 1fr;
+  }
+  .fr16-status {
+    width: max-content;
+  }
+}

@@ -20,6 +20,6 @@ This is the implementation order for the [product scope in the PRD](../PRD.md). 
 | 13 | FR-13 Run with Docker Compose | [Draft](fr-13-run-the-system-with-docker-compose.md) | Backlog |
 | 14 | FR-14 Expand Policy Detail with Product and Coverage Information | [Ticket](../tickets/fr-14-expand-policy-detail-with-coverage.md) | Ticket/UX handoff in review |
 | 15 | FR-15 Redesign Policy Detail and Proposal Review | [Ticket](../tickets/fr-15-redesign-policy-detail-and-proposal-review.md) | Selected; ticket/UX handoff in review |
-| 16 | FR-16 Redesign Sign-in and Policy List | [Draft](fr-16-redesign-sign-in-and-policy-list.md) | Backlog; follows accepted FR-15 UX patterns |
+| 16 | FR-16 Redesign Sign-in and Policy List | [Ticket](../tickets/fr-16-redesign-sign-in-and-policy-list.md) | Selected; accepted ticket/UX handoff in review |
 | 17 | FR-17 Redesign Request and Eligibility | [Draft](fr-17-redesign-request-and-eligibility.md) | Backlog; follows accepted FR-15 UX patterns |
 | 18 | FR-18 Redesign Decision History | [Draft](fr-18-redesign-decision-history.md) | Backlog; follows accepted FR-15 UX patterns |
