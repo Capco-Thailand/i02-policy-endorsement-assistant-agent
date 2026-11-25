@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -29,13 +30,13 @@ export function EvidenceSection({ policyId }: { policyId: string }) {
   }, [query.error, client, router]);
 
   const retry = (
-    <button
+    <Button
       type="button"
-      className="policy-retry"
+      variant="outline"
       onClick={() => void query.refetch()}
     >
       Retry evidence
-    </button>
+    </Button>
   );
 
   return (

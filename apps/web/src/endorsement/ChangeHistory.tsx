@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -82,13 +83,13 @@ export function ChangeHistory() {
           <section role="alert">
             <h2>History unavailable</h2>
             <p>We could not load your change history. Try again.</p>
-            <button
-              className="policy-retry"
+            <Button
+              variant="outline"
               type="button"
               onClick={() => void query.refetch()}
             >
               Try again
-            </button>
+            </Button>
           </section>
         )
       ) : query.data.history.length ? (
