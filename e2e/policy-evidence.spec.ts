@@ -156,7 +156,7 @@ test('FR-04 expired policy can read evidence but cannot request; session failure
     },
   );
   await page.goto('/policies/POL-NARIN-001');
-  await expect(page).toHaveURL(/\/\?ended=1$/);
+  await expect(page).toHaveURL(/\/\?ended=1$/, { timeout: 15_000 });
   await expect(
     page.getByText('Family Protection Plan synthetic policy'),
   ).toHaveCount(0);

@@ -149,7 +149,9 @@ The first browser attempt failed because the API lacked `DATABASE_URL`; after th
 
 ### Fresh CI follow-up, 2026-11-25
 
-PR #158's first fresh-database CI run passed functional browser coverage, including every FR-16 case, but its two FR-08 Linux eligibility screenshots each differed by 126 pixels. The downloaded diff showed only numerals in the policy ID had changed. FR-16 had added tabular numerals to the shared `.policy-id` rule, which also styles the request page. Scoped that font variant to `.policy-list .policy-id`; the request page now retains its existing text rendering. The CI rerun is pending.
+PR #158's first fresh-database CI run passed functional browser coverage, including every FR-16 case, but its two FR-08 Linux eligibility screenshots each differed by 126 pixels. The downloaded diff showed only numerals in the policy ID had changed. FR-16 had added tabular numerals to the shared `.policy-id` rule, which also styles the request page. Scoped that font variant to `.policy-list .policy-id`; the request page now retains its existing text rendering.
+
+The second CI run passed both FR-08 Linux screenshots and 53 browser cases but timed out in an existing FR-04 session-expiry browser assertion after five seconds while evidence was still loading. Its previous CI run and the local full suite had passed that case. The FR-04 assertion now allows 15 seconds for the 401 evidence response and redirect under CI load; the next fresh run will verify the full suite.
 
 ## Verification
 
