@@ -126,11 +126,12 @@ for (const width of [1280, 375]) {
         name: 'Can proceed to a proposal',
       }),
     ).toBeVisible();
+    // The random request ID changes line wrapping in this paragraph.
     await compare(
       page,
       testInfo,
       `eligibility-${width}.png`,
-      page.locator('.request-id'),
+      page.locator('.request-id').locator('..'),
       20,
     );
   });
