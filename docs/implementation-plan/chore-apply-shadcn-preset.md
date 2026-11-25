@@ -60,7 +60,9 @@ The preset command completed before ticket creation; its uncommitted diff was st
 
 The preset switched the web configuration to Base Luma, mist, rose, Public Sans, and Phosphor. Legacy runtime palette and Inter declarations were removed. Native retry and decision buttons now use shadcn Button; request inputs use shadcn Input. `design/global.css` remains isolated to mockups. The old Lucide dependency was removed.
 
-The first browser run passed 41 functional scenarios and failed four Windows visual baselines because of the intended theme change. After reviewing desktop and narrow captures against the UX handoff, the four baselines were updated. The second run passed 45 scenarios with six platform-specific visual tests skipped on Windows. Both runs used newly created disposable Neon databases that were removed afterward. Latest report: `test-results/chore-apply-shadcn-preset/report-20261125103548/e2e-20261125103548.html`. Linux CI still needs to validate its own baselines.
+The first browser run passed 41 functional scenarios and failed four Windows visual baselines because of the intended theme change. After reviewing desktop and narrow captures against the UX handoff, the four baselines were updated. The second run passed 45 scenarios with six platform-specific visual tests skipped on Windows. Both runs used newly created disposable Neon databases that were removed afterward. Latest report: `test-results/chore-apply-shadcn-preset/report-20261125103548/e2e-20261125103548.html`.
+
+Linux CI run `45542053671` passed implementation tests, typecheck, formatting, and build. Its E2E run passed 41 functional scenarios and failed only the two FR-08 Linux visual baselines. The desktop and narrow current captures were reviewed against the handoff and promoted to the Linux baselines; CI will rerun them on the implementation PR.
 
 ## Plan Change Log
 
