@@ -33,7 +33,7 @@ test('FR-16 owner-authorized list excludes foreign policies', async ({
   expect(await foreign.json()).toEqual(await unknown.json());
 });
 
-test('FR-08 eligibility rejects missing session and gives identical 404 for unknown and foreign policy', async ({
+test('FR-08 / FR-17 eligibility rejects missing session and gives identical 404 for unknown and foreign policy', async ({
   request,
 }) => {
   const route = (policyId: string, requestId: string) =>
@@ -127,7 +127,7 @@ test('FR-02 AC3-AC5: invalid, foreign, expired and unauthenticated requests are 
   ).toBe(409);
 });
 
-test('FR-02 AC2-AC6: a valid request records the session actor without changing policy facts', async ({
+test('FR-02 AC2-AC6 / FR-17 server boundary: a valid request records the session actor without changing policy facts', async ({
   request,
 }) => {
   await request.post(`${api}/api/auth/sign-in`, {

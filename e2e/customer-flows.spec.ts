@@ -314,7 +314,7 @@ for (const change of [
       page.getByRole('heading', { name: 'Request recorded' }),
     ).toBeVisible();
     await expect(
-      page.getByText(/pending checks\. Request [0-9a-f-]{36}/),
+      page.locator('.recorded-request').getByText(/Request ID: [0-9a-f-]{36}/),
     ).toBeVisible();
     await expect(
       page.getByText('No policy coverage has changed.'),

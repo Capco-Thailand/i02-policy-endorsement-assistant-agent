@@ -1,5 +1,11 @@
 import { expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RequestForm } from './RequestForm';
 import {
@@ -82,6 +88,85 @@ it('shows four change choices and only selected fields for an active policy', ()
   expect(screen.getByRole('button', { name: 'Record request' })).toBeDisabled();
 });
 
+it('FR-17 current values: shows only authorized context for all four changes', () => {
+  vi.mocked(usePolicy).mockReturnValue({
+    isPending: false,
+    isError: false,
+    data: {
+      policy: {
+        id: 'POL-NARIN-001',
+        label: 'Family Protection Plan',
+        status: 'ACTIVE',
+        effectiveDate: '2025-01-01',
+        expiryDate: '2035-12-31',
+        paymentFrequency: 'MONTHLY',
+        beneficiaries: [
+          { name: 'Arisa K.', allocationPercent: 60 },
+          { name: 'Ben K.', allocationPercent: 40 },
+        ],
+        terms: {
+          coverages: [
+            {
+              id: 'coverage.accidental-death',
+              status: 'confirmed',
+              value: {
+                name: 'Accidental death benefit',
+                amount: 250000,
+                currency: 'THB',
+              },
+              citation: {
+                sourceId: 'WORDING',
+                title: 'Policy',
+                version: 'v1',
+                sectionId: 'coverage.accidental-death',
+                excerpt: 'Benefit',
+              },
+            },
+          ],
+          exclusions: [],
+          product: { status: 'unresolved', reason: 'MISSING_SECTION' },
+        },
+      },
+    },
+  } as unknown as ReturnType<typeof usePolicy>);
+  vi.mocked(useCreateRequest).mockReturnValue({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useCreateRequest>);
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <RequestForm policyId="POL-NARIN-001" />
+    </QueryClientProvider>,
+  );
+  const choices = screen.getByRole('combobox', { name: 'Change type' });
+  fireEvent.change(choices, { target: { value: 'BENEFICIARY' } });
+  expect(screen.getByText(/Arisa K. · 60%/)).toBeInTheDocument();
+  expect(screen.getByText(/Ben K. · 40%/)).toBeInTheDocument();
+  fireEvent.change(choices, { target: { value: 'ADDRESS' } });
+  expect(
+    screen.getByText('Not available in this policy record.'),
+  ).toBeInTheDocument();
+  fireEvent.change(choices, { target: { value: 'PAYMENT_FREQUENCY' } });
+  expect(
+    within(screen.getByRole('region', { name: 'Current policy' })).getByText(
+      'Monthly',
+    ),
+  ).toBeInTheDocument();
+  fireEvent.change(choices, { target: { value: 'ACCIDENTAL_DEATH_RIDER' } });
+  expect(
+    screen.getByText(/Accidental death benefit · THB 250,000/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/Current rider on\/off state is not supplied/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('link', { name: /View cited policy term/ }),
+  ).toHaveAttribute(
+    'href',
+    '/policies/POL-NARIN-001#source-coverage-accidental-death',
+  );
+});
+
 it('keeps entered address on service failure and confirms only a recorded pending request', async () => {
   vi.mocked(usePolicy).mockReturnValue({
     isPending: false,
@@ -106,6 +191,7 @@ it('keeps entered address on service failure and confirms only a recorded pendin
         id: 'REQ-1',
         changeType: 'ADDRESS',
         requestedEffectiveDate: '2026-12-01',
+        correspondenceAddress: '123 Demo Road',
       },
     });
   vi.mocked(useCreateRequest).mockReturnValue({
@@ -149,6 +235,11 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   expect(screen.getByRole('status')).toHaveTextContent(
     /No policy coverage has changed/,
   );
+  expect(screen.getByText('123 Demo Road')).toBeInTheDocument();
+  expect(screen.getByRole('status')).toHaveTextContent(/Request ID: REQ-1/);
+  expect(
+    screen.getByText(/eligibility is a separate check/i),
+  ).toBeInTheDocument();
   expect(
     screen.queryByRole('heading', { name: 'Mock document upload' }),
   ).not.toBeInTheDocument();
@@ -235,6 +326,18 @@ it('requires replacement beneficiaries to total exactly 100 before submission', 
   expect(
     screen.getByText(/Total allocation: 99.9999999999%/),
   ).toBeInTheDocument();
+  expect(screen.getByText('Under 100%')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Record request' })).toBeDisabled();
+  fireEvent.change(
+    screen.getByRole('spinbutton', { name: 'Allocation percent 1' }),
+    { target: { value: '100' } },
+  );
+  expect(screen.getByText('Exactly 100%')).toBeInTheDocument();
+  fireEvent.change(
+    screen.getByRole('spinbutton', { name: 'Allocation percent 1' }),
+    { target: { value: '101' } },
+  );
+  expect(screen.getByText('Over 100%')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Record request' })).toBeDisabled();
   fireEvent.change(
     screen.getByRole('spinbutton', { name: 'Allocation percent 1' }),

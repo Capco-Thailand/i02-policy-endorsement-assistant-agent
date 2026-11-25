@@ -11,6 +11,8 @@ import { useCreateRequest, usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
 import { FocusHeading } from '../policies/FocusHeading';
 import { EligibilityCheck } from './EligibilityCheck';
+import { CurrentContext } from './CurrentContext';
+import { RecordedRequest } from './RecordedRequest';
 
 type ChangeType = RequestBody['changeType'];
 type Row = { id: number; name: string; allocationPercent: string };
@@ -47,6 +49,10 @@ export function RequestForm({ policyId }: { policyId: string }) {
   const [saved, setSaved] = useState<
     Awaited<ReturnType<typeof mutation.mutateAsync>>['request'] | null
   >(null);
+  const allocationTotal = beneficiaries.reduce(
+    (sum, item) => sum + (Number(item.allocationPercent) || 0),
+    0,
+  );
   const beneficiaryReady =
     beneficiaries.length > 0 &&
     beneficiaries.every(
@@ -56,10 +62,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
         Number.isFinite(Number(row.allocationPercent)) &&
         Number(row.allocationPercent) > 0,
     ) &&
-    beneficiaries.reduce(
-      (sum, row) => sum + Number(row.allocationPercent),
-      0,
-    ) === 100;
+    allocationTotal === 100;
   const ready =
     validDate(requestedEffectiveDate) &&
     (changeType === 'BENEFICIARY'
@@ -252,13 +255,8 @@ export function RequestForm({ policyId }: { policyId: string }) {
         <span className="policy-status active">ACTIVE</span>
       </div>
       {saved ? (
-        <section className="request-panel" role="status">
-          <h2>Pending checks</h2>
-          <p>
-            Your request was recorded and is pending checks. Request{' '}
-            <span className="request-id">{saved.id}</span>. No policy coverage
-            has changed.
-          </p>
+        <section className="request-panel">
+          <RecordedRequest request={saved} />
           <EligibilityCheck policyId={policyId} requestId={saved.id} />
           <Link href={routes.policy(policyId)}>Return to policy</Link>
         </section>
@@ -268,10 +266,11 @@ export function RequestForm({ policyId }: { policyId: string }) {
           onSubmit={(event) => void submit(event)}
           noValidate
         >
-          <p>
+          <p className="request-boundary">
             Synthetic request only. Recording it does not approve a change or
             bind coverage.
           </p>
+          <h2>What would you like to change?</h2>
           <label htmlFor="change-type">Change type</label>
           <select
             id="change-type"
@@ -299,26 +298,11 @@ export function RequestForm({ policyId }: { policyId: string }) {
               {error}
             </p>
           )}
-          <label htmlFor="requested-date">Requested effective date</label>
-          <Input
-            id="requested-date"
-            aria-describedby={
-              errorField === 'requested-date'
-                ? 'requested-date-error'
-                : 'requested-date-help'
-            }
-            type="date"
-            value={requestedEffectiveDate}
-            onChange={(event) => setDate(event.target.value)}
-            required
-          />
-          <small id="requested-date-help">
-            Required. Use a valid calendar date.
-          </small>
-          {errorField === 'requested-date' && (
-            <p id="requested-date-error" role="alert" className="request-error">
-              {error}
-            </p>
+          {changeType && (
+            <CurrentContext policy={policy} changeType={changeType} />
+          )}
+          {changeType && (
+            <h2 className="request-change-heading">Requested change</h2>
           )}
           {changeType === 'BENEFICIARY' && (
             <fieldset>
@@ -328,13 +312,15 @@ export function RequestForm({ policyId }: { policyId: string }) {
                 </span>
               </legend>
               <p>Replace the full list. Allocations must total exactly 100%.</p>
-              <p>
-                Total allocation:{' '}
-                {beneficiaries.reduce(
-                  (sum, item) => sum + (Number(item.allocationPercent) || 0),
-                  0,
-                )}
-                %
+              <p className="allocation-total" role="status">
+                Total allocation: {allocationTotal}% ·{' '}
+                <span>
+                  {allocationTotal === 100
+                    ? 'Exactly 100%'
+                    : allocationTotal < 100
+                      ? 'Under 100%'
+                      : 'Over 100%'}
+                </span>
               </p>
               {beneficiaries.map((row, index) => (
                 <div className="beneficiary-row" key={row.id}>
@@ -483,6 +469,28 @@ export function RequestForm({ policyId }: { policyId: string }) {
                 <option value="REMOVE">Remove</option>
               </select>
             </fieldset>
+          )}
+          <label htmlFor="requested-date">Requested effective date</label>
+          <Input
+            id="requested-date"
+            aria-describedby={
+              errorField === 'requested-date'
+                ? 'requested-date-error'
+                : 'requested-date-help'
+            }
+            type="date"
+            value={requestedEffectiveDate}
+            onChange={(event) => setDate(event.target.value)}
+            required
+          />
+          <small id="requested-date-help">
+            Required. Use a valid calendar date. Eligibility checks the policy
+            term.
+          </small>
+          {errorField === 'requested-date' && (
+            <p id="requested-date-error" role="alert" className="request-error">
+              {error}
+            </p>
           )}
           {error && !errorField && (
             <p
