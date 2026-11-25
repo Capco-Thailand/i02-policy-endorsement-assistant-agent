@@ -2,7 +2,7 @@
 
 **Title:** [Story] Understand a requested change and its eligibility result
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/160
 **Feature ID:** FR-17
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — confusing recorded requests with eligible changes could mislead customers.
