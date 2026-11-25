@@ -6,7 +6,7 @@ Reviewed the request and eligibility HTML against the FR-17 ticket criteria, the
 
 ## Browser checks
 
-- Chromium rendered the payment-frequency request and needs-review eligibility previews at 1280px and 320px; captures are in `mockups/`.
+- Chromium rendered the payment-frequency request and needs-review eligibility previews at 1280px and 320px; captures are in `design/page/fr-17-*.png` and linked from `DESIGN.md`.
 - `document.documentElement.scrollWidth <= innerWidth` passed for those four captures.
 - At 320px, Chromium also opened all four request types, invalid/expired/service-error states, and all five eligibility preview states without horizontal overflow; the address-unavailable and rider-state-unavailable labels were visible.
 - In the beneficiary preview, adding a row and entering 10% changed the text state to “Over 100%”; removing that row restored “Exactly 100%”.
