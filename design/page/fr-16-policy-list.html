@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FR-16 policy list · Policy Endorsement Assistant</title>
+    <link rel="stylesheet" href="fr-16-redesign.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <span class="brand-mark" aria-hidden="true">PE</span
+        ><span class="brand-name"
+          >Policy Endorsement Assistant<small
+            >Synthetic customer records</small
+          ></span
+        ><a class="site-header__trail" href="fr-16-sign-in.html"
+          >Sign out (preview)</a
+        >
+      </div>
+    </header>
+    <main class="fr16-shell">
+      <p class="fr16-kicker">Customer access / Policies</p>
+      <h1>Your policies</h1>
+      <p class="fr16-intro">
+        Choose a policy to review its current details. Only policies linked to
+        this demo account appear here.
+      </p>
+      <p><a href="change-history.html">Customer change history</a></p>
+      <div id="list-content">
+        <ul class="fr16-list">
+          <li>
+            <a
+              class="fr16-row"
+              href="fr-15-policy-detail.html"
+              aria-label="View Family Protection Plan, POL-NARIN-001, Active"
+              ><span
+                ><span class="fr16-name">Family Protection Plan</span
+                ><span class="fr16-id">POL-NARIN-001</span></span
+              ><span class="fr16-status">Active</span
+              ><span class="fr16-view">View policy →</span></a
+            >
+          </li>
+          <li>
+            <a
+              class="fr16-row"
+              href="fr-15-policy-detail.html#policy-states-title"
+              aria-label="View Classic Life Plan, POL-NARIN-002, Expired"
+              ><span
+                ><span class="fr16-name">Classic Life Plan</span
+                ><span class="fr16-id">POL-NARIN-002</span></span
+              ><span class="fr16-status">Expired</span
+              ><span class="fr16-view">View policy →</span></a
+            >
+          </li>
+        </ul>
+      </div>
+      <p class="fr16-boundary">
+        These are synthetic policies. Viewing a policy does not change coverage;
+        expired policy values are historical.
+      </p>
+      <nav class="fr16-preview" aria-label="Mockup states">
+        Preview: <a href="?state=initial">Policies</a
+        ><a href="?state=loading">Loading</a><a href="?state=empty">Empty</a
+        ><a href="?state=error">Service error</a
+        ><a href="?state=ended">Session ended</a>
+      </nav>
+    </main>
+    <script src="fr-16-policy-list.js" defer></script>
+  </body>
+</html>
