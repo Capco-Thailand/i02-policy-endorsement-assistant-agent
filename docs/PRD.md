@@ -24,7 +24,7 @@ Customers use individual synthetic demo accounts. A customer can view and reques
 
 ### Customer UI redesign
 
-The [customer UI redesign initiative](../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md) improves data presentation and layout across the existing journey. [FR-15](backlog/fr-15-redesign-policy-detail-and-proposal-review.md) establishes policy-detail and proposal-review reference patterns; [FR-16](backlog/fr-16-redesign-sign-in-and-policy-list.md), [FR-17](backlog/fr-17-redesign-request-and-eligibility.md), and [FR-18](backlog/fr-18-redesign-decision-history.md) apply them to the remaining screens. These drafts do not add endorsement types, change eligibility or pricing, issue coverage, or update policy records.
+The [customer UI redesign initiative](../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md) improves data presentation and layout across the existing journey. [FR-15](tickets/fr-15-redesign-policy-detail-and-proposal-review.md) establishes policy-detail and proposal-review reference patterns; [FR-16](backlog/fr-16-redesign-sign-in-and-policy-list.md), [FR-17](backlog/fr-17-redesign-request-and-eligibility.md), and [FR-18](backlog/fr-18-redesign-decision-history.md) apply them to the remaining screens. These presentation changes do not add endorsement types, change eligibility or pricing, issue coverage, or update policy records.
 
 ## 2. Customer journey
 
