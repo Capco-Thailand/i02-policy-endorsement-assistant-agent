@@ -2,5 +2,12 @@
 persistent_facts = [
   "For UI work, read the ticket requirements first. Then read {project-root}/docs/DESIGN_STANDARD.md and {project-root}/docs/VISUAL_UX_CONSTRAINTS.md before shaping DESIGN.md, EXPERIENCE.md, or mockups.",
   "A UI handoff includes browser-viewable design/page/<pagename>.html files for relevant screens and a design/page/index.html page linking to them. Use the spines as the authoritative design and behavior contracts.",
+  "file:{project-root}/docs/TICKETING.md",
 ]
-on_complete = "Before closing a UI design run, create or update the relevant design/page/<pagename>.html mockups and link them from design/page/index.html. Use working relative asset paths and the project design standards. Link the delivered pages from the UX handoff document and have Sofia adopt the UX spines and page paths in the local requirement ticket. Verify the UX documents and browser-viewable mockups, commit and push the requirement ticket and UX handoff on one task branch, inspect existing PRs, then open one PR containing both for team review with Issue: Pending. Do not create a GitHub Issue before merge; merge automation creates it and links the ticket. Implementation follows after review."
+on_complete = """
+Before closing a UI design run, verify DESIGN.md, EXPERIENCE.md, and the relevant browser-viewable design/page/<pagename>.html mockups. Link the pages from design/page/index.html and the local backlog draft or ticket; use working relative assets and the project design standards.
+
+If the requirement remains in docs/backlog/, record the proposed layout assumptions and pending customer review in the local draft and any existing UX handoff. Do not move the draft, open a ticket/UX PR, or create a GitHub Issue solely because the UX run is final or its validation passed.
+
+After the customer accepts the reference layouts and selects the work for delivery, have Sofia record the dated decision, reconcile the UX paths in docs/tickets/<file>.md, and follow docs/TICKETING.md. Commit and push the ticket and UX handoff on one task branch, inspect existing PRs, then open one non-draft PR with Issue: Pending. Create or reuse the Issue only after that PR merges. Implementation follows the reviewed ticket and UX handoff.
+"""
