@@ -29,14 +29,14 @@ export function SignInScreen({ ended }: { ended: boolean }) {
       <main className="auth-shell">
         <section className="auth-copy">
           <p className="auth-kicker">Customer access / Sign in</p>
-          <h1 className="auth-title">Sign in to view your policies.</h1>
+          <h1 className="auth-title">Sign in to view your policies</h1>
           <p className="auth-intro">
-            Use your synthetic demo account to view policies linked to you and
-            request a change.
+            Use your synthetic demo account to find policies linked to you and
+            review their details.
           </p>
           <p className="auth-boundary">
-            <strong>Prototype only</strong> No live policy or coverage is
-            changed here.
+            <strong>Prototype only.</strong> No live policy or coverage changes
+            here.
           </p>
         </section>
         <div>

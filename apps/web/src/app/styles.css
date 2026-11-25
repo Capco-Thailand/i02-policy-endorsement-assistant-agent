@@ -94,13 +94,13 @@ textarea:focus-visible,
 .auth-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
-  gap: clamp(40px, 7vw, 100px);
+  gap: 56px;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 104px 24px 44px;
+  padding: 36px 28px 72px;
 }
 .auth-copy {
-  padding-top: 34px;
+  padding-top: 0;
 }
 .auth-kicker {
   margin: 0 0 12px;
@@ -112,36 +112,46 @@ textarea:focus-visible,
 }
 .auth-title {
   margin: 0;
-  font-size: clamp(36px, 5vw, 48px);
-  line-height: 1.12;
-  letter-spacing: -0.04em;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
 }
 .auth-intro {
   max-width: 430px;
-  margin: 18px 0 40px;
+  margin: 18px 0 28px;
   color: var(--muted-foreground);
   font-size: 16px;
   line-height: 1.6;
 }
 .auth-boundary {
-  display: grid;
-  gap: 5px;
-  max-width: 360px;
-  margin: 0;
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
+  max-width: 60ch;
+  margin: 28px 0;
+  padding: 10px 16px;
+  border-left: 3px solid var(--primary);
+  background: var(--muted);
   font-size: 13px;
   line-height: 1.5;
 }
 .auth-panel {
-  padding: 32px;
+  padding: 28px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--card);
 }
 .auth-panel h2 {
   margin: 0 0 24px;
   font-size: 22px;
+  font-weight: 700;
+}
+.auth-panel input[data-slot='input'] {
+  border-radius: var(--radius);
+  border-color: var(--border);
+  background: var(--background);
+}
+.auth-panel button[data-slot='button'] {
+  border-radius: var(--radius);
+  font-weight: 700;
 }
 .auth-note {
   margin: 18px 0 0;
@@ -156,23 +166,28 @@ textarea:focus-visible,
   margin: 0 auto;
   padding: 60px 24px;
 }
+.policy-list-shell {
+  padding: 36px 28px 72px;
+}
 .policy-shell h1 {
   margin: 0 0 12px;
   font-size: 34px;
+}
+.policy-list-shell h1 {
+  font-weight: 700;
 }
 .policy-shell > p {
   color: var(--muted-foreground);
 }
 .policy-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin: 28px 0 0;
+  margin: 28px 0;
   padding: 0;
   list-style: none;
+  border-top: 1px solid var(--border);
 }
 .policy-list li {
   min-width: 0;
+  border-bottom: 1px solid var(--border);
 }
 .evidence-section > p {
   color: var(--muted-foreground);
@@ -203,32 +218,37 @@ textarea:focus-visible,
   font-weight: 650;
 }
 .policy-card {
-  display: block;
-  height: 100%;
-  padding: 24px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--card);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  padding: 22px 4px;
   text-decoration: none;
 }
-.policy-card:hover {
-  border-color: var(--primary);
+.policy-card:hover .policy-linkline {
+  text-decoration: underline;
 }
 .policy-card:focus-visible,
 .policy-back:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 3px;
 }
-.policy-card-head,
 .policy-heading {
   display: flex;
   justify-content: space-between;
   align-items: start;
   gap: 18px;
 }
+.policy-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  min-width: 0;
+}
 .policy-card-head strong {
   display: block;
-  font-size: 21px;
+  font-size: 18px;
   letter-spacing: -0.03em;
 }
 .policy-id {
@@ -237,6 +257,9 @@ textarea:focus-visible,
   color: var(--muted-foreground);
   font-size: 14px;
   overflow-wrap: anywhere;
+}
+.policy-list .policy-id {
+  font-variant-numeric: tabular-nums;
 }
 .policy-status {
   display: inline-flex;
@@ -252,6 +275,10 @@ textarea:focus-visible,
   font-weight: 750;
   letter-spacing: 0.06em;
 }
+.policy-list .policy-status {
+  border-radius: 999px;
+  font-size: 12px;
+}
 .policy-status::before {
   content: '';
   width: 6px;
@@ -265,12 +292,10 @@ textarea:focus-visible,
   color: var(--warning-foreground);
 }
 .policy-linkline {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 22px;
   color: var(--primary);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 750;
+  white-space: nowrap;
 }
 .policy-note {
   max-width: 800px;
@@ -280,6 +305,14 @@ textarea:focus-visible,
   color: var(--muted-foreground);
   font-size: 11px;
   line-height: 1.5;
+}
+.policy-list-shell > p.policy-note {
+  padding: 10px 16px;
+  border-top: 0;
+  border-left: 3px solid var(--primary);
+  background: var(--muted);
+  color: var(--foreground);
+  font-size: 13px;
 }
 .policy-intro-note {
   max-width: none;
@@ -373,15 +406,16 @@ textarea:focus-visible,
     grid-template-columns: 1fr;
     gap: 30px;
     max-width: 560px;
-    padding: 48px 24px 24px;
+    padding: 28px 16px 56px;
   }
   .auth-copy {
     padding-top: 0;
   }
 }
 @media (max-width: 700px) {
-  .policy-list {
-    grid-template-columns: 1fr;
+  .policy-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
 }
 @media (max-width: 520px) {
@@ -398,6 +432,9 @@ textarea:focus-visible,
   .policy-shell {
     padding: 32px 18px 58px;
   }
+  .policy-list-shell {
+    padding: 28px 16px 56px;
+  }
   .policy-facts {
     grid-template-columns: 1fr;
   }
@@ -407,13 +444,14 @@ textarea:focus-visible,
   }
   .policy-card-head {
     align-items: start;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 12px;
   }
   .auth-shell {
-    padding: 40px 18px 24px;
+    padding: 28px 16px 56px;
   }
   .auth-panel {
-    padding: 23px 20px;
+    padding: 20px;
   }
 }
 

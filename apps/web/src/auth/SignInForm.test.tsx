@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { SignInForm } from './SignInForm';
 
 describe('FR-01 sign-in form', () => {
+  it('FR-16 sign-in names the synthetic demo account boundary', () => {
+    render(<SignInForm onSignIn={vi.fn()} />);
+    expect(screen.getByText('Synthetic demo account')).toBeInTheDocument();
+  });
   it('names and associates missing account ID and password fields', async () => {
     const signIn = vi.fn();
     render(<SignInForm onSignIn={signIn} />);

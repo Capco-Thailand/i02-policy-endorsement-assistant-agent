@@ -32,6 +32,150 @@ test.afterEach(async ({ page }, testInfo) => {
   }
 });
 
+for (const width of [1280, 320]) {
+  test(`FR-16 sign-in and authorized rows at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/');
+    await expect(page.getByText('Prototype only.')).toBeVisible();
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(page.getByText('Enter your account ID.')).toBeVisible();
+    await expect(page.getByLabel('Account ID')).toBeFocused();
+    await page.getByLabel('Account ID').fill('narin');
+    await page.getByLabel('Password').fill('NarinDemo123!');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await expect(
+      page.getByRole('link', {
+        name: 'View policy: Family Protection Plan, POL-NARIN-001, Active',
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('link', {
+        name: 'View policy: Classic Life Plan, POL-NARIN-002, Expired',
+      }),
+    ).toBeVisible();
+    await expect(page.getByText('POL-MALI-001')).toHaveCount(0);
+    await expect(
+      page.getByRole('link', { name: 'Customer change history' }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  });
+}
+
+test('FR-16 sign-in service failure at 320px stays on the form', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/');
+  await page.route('**/api/auth/sign-in', (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'SERVICE_UNAVAILABLE' }),
+    }),
+  );
+  await page.getByLabel('Account ID').fill('narin');
+  await page.getByLabel('Password').fill('NarinDemo123!');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Sign-in is unavailable' }),
+  ).toBeVisible();
+  await expect(page.getByText('POL-NARIN-001')).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test('FR-16 loading then empty list at 320px names the next state', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await signIn(page);
+  let release: (() => void) | undefined;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/api/policies', async (route) => {
+    await held;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ policies: [] }),
+    });
+  });
+  await page.reload();
+  await expect(page.getByRole('status')).toHaveText('Loading policies…');
+  await expect(page.getByText('POL-NARIN-001')).toHaveCount(0);
+  release?.();
+  await expect(
+    page.getByText('No policies are linked to this account.'),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test('FR-16 ended session at 320px clears policy data and explains sign-in', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await signIn(page);
+  await page.route('**/api/auth/session', (route) =>
+    route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'UNAUTHORIZED' }),
+    }),
+  );
+  await page.reload();
+  await expect(page).toHaveURL(/\/\?ended=1$/);
+  await expect(page.getByRole('status')).toHaveText(
+    'Your session ended. Sign in again.',
+  );
+  await expect(page.getByText('POL-NARIN-001')).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test('FR-16 list service failure offers retry without stale records at 320px', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await signIn(page);
+  await page.route('**/api/policies', (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'SERVICE_UNAVAILABLE' }),
+    }),
+  );
+  await page.reload();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Could not load policies' }),
+  ).toContainText('Could not load policies');
+  await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible();
+  await expect(page.getByText('POL-NARIN-001')).toHaveCount(0);
+  await page.unroute('**/api/policies');
+  await page.getByRole('button', { name: 'Try again' }).click();
+  await expect(page.getByText('POL-NARIN-001')).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
 test('FR-01 AC1: each demo customer signs in and sees only linked policies', async ({
   page,
 }) => {
@@ -66,7 +210,7 @@ test('FR-01 AC3: sign-out removes protected policy data and invalidates the sess
   await signIn(page);
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Sign in to view your policies.' }),
+    page.getByRole('heading', { name: 'Sign in to view your policies' }),
   ).toBeVisible();
   await page.goto('/policies');
   await expect(page).toHaveURL(/\/\?ended=1$/);
@@ -82,7 +226,7 @@ test('FR-03 AC1-AC2: linked policy selection shows facts and returns to the list
     page.getByRole('heading', { name: 'Family Protection Plan' }),
   ).toBeVisible();
   await expect(page.getByText('1 January 2025')).toBeVisible();
-  await expect(page.getByText('Arisa K.')).toBeVisible();
+  await expect(page.getByText('Arisa K.', { exact: true })).toBeVisible();
   await expect(page.getByText('60%', { exact: true })).toBeVisible();
   await page.getByRole('link', { name: /Back to policies/ }).click();
   await expect(

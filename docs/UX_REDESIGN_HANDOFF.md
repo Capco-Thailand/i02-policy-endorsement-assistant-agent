@@ -56,11 +56,15 @@ Update a checkbox only when its evidence is linked below. Record dates, decision
 
 ## Decisions and open questions
 
-The customer chose **“What would this request change and cost?”** and accepted the current FR-15 policy-detail and proposal-review layouts on 2026-11-25. Keep current coverage accessible as the baseline for comparison. On 2026-11-25 the customer chose existing authorized label, ID, and status for FR-16's policy list; its proposed sign-in and policy-list layouts await review.
+The customer chose **“What would this request change and cost?”** and accepted the current FR-15 policy-detail and proposal-review layouts on 2026-11-25. Keep current coverage accessible as the baseline for comparison. On 2026-11-25 the customer chose existing authorized label, ID, and status for FR-16's policy list and accepted its sign-in and policy-list layouts.
 
 ## FR-16 preparation, 2026-11-25
 
-The customer invoked `bmad do fr-16`, selecting the feature for delivery, and chose the current policy-list response fields. The customer accepted the sign-in and policy-list reference layouts on 2026-11-25. The [FR-16 ticket](tickets/fr-16-redesign-sign-in-and-policy-list.md), accepted [visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/DESIGN.md), [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/EXPERIENCE.md), [sign-in mockup](../design/page/fr-16-sign-in.html), and [policy-list mockup](../design/page/fr-16-policy-list.html) formed [handoff PR #155](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/155), merged on 2026-11-25. [Issue #156](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/156) is open. The reciprocal ticket link must reach `main` before implementation preflight.
+The customer invoked `bmad do fr-16`, selecting the feature for delivery, and chose the current policy-list response fields. The customer accepted the sign-in and policy-list reference layouts on 2026-11-25. The [FR-16 ticket](tickets/fr-16-redesign-sign-in-and-policy-list.md), accepted [visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/DESIGN.md), [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/EXPERIENCE.md), [sign-in mockup](../design/page/fr-16-sign-in.html), and [policy-list mockup](../design/page/fr-16-policy-list.html) formed [handoff PR #155](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/155), merged on 2026-11-25. [Issue #156](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/156) is open; reciprocal-link PR #157 merged and implementation preflight passed.
+
+## FR-16 implementation update, 2026-11-25
+
+The accepted sign-in and policy-list layouts are implemented with existing label, ID, and status fields. Component tests (58/58), typecheck, format check, and build passed. The final focused browser run passed all nine FR-16 scenarios, including four reviewed Windows Chromium visual comparisons; the [implementation plan](implementation-plan/fr-16-redesign-sign-in-and-policy-list.md#superseding-browser-verification-2026-11-25) records criterion coverage and reports. The shared-database full suite returned 51 passed, 6 failed, and 6 platform skips; the plan distinguishes the existing shared-data history failures and FR-14 Windows baseline drift. A fresh CI database run is the remaining full-suite gate.
 
 ## Progress log
 

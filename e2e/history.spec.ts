@@ -153,7 +153,7 @@ test('FR-12 signed-out history is guarded on narrow screens', async ({
   await page.setViewportSize({ width: 375, height: 800 });
   await page.goto('/history');
   await expect(
-    page.getByRole('heading', { name: 'Sign in to view your policies.' }),
+    page.getByRole('heading', { name: 'Sign in to view your policies' }),
   ).toBeVisible();
   await signIn(page, 'mali', 'MaliDemo123!');
   await page.getByRole('link', { name: 'Customer change history' }).click();

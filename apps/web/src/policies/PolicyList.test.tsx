@@ -20,6 +20,41 @@ const show = (state: object) => {
 };
 
 describe('FR-03 policy list', () => {
+  it('FR-16 names the loading state without showing a stale policy', () => {
+    show({ isPending: true });
+    expect(screen.getByRole('status')).toHaveTextContent('Loading policies…');
+    expect(screen.queryByText('POL-NARIN-001')).not.toBeInTheDocument();
+  });
+  it('FR-16 names each View policy action with its policy and readable status', () => {
+    show({
+      isPending: false,
+      isError: false,
+      data: {
+        policies: [
+          {
+            id: 'POL-NARIN-001',
+            label: 'Family Protection Plan',
+            status: 'ACTIVE',
+          },
+          {
+            id: 'POL-NARIN-002',
+            label: 'Classic Life Plan',
+            status: 'EXPIRED',
+          },
+        ],
+      },
+    });
+    expect(
+      screen.getByRole('link', {
+        name: 'View policy: Family Protection Plan, POL-NARIN-001, Active',
+      }),
+    ).toHaveAttribute('href', '/policies/POL-NARIN-001');
+    expect(
+      screen.getByRole('link', {
+        name: 'View policy: Classic Life Plan, POL-NARIN-002, Expired',
+      }),
+    ).toHaveAttribute('href', '/policies/POL-NARIN-002');
+  });
   it('makes each owned policy a link with a visible status', () => {
     show({
       isPending: false,

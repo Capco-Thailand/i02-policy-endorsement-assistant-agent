@@ -7,6 +7,32 @@ const validAddress = {
   correspondenceAddress: '100 Demo Road',
 };
 
+test('FR-16 owner-authorized list excludes foreign policies', async ({
+  request,
+}) => {
+  await request.post(`${api}/api/auth/sign-in`, {
+    data: { accountId: 'narin', password: 'NarinDemo123!' },
+  });
+  const response = await request.get(`${api}/api/policies`);
+  expect(response.status()).toBe(200);
+  const body = await response.json();
+  expect(body.policies).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ id: 'POL-NARIN-001', status: 'ACTIVE' }),
+      expect.objectContaining({ id: 'POL-NARIN-002', status: 'EXPIRED' }),
+    ]),
+  );
+  expect(
+    body.policies.some(
+      (policy: { id: string }) => policy.id === 'POL-MALI-001',
+    ),
+  ).toBe(false);
+  const unknown = await request.get(`${api}/api/policies/POL-UNKNOWN`);
+  const foreign = await request.get(`${api}/api/policies/POL-MALI-001`);
+  expect(foreign.status()).toBe(404);
+  expect(await foreign.json()).toEqual(await unknown.json());
+});
+
 test('FR-08 eligibility rejects missing session and gives identical 404 for unknown and foreign policy', async ({
   request,
 }) => {

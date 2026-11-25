@@ -38,14 +38,18 @@ export function PolicyList() {
     <ul className="policy-list">
       {query.data.policies.map((policy) => (
         <li key={policy.id}>
-          <Link className="policy-card" href={routes.policy(policy.id)}>
+          <Link
+            className="policy-card"
+            href={routes.policy(policy.id)}
+            aria-label={`View policy: ${policy.label}, ${policy.id}, ${policy.status === 'ACTIVE' ? 'Active' : 'Expired'}`}
+          >
             <span className="policy-card-head">
               <span>
                 <strong>{policy.label}</strong>
                 <span className="policy-id">{policy.id}</span>
               </span>
               <span className={`policy-status ${policy.status.toLowerCase()}`}>
-                {policy.status}
+                {policy.status === 'ACTIVE' ? 'Active' : 'Expired'}
               </span>
             </span>
             <span className="policy-linkline">
