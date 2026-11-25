@@ -124,7 +124,9 @@ test('FR-04 unresolved evidence and service failure keep facts visible and retry
   );
   await page.reload();
   await expect(
-    page.getByText('Policy evidence is temporarily unavailable', { exact: true }),
+    page.getByText('Policy evidence is temporarily unavailable', {
+      exact: true,
+    }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Retry evidence' }).click();
   await expect(page.getByText('Matches policy facts')).toBeVisible();
