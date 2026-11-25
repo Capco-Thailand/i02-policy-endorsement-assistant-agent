@@ -1,6 +1,6 @@
 # PRD — I02 Life Insurance Policy Endorsement Assistant
 
-**Version:** 1.8 | **Date:** 2026-11-23 | **Status:** MVP
+**Version:** 1.9 | **Date:** 2026-11-25 | **Status:** MVP
 
 This PRD states the business outcome, product scope, cross-feature rules, and success measures. Detailed behavior and acceptance criteria live in [implementation tickets](tickets/) and [backlog tickets](backlog/). GitHub Issues track discussion and delivery status; [ticket workflow](TICKETING.md) explains how the records connect. Architecture decisions live in [ADR.md](ADR.md).
 
@@ -21,6 +21,10 @@ Build a customer-facing AI-assisted life insurance endorsement request workflow.
 ### Authentication and access
 
 Customers use individual synthetic demo accounts. A customer can view and request changes only for policies linked to that account. The customer reviews the proposed updated-policy view for their own request and records an approval or rejection; another customer's request cannot be approved. Sign-in and policy ownership checks provide the MVP access boundary; no separate eKYC step runs during an endorsement request. The detailed authentication, session, authorization, and audit requirements are in the [FR-01 ticket](tickets/fr-01-authenticate-customers.md).
+
+### Customer UI redesign
+
+The [customer UI redesign initiative](../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md) improves data presentation and layout across the existing journey. [FR-15](backlog/fr-15-redesign-policy-detail-and-proposal-review.md) establishes policy-detail and proposal-review reference patterns; [FR-16](backlog/fr-16-redesign-sign-in-and-policy-list.md), [FR-17](backlog/fr-17-redesign-request-and-eligibility.md), and [FR-18](backlog/fr-18-redesign-decision-history.md) apply them to the remaining screens. These drafts do not add endorsement types, change eligibility or pricing, issue coverage, or update policy records.
 
 ## 2. Customer journey
 
