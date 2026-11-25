@@ -35,6 +35,17 @@ export function ProposalPage({
             Try again
           </Button>
         </section>
+      ) : proposal.data.impact.status === 'CALCULATED' &&
+        !proposal.data.impact.quote ? (
+        <section role="alert" className="request-panel">
+          <h1>Proposal quote unavailable</h1>
+          <p>
+            Cannot review this proposal yet. Its server quote is unavailable.
+          </p>
+          <Button type="button" onClick={() => void proposal.refetch()}>
+            Try again
+          </Button>
+        </section>
       ) : (
         <>
           <ProposalReview proposal={proposal.data} />

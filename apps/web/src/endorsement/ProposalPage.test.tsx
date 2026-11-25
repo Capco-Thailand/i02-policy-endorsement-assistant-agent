@@ -44,6 +44,40 @@ it('FR-10 review gives retryable error without claiming proposal success', () =>
   expect(screen.queryByText('PENDING APPROVAL')).not.toBeInTheDocument();
 });
 
+it('FR-15 suppresses decisions when a calculated quote is absent', () => {
+  vi.mocked(useDecideProposal).mockReturnValue({
+    isPending: false,
+    isError: false,
+  } as ReturnType<typeof useDecideProposal>);
+  vi.mocked(useProposal).mockReturnValue({
+    isPending: false,
+    isError: false,
+    data: {
+      id: 'PROP',
+      policyId: 'POL',
+      status: 'PENDING_APPROVAL',
+      current: {
+        label: 'Synthetic',
+        paymentFrequency: 'MONTHLY',
+        beneficiaries: [],
+        coverages: [],
+      },
+      requestedChange: {
+        changeType: 'PAYMENT_FREQUENCY',
+        paymentFrequency: 'ANNUAL',
+        requestedEffectiveDate: '2027-01-01',
+      },
+      citations: [],
+      impact: { status: 'CALCULATED' },
+    },
+  } as unknown as ReturnType<typeof useProposal>);
+  render(<ProposalPage policyId="POL" proposalId="PROP" />);
+  expect(screen.getByRole('alert')).toHaveTextContent(/quote unavailable/i);
+  expect(
+    screen.queryByRole('button', { name: 'Approve proposal' }),
+  ).not.toBeInTheDocument();
+});
+
 it('FR-11 rejection requires confirmation and Cancel makes no write', async () => {
   const user = (await import('@testing-library/user-event')).default.setup();
   const onDecide = vi.fn();

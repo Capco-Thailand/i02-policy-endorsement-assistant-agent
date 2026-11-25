@@ -281,6 +281,16 @@ textarea:focus-visible,
   font-size: 11px;
   line-height: 1.5;
 }
+.policy-intro-note {
+  max-width: none;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-top: 0;
+  border-left: 3px solid var(--primary);
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 13px;
+}
 .policy-detail-shell {
   max-width: 850px;
 }
@@ -633,6 +643,20 @@ textarea:focus-visible,
   border-left: 3px solid var(--warning-foreground);
   padding-left: 10px;
 }
+.policy-citation a,
+.policy-sources a {
+  color: var(--primary);
+  text-underline-offset: 3px;
+}
+.policy-citation a:focus-visible,
+.policy-sources a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+.policy-sources li:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
 @media (max-width: 360px) {
   .policy-term-list li strong,
   .policy-term-list li span {
@@ -674,6 +698,81 @@ textarea:focus-visible,
 }
 .proposal-review li {
   overflow-wrap: anywhere;
+}
+.proposal-review {
+  min-width: 0;
+}
+.proposal-review .policy-heading h1 {
+  font-size: clamp(28px, 3vw, 34px);
+  line-height: 1.15;
+}
+.proposal-boundary {
+  border-left: 3px solid var(--primary);
+}
+.proposal-quote-summary {
+  background: var(--card);
+  border-color: var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.proposal-quote-summary p:first-of-type {
+  font-size: 17px;
+  font-weight: 700;
+}
+.proposal-fields {
+  border-top: 1px solid var(--border);
+}
+.proposal-field {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) repeat(2, minmax(0, 1.4fr));
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.proposal-field h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.proposal-field > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.proposal-field > div > span:first-child,
+.proposal-field small {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.proposal-field strong {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.proposal-change {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .proposal-field {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+  .proposal-field > div {
+    padding-left: 12px;
+    border-left: 1px solid var(--border);
+  }
+}
+@media (max-width: 360px) {
+  .policy-shell {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .proposal-review .request-panel,
+  .policy-sources {
+    overflow-wrap: anywhere;
+  }
 }
 .history-shell {
   max-width: 850px;

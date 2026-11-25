@@ -1,10 +1,10 @@
 # Customer UI redesign — agent handoff
 
-**Status:** FR-15 reference UX accepted; ticket/UX handoff in review
+**Status:** FR-15 implementation verified; implementation PR pending
 
 **Owner:** UX / PO handoff
 
-**Tracking record:** This file until a reviewed ticket and GitHub Issue exist
+**Tracking record:** Active GitHub Issue #153 and the local FR-15 ticket
 **Last updated:** 2026-11-25
 
 **BMad initiative:** [`initiative-customer-ui-redesign`](../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md)
@@ -36,8 +36,8 @@ Update a checkbox only when its evidence is linked below. Record dates, decision
 | Review the two reference screens with the user and record accepted changes | Done | 2026-11-25 acceptance in the [FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md#accepted-decisions-and-readiness) |
 | Extend the accepted patterns to sign-in, policies, request, eligibility, evidence, and history | Open | Browser-viewable mockups and state coverage |
 | Reconcile `DESIGN.md`, `EXPERIENCE.md`, affected tickets, and mockups | FR-15 done; later screens open | [FR-15 ticket references](tickets/fr-15-redesign-policy-detail-and-proposal-review.md#ux-handoff-references), [UX run](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/ux-fr-15.md) |
-| Validate keyboard access, readable amounts, mobile layout, and non-binding language | FR-15 review done; implementation check open | [Validation report](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/validation-report.md) |
-| Prepare the reviewed ticket/UX PR, then create or reuse its Issue after merge | In progress | [FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md); follow [ticket workflow](TICKETING.md#ticket-creation-flow) |
+| Validate keyboard access, readable amounts, mobile layout, and non-binding language | FR-15 verified; fresh CI database gate pending | [Validation report](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/validation-report.md), [implementation verification](implementation-plan/fr-15-redesign-policy-detail-and-proposal-review.md#verification) |
+| Merge the ticket/UX PR and create the linked Issue | Done; implementation PR pending | [Merged PR #152](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/152), [active Issue #153](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/153), [FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md) |
 
 ## Screen acceptance checklist
 
@@ -76,4 +76,16 @@ The customer chose **“What would this request change and cost?”** and accept
 
 ## Copy-ready instruction for the next agent
 
-> Continue `docs/UX_REDESIGN_HANDOFF.md` from its current status. FR-15's policy-detail and proposal-review reference layouts are accepted at desktop and 320px. Follow `docs/TICKETING.md` to merge the ticket/UX PR, create the Issue, and implement the ticket. Keep all synthetic, citation, unresolved, and non-binding boundaries. Update this handoff's progress table and log with links and blockers before stopping.
+> Continue `docs/UX_REDESIGN_HANDOFF.md` from its current status. Review the FR-15 implementation and focused browser evidence, then use a fresh synthetic CI database for the full suite. Keep all synthetic, citation, unresolved, and non-binding boundaries. Update this handoff's progress table and log with links and blockers before stopping.
+
+## FR-15 implementation update, 2026-11-25
+
+Committed verification sources: [policy detail browser scenarios](../e2e/policy-detail-coverage.spec.ts), [proposal browser scenarios](../e2e/proposal.spec.ts), [policy visuals](../e2e/visual.spec.ts), and [source-link component tests](../apps/web/src/policies/PolicyDetail.test.tsx). The `test-results/` paths below are local, ignored outputs; the CI test artifact is the shareable full-suite report.
+
+Review correction: status, dates, payment frequency, and beneficiaries now link to their exact owner-authorized source sections. The `test-results/fr-15-redesign-policy-detail-and-proposal-review/report-20261125145740/e2e-20261125145740.html` passed 2/2 browser scenarios at 320px; the `test-results/fr-15-redesign-policy-detail-and-proposal-review/report-20261125145347/e2e-20261125145347.html` passed 1/1. The `test-results/fr-15-redesign-policy-detail-and-proposal-review/report-20261125145440/e2e-20261125145440.html` passed desktop and 320px baselines. Web tests now pass 54/54; typecheck, format check, and build pass. The [plan evidence](implementation-plan/fr-15-redesign-policy-detail-and-proposal-review.md#source-link-correction-2026-11-25) records the test seam and unavailable-source behavior.
+
+Policy detail and proposal review now use the accepted source-link and field-comparison patterns. The [implementation plan](implementation-plan/fr-15-redesign-policy-detail-and-proposal-review.md#criterion-coverage-2026-11-25) records criterion coverage and red/green component evidence. The `test-results/fr-15-redesign-policy-detail-and-proposal-review/report-20261125144052/e2e-20261125144052.html` passed 18/18 scenarios with current and accepted desktop/320px captures attached. Web tests passed 54/54; typecheck, format check, and build passed.
+
+The `test-results/fr-15-redesign-policy-detail-and-proposal-review/report-20261125143847/e2e-20261125143847.html` has 47 passes, one unrelated FR-12 history failure, and six platform skips. The shared synthetic Neon database has six older approved proposal payloads missing history display fields, so `GET /api/history` returns 503. FR-15 did not change that API or its stored records. Fresh CI database verification remains the next full-suite gate.
+
+Quick review resolved three findings with no deferrals. After review patches, web tests passed 54/54, typecheck, format check, and build passed. The focused browser rerun passed 21 scenarios and skipped six platform baselines; its one evidence retry test was corrected to target the original evidence question and passed 1/1 in `test-results/fr-15-redesign-policy-detail-and-proposal-review/report-20261125151410/e2e-20261125151410.html`. Next: open the implementation PR and use its fresh CI database for the full suite.

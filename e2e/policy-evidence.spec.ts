@@ -35,9 +35,15 @@ test('FR-04 owned policy shows a bounded citation at 320px; foreign policy stays
   ).toBeVisible();
   await expect(page.getByText('Matches policy facts')).toBeVisible();
   await expect(
-    page.getByText('Family Protection Plan synthetic policy', { exact: true }),
+    page
+      .getByRole('region', { name: 'Synthetic policy evidence' })
+      .getByText('Family Protection Plan synthetic policy', { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText(/Version v1 · Section dates/)).toBeVisible();
+  await expect(
+    page
+      .getByRole('region', { name: 'Synthetic policy evidence' })
+      .getByText(/Version v1 · Section dates/),
+  ).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -99,6 +105,13 @@ test('FR-04 unresolved evidence and service failure keep facts visible and retry
   await page.route(
     '**/api/policies/POL-NARIN-001/evidence?*',
     async (route) => {
+      if (
+        new URL(route.request().url()).searchParams.get('query') !==
+        'When does protection begin?'
+      ) {
+        await route.continue();
+        return;
+      }
       attempts++;
       if (attempts === 1)
         await route.fulfill({
@@ -111,7 +124,7 @@ test('FR-04 unresolved evidence and service failure keep facts visible and retry
   );
   await page.reload();
   await expect(
-    page.getByText('Policy evidence is temporarily unavailable'),
+    page.getByText('Policy evidence is temporarily unavailable', { exact: true }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Retry evidence' }).click();
   await expect(page.getByText('Matches policy facts')).toBeVisible();

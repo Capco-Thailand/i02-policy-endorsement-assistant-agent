@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PolicyDetail } from './PolicyDetail';
-import { usePolicy } from '../lib/queries';
+import { useEvidence, usePolicy } from '../lib/queries';
 
 const replace = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace }) }));
@@ -27,7 +27,105 @@ const show = (state: object) => {
   return client;
 };
 
+beforeEach(() => {
+  vi.mocked(useEvidence).mockReturnValue({
+    isPending: false,
+    isError: false,
+    data: { status: 'unresolved', reason: 'MISSING_DOCUMENT', citations: [] },
+  } as unknown as ReturnType<typeof useEvidence>);
+});
+
 describe('FR-03 policy detail', () => {
+  it('FR-15 links status, dates, payment, and beneficiaries to full authorized evidence', () => {
+    const sections: Record<string, string> = {
+      status: 'What is the policy status?',
+      dates: 'When does protection begin?',
+      payment: 'How are premiums paid?',
+      beneficiaries: 'Who receives the benefit?',
+    };
+    vi.mocked(useEvidence).mockImplementation((_id, question) => {
+      const sectionId =
+        Object.entries(sections).find(([, value]) => value === question)?.[0] ??
+        'dates';
+      return {
+        isPending: false,
+        isError: false,
+        data: {
+          status: 'available',
+          match: 'Matches policy facts',
+          citations: [
+            {
+              sourceId: 'POL-NARIN-001:v1',
+              title: 'Family Protection Plan synthetic policy',
+              version: 'v1',
+              sectionId,
+              excerpt: `${sectionId} excerpt`,
+            },
+          ],
+        },
+      } as ReturnType<typeof useEvidence>;
+    });
+    show({
+      isPending: false,
+      isError: false,
+      data: {
+        policy: {
+          id: 'POL-NARIN-001',
+          label: 'Family Protection Plan',
+          status: 'ACTIVE',
+          effectiveDate: '2025-01-01',
+          expiryDate: '2035-12-31',
+          paymentFrequency: 'MONTHLY',
+          beneficiaries: [{ name: 'Arisa K.', allocationPercent: 100 }],
+          terms: {
+            product: { status: 'unresolved', reason: 'MISSING_DOCUMENT' },
+            coverages: [],
+            exclusions: [],
+          },
+        },
+      },
+    });
+    for (const section of Object.keys(sections)) {
+      const link = screen.getAllByRole('link', {
+        name: `View source · ${section}`,
+      })[0];
+      expect(link).toHaveAttribute('href', `#source-${section}`);
+      expect(document.querySelector(`#source-${section}`)).toHaveTextContent(
+        `${section} excerpt`,
+      );
+    }
+    expect(
+      screen.getAllByRole('link', { name: 'View source · dates' }),
+    ).toHaveLength(2);
+  });
+  it('FR-15 explains a missing source without linking to an absent citation', () => {
+    show({
+      isPending: false,
+      isError: false,
+      data: {
+        policy: {
+          id: 'POL-NARIN-001',
+          label: 'Family Protection Plan',
+          status: 'ACTIVE',
+          effectiveDate: '2025-01-01',
+          expiryDate: '2035-12-31',
+          paymentFrequency: 'MONTHLY',
+          beneficiaries: [],
+          terms: {
+            product: { status: 'unresolved', reason: 'MISSING_DOCUMENT' },
+            coverages: [],
+            exclusions: [],
+          },
+        },
+      },
+    });
+    expect(
+      screen.getByText(/Source unavailable for product/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /View source.*product/i }),
+    ).not.toBeInTheDocument();
+  });
   it('FR-14 shows cited product, coverage, and exclusions', () => {
     show({
       isPending: false,
@@ -83,7 +181,23 @@ describe('FR-03 policy detail', () => {
     });
     expect(screen.getByText('Example Mutual (Synthetic)')).toBeInTheDocument();
     expect(screen.getByText(/THB 1,000,000/)).toBeInTheDocument();
-    expect(screen.getByText(/section coverage.life/)).toBeInTheDocument();
+    const source = screen.getByRole('link', {
+      name: /View source.*coverage.life/i,
+    });
+    expect(source).toHaveAttribute('href', '#source-coverage-life');
+    expect(document.querySelector('#source-coverage-life')).toHaveTextContent(
+      'Family Protection Plan synthetic policy',
+    );
+    expect(document.querySelector('#source-coverage-life')).toHaveTextContent(
+      'v1',
+    );
+    expect(
+      screen
+        .getByRole('heading', { name: /Coverage listed/i })
+        .compareDocumentPosition(
+          screen.getByRole('heading', { name: /Current beneficiaries/i }),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
   it('shows status, facts, allocations, and a return link without a request action', () => {
     show({

@@ -92,7 +92,7 @@ for (const width of [1280, 320]) {
     await page.getByLabel('Password').fill('NarinDemo123!');
     await page.getByRole('button', { name: 'Sign in' }).click();
     await page.getByRole('link', { name: /Family Protection Plan/ }).click();
-    await expect(page.getByText('THB 250,000')).toBeVisible();
+    await expect(page.getByText('THB 250,000', { exact: true })).toBeVisible();
     await expect(page.getByText('Matches policy facts')).toBeVisible();
     await compare(page, testInfo, `policy-detail-coverage-${width}.png`);
   });
