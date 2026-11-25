@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useDecideProposal, useProposal } from '../lib/queries';
 import { routes } from '../lib/routes';
@@ -30,9 +31,9 @@ export function ProposalPage({
               ? 'This proposal is unavailable.'
               : 'Could not load the proposal. Try again.'}
           </p>
-          <button type="button" onClick={() => proposal.refetch()}>
+          <Button type="button" onClick={() => proposal.refetch()}>
             Try again
-          </button>
+          </Button>
         </section>
       ) : (
         <>

@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { useEffect, useRef, useState } from 'react';
 
 type Props = {
@@ -39,21 +40,22 @@ export function ProposalDecision({ onDecide, isPending, isError }: Props) {
         </p>
       )}
       <div className="proposal-decision-actions" inert={confirming}>
-        <button
+        <Button
           type="button"
           disabled={isPending}
           onClick={() => onDecide('APPROVED')}
         >
           Approve proposal
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           ref={rejectButton}
+          variant="outline"
           disabled={isPending}
           onClick={() => setConfirming(true)}
         >
           Reject proposal
-        </button>
+        </Button>
       </div>
       {confirming && (
         <div
@@ -84,12 +86,18 @@ export function ProposalDecision({ onDecide, isPending, isError }: Props) {
             Rejecting records your decision and does not change your policy or
             coverage.
           </p>
-          <button type="button" ref={cancelButton} onClick={cancel}>
+          <Button
+            type="button"
+            ref={cancelButton}
+            variant="outline"
+            onClick={cancel}
+          >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             ref={confirmButton}
+            variant="destructive"
             disabled={isPending}
             onClick={() => {
               setConfirming(false);
@@ -97,7 +105,7 @@ export function ProposalDecision({ onDecide, isPending, isError }: Props) {
             }}
           >
             Confirm rejection
-          </button>
+          </Button>
         </div>
       )}
     </section>

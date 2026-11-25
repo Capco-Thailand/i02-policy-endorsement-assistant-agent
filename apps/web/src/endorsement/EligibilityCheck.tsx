@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -41,13 +42,13 @@ export function EligibilityCheck({
     <section aria-labelledby="eligibility-heading">
       <h3 id="eligibility-heading">Eligibility</h3>
       <p>Check this recorded request, your policy, and cited rules.</p>
-      <button
+      <Button
         type="button"
         disabled={check.isPending}
         onClick={() => check.mutate()}
       >
         {check.isPending ? 'Checking this request…' : 'Check eligibility'}
-      </button>
+      </Button>
       {check.isError && (
         <p role="alert">Could not complete the check. Try again.</p>
       )}

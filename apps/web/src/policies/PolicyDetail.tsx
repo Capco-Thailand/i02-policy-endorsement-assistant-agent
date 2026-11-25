@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -190,13 +191,13 @@ export function PolicyDetail({ policyId }: { policyId: string }) {
         ) : (
           <>
             <p role="alert">Could not load policy. Try again.</p>
-            <button
+            <Button
               type="button"
-              className="policy-retry"
+              variant="outline"
               onClick={() => void query.refetch()}
             >
               Try again
-            </button>
+            </Button>
           </>
         )}
       </>

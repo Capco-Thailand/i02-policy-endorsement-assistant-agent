@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -22,13 +23,13 @@ export function PolicyList() {
     return query.error.message === 'UNAUTHORIZED' ? null : (
       <div>
         <p role="alert">Could not load policies. Try again.</p>
-        <button
+        <Button
           type="button"
-          className="policy-retry"
+          variant="outline"
           onClick={() => void query.refetch()}
         >
           Try again
-        </button>
+        </Button>
       </div>
     );
   if (!query.data.policies.length)

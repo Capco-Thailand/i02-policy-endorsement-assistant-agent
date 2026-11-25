@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { usePrepareProposal } from '../lib/queries';
 import { routes } from '../lib/routes';
@@ -15,7 +16,7 @@ export function ProposalPrepare({
   const router = useRouter();
   return (
     <div>
-      <button
+      <Button
         type="button"
         disabled={prepare.isPending}
         onClick={async () => {
@@ -30,7 +31,7 @@ export function ProposalPrepare({
         {prepare.isPending
           ? 'Preparing proposal…'
           : 'Prepare proposal for review'}
-      </button>
+      </Button>
       {prepare.isError && (
         <p role="alert">
           {prepare.error.message === 'CALCULATION_UNAVAILABLE' ||

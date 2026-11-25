@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -100,9 +102,9 @@ export function RequestForm({ policyId }: { policyId: string }) {
             : 'Could not load policy.'}
         </p>
         {query.error.message !== 'NOT_FOUND' && (
-          <button type="button" onClick={() => void query.refetch()}>
+          <Button type="button" onClick={() => void query.refetch()}>
             Try again
-          </button>
+          </Button>
         )}
       </>
     );
@@ -298,7 +300,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
             </p>
           )}
           <label htmlFor="requested-date">Requested effective date</label>
-          <input
+          <Input
             id="requested-date"
             aria-describedby={
               errorField === 'requested-date'
@@ -338,7 +340,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
                 <div className="beneficiary-row" key={row.id}>
                   <label>
                     Beneficiary name {index + 1}
-                    <input
+                    <Input
                       id={`beneficiary-name-${index}`}
                       aria-describedby={
                         errorField === `beneficiary-name-${index}`
@@ -354,7 +356,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
                   </label>
                   <label>
                     Allocation percent {index + 1}
-                    <input
+                    <Input
                       id={`allocation-${index}`}
                       aria-describedby={
                         errorField === `allocation-${index}`
@@ -374,7 +376,8 @@ export function RequestForm({ policyId }: { policyId: string }) {
                       required
                     />
                   </label>
-                  <button
+                  <Button
+                    variant="outline"
                     type="button"
                     onClick={() =>
                       setBeneficiaries((rows) =>
@@ -384,10 +387,11 @@ export function RequestForm({ policyId }: { policyId: string }) {
                     disabled={beneficiaries.length === 1}
                   >
                     Remove beneficiary {index + 1}
-                  </button>
+                  </Button>
                 </div>
               ))}
-              <button
+              <Button
+                variant="outline"
                 type="button"
                 onClick={() =>
                   setBeneficiaries((rows) => [
@@ -401,7 +405,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
                 }
               >
                 Add beneficiary
-              </button>
+              </Button>
               {(errorField.startsWith('allocation-') ||
                 errorField.startsWith('beneficiary-name-')) && (
                 <p
@@ -491,12 +495,12 @@ export function RequestForm({ policyId }: { policyId: string }) {
             </p>
           )}
           {submitting && <p role="status">Recording request…</p>}
-          <button
+          <Button
             type="submit"
             disabled={!ready || submitting || mutation.isPending}
           >
             {submitting || mutation.isPending ? 'Recording…' : 'Record request'}
-          </button>
+          </Button>
         </form>
       )}
     </>

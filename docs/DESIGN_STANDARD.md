@@ -2,6 +2,8 @@
 
 PO/UX design output is browser-viewable HTML, CSS, and JavaScript under `design/`. These files show intended pages and interactions; the React implementation lives in `apps/web/`.
 
+`design/global.css` styles the standalone mockups. The running Next.js app imports `apps/web/src/app/styles.css` and uses shadcn preset `b51GFh7y6` for its semantic theme, Public Sans typography, and Base UI components. New mockups should reflect the [preset UX handoff](../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-chore-shadcn-preset/DESIGN.md); do not import mockup CSS into the app.
+
 ## Layout
 
 - `design/global.css`: shared colors, type, spacing, and page styles.
