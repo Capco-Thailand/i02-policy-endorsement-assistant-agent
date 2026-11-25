@@ -53,7 +53,7 @@ it('FR-08 UI: pending check disables duplicate action', () => {
 });
 it.each([
   ['CAN_PROCEED', 'Can proceed to a proposal'],
-  ['CANNOT_PROCEED', 'Cannot continue yet'],
+  ['CANNOT_PROCEED', 'Cannot proceed'],
   ['NEEDS_REVIEW', 'Needs review'],
 ])(
   'FR-08 UI: %s result shows reason, citation, next step and unchanged coverage',
@@ -146,7 +146,36 @@ it('FR-08 UI: referral shows safe source IDs when no citation is available', () 
     },
   });
   renderCheck();
-  expect(screen.getByText(/Source SYNTHETIC:SRC/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Unresolved source SYNTHETIC:SRC/),
+  ).toBeInTheDocument();
+});
+
+it('FR-17 unresolved sources: identifies missing source even when another rule is cited', () => {
+  state({
+    data: {
+      outcome: 'NEEDS_REVIEW',
+      reasonCodes: ['RULE_CONFLICTING'],
+      reasons: ['Rules conflict.'],
+      nextStep: 'Wait for human review.',
+      sourceIds: ['RULE:AVAILABLE', 'RULE:MISSING'],
+      citations: [
+        {
+          kind: 'RULE',
+          sourceId: 'RULE:AVAILABLE',
+          ruleId: 'R1',
+          version: 1,
+          sectionId: 'S1',
+        },
+      ],
+    },
+  });
+  renderCheck();
+  expect(
+    screen.getByText(/Unresolved source RULE:MISSING/),
+  ).toBeInTheDocument();
+  expect(screen.getByText('Reason')).toBeInTheDocument();
+  expect(screen.getByText('Next action')).toBeInTheDocument();
 });
 
 it('FR-08 UI: an expired session redirects to sign-in without showing a result', async () => {
@@ -175,4 +204,7 @@ it('FR-08 UI: assessment has no upload guidance or receipt message', () => {
   });
   renderCheck();
   expect(screen.queryByText(/receipt|upload/i)).not.toBeInTheDocument();
+  expect(
+    screen.getByText('No blocking reasons were returned for this request.'),
+  ).toBeInTheDocument();
 });

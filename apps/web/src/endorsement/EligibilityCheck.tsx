@@ -64,9 +64,9 @@ export function EligibilityCheck({
                 ? 'Can proceed to a proposal'
                 : decision.outcome === 'NEEDS_REVIEW'
                   ? 'Needs review'
-                  : 'Cannot continue yet'}
+                  : 'Cannot proceed'}
             </h4>
-            <p className="eligibility-next-step">{decision.nextStep}</p>
+            <h5>Reason</h5>
             {decision.reasons.length > 0 && (
               <ul>
                 {decision.reasons.map((reason, index) => (
@@ -76,6 +76,16 @@ export function EligibilityCheck({
                 ))}
               </ul>
             )}
+            {decision.reasons.length === 0 && (
+              <p>
+                {decision.outcome === 'CAN_PROCEED'
+                  ? 'No blocking reasons were returned for this request.'
+                  : 'The eligibility service did not provide a reason for this result.'}
+              </p>
+            )}
+            <h5>Next action</h5>
+            <p className="eligibility-next-step">{decision.nextStep}</p>
+            {decision.citations.length > 0 && <h5>Available sources</h5>}
             {decision.citations.map((item) => (
               <p
                 className="eligibility-citation"
@@ -90,12 +100,18 @@ export function EligibilityCheck({
               </p>
             ))}
             {decision.outcome === 'NEEDS_REVIEW' &&
-              !decision.citations.some((item) => item.kind === 'RULE') &&
-              decision.sourceIds.map((sourceId) => (
-                <p className="eligibility-citation" key={sourceId}>
-                  Source {sourceId}
-                </p>
-              ))}
+              decision.sourceIds
+                .filter(
+                  (sourceId) =>
+                    !decision.citations.some(
+                      (item) => item.sourceId === sourceId,
+                    ),
+                )
+                .map((sourceId) => (
+                  <p className="eligibility-citation" key={sourceId}>
+                    Unresolved source {sourceId}
+                  </p>
+                ))}
             <p>No policy coverage has changed.</p>
             {decision.outcome === 'CAN_PROCEED' && (
               <ProposalPrepare policyId={policyId} requestId={requestId} />

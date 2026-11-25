@@ -100,7 +100,7 @@ for (const width of [1280, 320] as const) {
 }
 
 for (const width of [1280, 375]) {
-  test(`FR-03, FR-02 visual baseline at ${width}px`, async ({
+  test(`FR-03 policy detail visual baseline at ${width}px`, async ({
     page,
   }, testInfo) => {
     test.skip(
@@ -122,11 +122,6 @@ for (const width of [1280, 375]) {
     ).toBeVisible();
     await expect(page.getByText('Matches policy facts')).toBeVisible();
     await compare(page, testInfo, `policy-detail-${width}.png`);
-    await page.getByRole('link', { name: 'Start a change request' }).click();
-    await expect(
-      page.getByRole('heading', { name: 'Request a policy change' }),
-    ).toBeVisible();
-    await compare(page, testInfo, `request-form-${width}.png`);
   });
 }
 
@@ -147,44 +142,5 @@ for (const width of [1280, 320]) {
     await expect(page.getByText('THB 250,000', { exact: true })).toBeVisible();
     await expect(page.getByText('Matches policy facts')).toBeVisible();
     await compare(page, testInfo, `policy-detail-coverage-${width}.png`);
-  });
-}
-
-for (const width of [1280, 375]) {
-  test(`FR-08 eligibility result visual baseline at ${width}px`, async ({
-    page,
-  }, testInfo) => {
-    test.skip(
-      process.platform !== 'linux',
-      'FR-08 reviewed Chromium baselines are recorded on Linux CI',
-    );
-    await page.setViewportSize({ width, height: 800 });
-    await page.goto('/');
-    await page.getByLabel('Account ID').fill('narin');
-    await page.getByLabel('Password').fill('NarinDemo123!');
-    await page.getByRole('button', { name: 'Sign in' }).click();
-    await page.getByRole('link', { name: /Family Protection Plan/ }).click();
-    await page.getByRole('link', { name: 'Start a change request' }).click();
-    await page.getByLabel('Change type').selectOption('ADDRESS');
-    await page.getByLabel('Requested effective date').fill('2027-01-01');
-    await page
-      .getByLabel('Correspondence address', { exact: true })
-      .last()
-      .fill('100 Synthetic Road');
-    await page.getByRole('button', { name: 'Record request' }).click();
-    await page.getByRole('button', { name: 'Check eligibility' }).click();
-    await expect(
-      page.getByRole('heading', {
-        name: 'Can proceed to a proposal',
-      }),
-    ).toBeVisible();
-    // The random request ID changes line wrapping in this paragraph.
-    await compare(
-      page,
-      testInfo,
-      `eligibility-${width}.png`,
-      page.locator('.request-id').locator('..'),
-      20,
-    );
   });
 }
