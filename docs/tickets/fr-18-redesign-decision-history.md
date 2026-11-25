@@ -2,7 +2,7 @@
 
 **Title:** [Story] Find recorded non-binding decisions by policy
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/164
 **Feature ID:** FR-18
 **Product context:** [PRD](../PRD.md)
 **Risk:** Medium — history wording can imply an approved request updated coverage.
