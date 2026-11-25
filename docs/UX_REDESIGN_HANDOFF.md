@@ -60,7 +60,7 @@ The customer chose **“What would this request change and cost?”** and accept
 
 ## FR-16 preparation, 2026-11-25
 
-The customer invoked `bmad do fr-16`, selecting the feature for delivery, and chose the current policy-list response fields. The customer accepted the sign-in and policy-list reference layouts on 2026-11-25. The [FR-16 ticket](tickets/fr-16-redesign-sign-in-and-policy-list.md), accepted [visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/DESIGN.md), [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/EXPERIENCE.md), [sign-in mockup](../design/page/fr-16-sign-in.html), and [policy-list mockup](../design/page/fr-16-policy-list.html) form the ticket/UX handoff. Merge the handoff PR and create the linked Issue before implementation.
+The customer invoked `bmad do fr-16`, selecting the feature for delivery, and chose the current policy-list response fields. The customer accepted the sign-in and policy-list reference layouts on 2026-11-25. The [FR-16 ticket](tickets/fr-16-redesign-sign-in-and-policy-list.md), accepted [visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/DESIGN.md), [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-16/EXPERIENCE.md), [sign-in mockup](../design/page/fr-16-sign-in.html), and [policy-list mockup](../design/page/fr-16-policy-list.html) formed [handoff PR #155](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/155), merged on 2026-11-25. [Issue #156](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/156) is open. The reciprocal ticket link must reach `main` before implementation preflight.
 
 ## Progress log
 
