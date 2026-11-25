@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FR-17 request reference · Policy Endorsement Assistant</title>
+    <link rel="stylesheet" href="fr-17-redesign.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <span class="brand-mark" aria-hidden="true">PE</span
+        ><span class="brand-name"
+          >Policy Endorsement Assistant<small
+            >Synthetic customer records</small
+          ></span
+        ><span class="site-header__trail">Reference screen · FR-17</span>
+      </div>
+    </header>
+    <main class="fr17-shell">
+      <p class="fr17-kicker">Customer access / Change request</p>
+      <p><a href="fr-15-policy-detail.html">← Back to policy</a></p>
+      <h1>Request a policy change</h1>
+      <p class="fr17-lead">Family Protection Plan · POL-NARIN-001 · Active</p>
+      <p class="fr17-boundary">
+        Synthetic request only. Recording a request does not approve a change or
+        alter coverage.
+      </p>
+      <form class="fr17-panel" action="fr-17-eligibility.html" method="get">
+        <h2>What would you like to change?</h2>
+        <div class="fr17-field">
+          <label for="change">Change type</label
+          ><select id="change" name="change">
+            <option value="beneficiary">Beneficiaries</option>
+            <option value="address">Correspondence address</option>
+            <option value="frequency" selected>Payment frequency</option>
+            <option value="rider">Accidental-death rider</option>
+          </select>
+        </div>
+        <div id="frequency-fields" data-change="frequency">
+          <h3>Current policy and requested change</h3>
+          <div class="fr17-value-pair">
+            <div><span>Current policy</span><strong>Monthly</strong></div>
+            <div>
+              <span>Requested change</span
+              ><strong id="frequency-preview">Annual</strong>
+            </div>
+          </div>
+          <div class="fr17-field">
+            <label for="frequency">New payment frequency</label
+            ><select id="frequency">
+              <option>Monthly</option>
+              <option>Quarterly</option>
+              <option>Semi-annual</option>
+              <option selected>Annual</option>
+            </select>
+          </div>
+        </div>
+        <div id="beneficiary-fields" data-change="beneficiary" hidden>
+          <h3>Replacement beneficiaries</h3>
+          <p>
+            Replace the full list. Each person needs a percentage; the total
+            must be exactly 100%.
+          </p>
+          <div class="fr17-value-pair">
+            <div>
+              <span>Current policy</span
+              ><strong>Arisa K. · 60%<br />Ben K. · 40%</strong>
+            </div>
+            <div>
+              <span>Requested change</span
+              ><strong>Enter the full replacement list below</strong>
+            </div>
+          </div>
+          <div id="beneficiary-rows">
+            <div class="fr17-beneficiary">
+              <div class="fr17-field">
+                <label for="beneficiary-1">Beneficiary 1</label
+                ><input id="beneficiary-1" value="Arisa K." />
+              </div>
+              <div class="fr17-field">
+                <label for="percent-1">Allocation %</label
+                ><input
+                  id="percent-1"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value="60"
+                />
+              </div>
+            </div>
+            <div class="fr17-beneficiary">
+              <div class="fr17-field">
+                <label for="beneficiary-2">Beneficiary 2</label
+                ><input id="beneficiary-2" value="Ben K." />
+              </div>
+              <div class="fr17-field">
+                <label for="percent-2">Allocation %</label
+                ><input
+                  id="percent-2"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value="40"
+                />
+              </div>
+            </div>
+          </div>
+          <p class="fr17-total" role="status">
+            Total allocation: <strong id="allocation-total">100%</strong>
+            <em id="allocation-state">Exactly 100%</em>
+          </p>
+          <button
+            class="fr17-action secondary"
+            type="button"
+            id="add-beneficiary"
+          >
+            Add beneficiary
+          </button>
+        </div>
+        <div id="address-fields" data-change="address" hidden>
+          <h3>Current policy and requested change</h3>
+          <div class="fr17-value-pair">
+            <div>
+              <span>Current correspondence address</span
+              ><strong>Not available in this policy record</strong>
+            </div>
+            <div>
+              <span>Requested change</span
+              ><strong>Enter the new address below</strong>
+            </div>
+          </div>
+          <div class="fr17-field">
+            <label for="address">New correspondence address</label
+            ><textarea id="address">100 Synthetic Road, Bangkok</textarea>
+          </div>
+        </div>
+        <div id="rider-fields" data-change="rider" hidden>
+          <h3>Current policy and requested change</h3>
+          <div class="fr17-value-pair">
+            <div>
+              <span>Confirmed coverage term</span
+              ><strong>Accidental death benefit · THB 250,000</strong>
+              <p class="fr17-source">
+                <a href="fr-15-policy-detail.html">View cited policy term</a>
+              </p>
+              <small>Current rider on/off state is not supplied.</small>
+            </div>
+            <div>
+              <span>Requested change</span
+              ><strong>Choose an action below</strong>
+            </div>
+          </div>
+          <div class="fr17-field">
+            <label for="rider">Accidental-death rider action</label
+            ><select id="rider">
+              <option>Add</option>
+              <option>Remove</option>
+            </select>
+          </div>
+        </div>
+        <p class="fr17-source">
+          <a href="fr-15-policy-detail.html"
+            >View current policy facts and sources</a
+          >
+        </p>
+        <div class="fr17-field">
+          <label for="date">Requested effective date</label
+          ><input id="date" type="date" value="2027-01-01" /><small
+            >Use a valid date within the active policy term.</small
+          >
+        </div>
+        <p class="fr17-source">
+          Preview values are synthetic examples. The running app must use
+          authorized API values and server decisions.
+        </p>
+        <button class="fr17-action" type="submit">
+          Record request (preview)
+        </button>
+      </form>
+      <nav class="fr17-preview" aria-label="Mockup states">
+        Preview: <a href="?change=frequency">Frequency</a
+        ><a href="?change=beneficiary">Beneficiaries</a
+        ><a href="?change=address">Address</a><a href="?change=rider">Rider</a
+        ><a href="?state=invalid">Invalid</a><a href="?state=expired">Expired</a
+        ><a href="?state=error">Service error</a>
+      </nav>
+    </main>
+    <script src="fr-17-request.js" defer></script>
+  </body>
+</html>

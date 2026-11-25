@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FR-17 eligibility reference · Policy Endorsement Assistant</title>
+    <link rel="stylesheet" href="fr-17-redesign.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <span class="brand-mark" aria-hidden="true">PE</span
+        ><span class="brand-name"
+          >Policy Endorsement Assistant<small
+            >Synthetic customer records</small
+          ></span
+        ><span class="site-header__trail">Reference screen · FR-17</span>
+      </div>
+    </header>
+    <main class="fr17-shell">
+      <p class="fr17-kicker">Customer access / Recorded request</p>
+      <p><a href="fr-17-request.html">← Back to request preview</a></p>
+      <h1>Request recorded</h1>
+      <p class="fr17-lead">Family Protection Plan · POL-NARIN-001</p>
+      <div class="fr17-state" role="status">
+        <h2>Pending checks</h2>
+        <p>
+          Request <strong>REQ-SYNTHETIC-001</strong> was recorded. No policy
+          coverage has changed.
+        </p>
+        <p>The request is saved; eligibility is a separate check.</p>
+      </div>
+      <section class="fr17-panel" aria-labelledby="eligibility-title">
+        <h2 id="eligibility-title">Eligibility</h2>
+        <p>Check the recorded request, your policy, and cited rules.</p>
+        <p>
+          <a class="fr17-action" href="?outcome=can"
+            >Check eligibility (preview)</a
+          >
+        </p>
+        <div id="result" aria-live="polite"></div>
+      </section>
+      <p class="fr17-boundary">
+        This is a synthetic, non-binding assessment. A result does not update or
+        issue coverage.
+      </p>
+      <nav class="fr17-preview" aria-label="Mockup outcomes">
+        Preview: <a href="?outcome=pending">Not checked</a
+        ><a href="?outcome=can">Can proceed</a
+        ><a href="?outcome=cannot">Cannot proceed</a
+        ><a href="?outcome=review">Needs review</a
+        ><a href="?outcome=error">Service error</a>
+      </nav>
+    </main>
+    <script src="fr-17-eligibility.js" defer></script>
+  </body>
+</html>
