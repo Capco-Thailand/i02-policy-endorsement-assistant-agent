@@ -1,8 +1,0 @@
-.git
-_bmad
-_bmad-output
-design
-docs
-**/node_modules
-**/dist
-*.log
