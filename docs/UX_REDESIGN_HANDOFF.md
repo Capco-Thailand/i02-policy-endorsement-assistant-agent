@@ -1,6 +1,6 @@
 # Customer UI redesign — agent handoff
 
-**Status:** FR-15 reference UX ready for customer review
+**Status:** FR-15 reference UX accepted; ticket/UX handoff in review
 
 **Owner:** UX / PO handoff
 
@@ -29,15 +29,15 @@ Update a checkbox only when its evidence is linked below. Record dates, decision
 | Audit all current customer screens and identify layout/data problems | Done | [Screen-by-screen audit](UX_DESIGN_AUDIT.md) |
 | Define customer UI redesign initiative requirements | Done | [Initiative requirements](../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md) |
 | Draft ordered FR tickets for the redesigned screens | Done | [FR-15–FR-18 backlog order](backlog/README.md) |
-| Keep FR-15 as a refined backlog draft | Done | [FR-15 draft](backlog/fr-15-redesign-policy-detail-and-proposal-review.md) |
+| Select and refine FR-15 as a local ticket | Done | [FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md) |
 | Confirm the lead customer question and any constraints with the user | Done | Decision in progress log |
 | Create a theme-aligned atomic inventory: atoms, molecules, organisms, templates | Done | [FR-15 visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/DESIGN.md#components) and [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/EXPERIENCE.md#component-patterns) |
 | Mock policy detail and proposal review at desktop and 320px mobile widths | Done | [Policy detail](../design/page/fr-15-policy-detail.html), [proposal review](../design/page/fr-15-proposal-review.html), [mockup index](../design/page/index.html), and [four captures linked from DESIGN.md](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/DESIGN.md#layout--spacing) |
-| Review the two reference screens with the user and record accepted changes | Open | Dated decision in progress log |
+| Review the two reference screens with the user and record accepted changes | Done | 2026-11-25 acceptance in the [FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md#accepted-decisions-and-readiness) |
 | Extend the accepted patterns to sign-in, policies, request, eligibility, evidence, and history | Open | Browser-viewable mockups and state coverage |
-| Reconcile `DESIGN.md`, `EXPERIENCE.md`, affected tickets, and mockups | FR-15 done; later screens open | [FR-15 backlog references](backlog/fr-15-redesign-policy-detail-and-proposal-review.md#ux-handoff-references), [UX run](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/ux-fr-15.md) |
+| Reconcile `DESIGN.md`, `EXPERIENCE.md`, affected tickets, and mockups | FR-15 done; later screens open | [FR-15 ticket references](tickets/fr-15-redesign-policy-detail-and-proposal-review.md#ux-handoff-references), [UX run](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/ux-fr-15.md) |
 | Validate keyboard access, readable amounts, mobile layout, and non-binding language | FR-15 review done; implementation check open | [Validation report](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/validation-report.md) |
-| Prepare the reviewed ticket/UX PR, then create or reuse its Issue after merge | Open | PR and Issue links; follow [ticket workflow](TICKETING.md#ticket-creation-flow) |
+| Prepare the reviewed ticket/UX PR, then create or reuse its Issue after merge | In progress | [FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md); follow [ticket workflow](TICKETING.md#ticket-creation-flow) |
 
 ## Screen acceptance checklist
 
@@ -56,7 +56,7 @@ Update a checkbox only when its evidence is linked below. Record dates, decision
 
 ## Decisions and open questions
 
-The customer chose **“What would this request change and cost?”** on 2026-11-25. Keep current coverage accessible as the baseline for comparison. FR-16's policy-list data-source decision remains open.
+The customer chose **“What would this request change and cost?”** and accepted the current FR-15 policy-detail and proposal-review layouts on 2026-11-25. Keep current coverage accessible as the baseline for comparison. FR-16's policy-list data-source decision remains open.
 
 ## Progress log
 
@@ -66,13 +66,14 @@ The customer chose **“What would this request change and cost?”** on 2026-11
 | 2026-11-25 | BMad | Created and activated the Customer UI Redesign initiative. | Sofia to define the initiative scope and ticket plan; confirm the lead customer question. | [Initiative](../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md) |
 | 2026-11-25 | Sofia / PO | Derived nine customer UI requirements and five constraints from the handoff and PRD; kept the audit layouts as unapproved options. | Confirm the lead question and policy-list data scope, then agree the epic split. | [Requirements](../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md) |
 | 2026-11-25 | Sofia / PO | Drafted FR-15–FR-18 in build order. FR-15 owns the first policy-detail and proposal-review reference layouts; later tickets apply accepted patterns. | Select FR-15 for the local ticket, then run `bmad-ux` from its requirements. | [Backlog](backlog/README.md) |
-| 2026-11-25 | Sofia / PO | Moved FR-15 to `docs/tickets/` and refined quote, unresolved-evidence, and authorization criteria. | The user subsequently returned FR-15 to the backlog. | [FR-15 draft](backlog/fr-15-redesign-policy-detail-and-proposal-review.md) |
-| 2026-11-25 | BMad | Returned FR-15 to `docs/backlog/` at the user's request and kept its refined criteria. | Resume ticket selection when the user is ready; no ticket/UX PR or Issue is pending. | [FR-15 draft](backlog/fr-15-redesign-policy-detail-and-proposal-review.md) |
+| 2026-11-25 | Sofia / PO | Moved FR-15 to `docs/tickets/` and refined quote, unresolved-evidence, and authorization criteria. | The user subsequently returned FR-15 to the backlog. | [Current FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md) |
+| 2026-11-25 | BMad | Returned FR-15 to `docs/backlog/` at the user's request and kept its refined criteria. | Resume ticket selection when the user is ready; no ticket/UX PR or Issue is pending. | [Current FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md) |
 | 2026-11-25 | Customer / UX | Chose “What would this request change and cost?” as the lead FR-15 question. | Draft the reference UX contracts and responsive mockups; retain coverage and source access. | [UX run](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/ux-fr-15.md) |
 | 2026-11-25 | UX | Drafted FR-15 visual and experience contracts from the backlog criteria and shadcn theme. Customer review of layout assumptions is pending. | Complete responsive mockups and rubric/accessibility reviews; record findings here. | [FR-15 UX run](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/ux-fr-15.md) |
 | 2026-11-25 | UX | Completed FR-15 policy detail and proposal reference pages at desktop and 320px, linked exact synthetic sources and server quote values, and resolved rubric/accessibility findings. Headless Edge found no horizontal overflow at either width. | Customer to review the proposed layout assumptions; then Sofia can reconcile the accepted UX into FR-15 when it leaves the backlog. Screen-reader behavior remains an implementation check. | [UX run](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/ux-fr-15.md), [validation](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/validation-report.md) |
 | 2026-11-25 | BMad customization | Added team guidance for Sofia, Sally, and `bmad-ux` that distinguishes completed UX work from customer acceptance and delivery selection; project guidance now gives the same rule to the BMad router. | Customer review of the FR-15 reference layouts remains pending. | [Merged PR #150](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/150), [ticket workflow](TICKETING.md) |
+| 2026-11-25 | Customer / BMad | Accepted the current policy-detail and proposal-review layouts as FR-15 implementation references and selected FR-15 for delivery. Promoted the refined draft to a ticket and reconciled the UX and theme contracts. | Merge the ticket/UX PR, create the linked Issue, then run preflight and implementation. | [FR-15 ticket](tickets/fr-15-redesign-policy-detail-and-proposal-review.md), [visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/DESIGN.md), [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/EXPERIENCE.md) |
 
 ## Copy-ready instruction for the next agent
 
-> Continue `docs/UX_REDESIGN_HANDOFF.md` from its current status. Review the FR-15 visual and experience contracts and the policy-detail and proposal-review reference mockups at desktop and 320px. Record the customer's accepted changes before extending the patterns to other screens. Keep all synthetic, citation, unresolved, and non-binding boundaries. Update this handoff's progress table and log with links and blockers before stopping. Follow `docs/TICKETING.md` before creating a GitHub Issue or implementation ticket.
+> Continue `docs/UX_REDESIGN_HANDOFF.md` from its current status. FR-15's policy-detail and proposal-review reference layouts are accepted at desktop and 320px. Follow `docs/TICKETING.md` to merge the ticket/UX PR, create the Issue, and implement the ticket. Keep all synthetic, citation, unresolved, and non-binding boundaries. Update this handoff's progress table and log with links and blockers before stopping.

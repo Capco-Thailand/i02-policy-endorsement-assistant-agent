@@ -25,7 +25,7 @@ components:
 
 ## Brand & Style
 
-Use preset `b51GFh7y6` as the running web app's visual source. Keep the interface restrained and specific to synthetic policy servicing. The preset supplies component appearance; existing customer tasks determine page composition. The [theme preview](../../../design/page/shadcn-theme-preview.html) shows representative states. Existing screen mockups remain layout and content references; this document governs their updated appearance.
+Use preset `b51GFh7y6` as the running web app's visual source. Keep the interface restrained and specific to synthetic policy servicing. The preset supplies component appearance; screen-specific UX contracts determine page composition. The [theme preview](../../../design/page/shadcn-theme-preview.html) shows representative states. The [FR-15 visual contract](../../initiative-customer-ui-redesign/ux-fr-15/DESIGN.md) and [experience contract](../../initiative-customer-ui-redesign/ux-fr-15/EXPERIENCE.md) govern the accepted policy-detail and proposal-review layouts.
 
 ## Colors
 
@@ -37,7 +37,7 @@ Use `{typography.family}` throughout the running app. Preserve a clear page titl
 
 ## Layout & Spacing
 
-Keep the existing single reading column for detail, request, proposal, and history, and the existing compact policy list. Keep the sign-in context beside the form on wide screens and stacked on narrow screens. Use `{spacing.page}` and `{spacing.section}` as starting measures. Do not replace these flows with a generic dashboard.
+Use the accepted FR-15 policy-detail and proposal-review layouts for those screens. Keep the existing request and history reading columns and compact policy list until their own redesign tickets are accepted. Keep the sign-in context beside the form on wide screens and stacked on narrow screens until FR-16 decides its layout. Use `{spacing.page}` and `{spacing.section}` as starting measures. Do not replace these flows with a generic dashboard.
 
 ## Elevation & Depth
 

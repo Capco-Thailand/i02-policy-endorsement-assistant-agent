@@ -71,7 +71,7 @@ Authenticated customers can identify their policy, understand what a request wou
 
 ## Notes
 
-- Assumption: The audit's suggested layouts remain hypotheses until the user reviews the reference mockups.
+- Decision: 2026-11-25 — The customer accepted the current FR-15 policy-detail and proposal-review reference layouts as the implementation baseline; other audit options remain hypotheses for their screens.
 - Decision: 2026-11-25 — The customer chose “What would this request change and cost?” to lead the FR-15 reference screens; current coverage remains accessible.
 - Open question: Should richer policy-list facts be added through an authorized summary API, or should the redesign use only currently available list fields?
-- Source conflict: The existing shadcn preset UX contract retains current layouts; accepted redesign layouts must update that contract and affected mockups together.
+- Source reconciliation: The shadcn preset UX contract now defers policy-detail and proposal-review composition to the accepted FR-15 UX contracts; its semantic theme remains authoritative.

@@ -4,7 +4,7 @@ description: Visual contract for sourced policy detail and non-binding proposal 
 status: final
 updated: 2026-11-25
 sources:
-  - docs/backlog/fr-15-redesign-policy-detail-and-proposal-review.md
+  - docs/tickets/fr-15-redesign-policy-detail-and-proposal-review.md
 colors:
   background: 'var(--background)'
   foreground: 'var(--foreground)'
@@ -80,7 +80,7 @@ components:
 
 ## Brand & Style
 
-This is a restrained synthetic policy servicing interface. Keep the running app's shadcn/ui preset `b51GFh7y6`, Base UI primitives, Public Sans, and semantic runtime tokens. The page should make exact policy and proposal facts easier to read. The selected lead question is **“What would this request change and cost?”**; current policy facts and evidence remain visible. This contract is derived from the [FR-15 draft](../../../docs/backlog/fr-15-redesign-policy-detail-and-proposal-review.md) and [UX decision log](.memlog.md). Its `[ASSUMPTION]` layouts remain proposed until customer review. The older shadcn contract retains current layouts, so an accepted FR-15 layout will need that contract reconciled.
+This is a restrained synthetic policy servicing interface. Keep the running app's shadcn/ui preset `b51GFh7y6`, Base UI primitives, Public Sans, and semantic runtime tokens. The page should make exact policy and proposal facts easier to read. The selected lead question is **“What would this request change and cost?”**; current policy facts and evidence remain visible. This contract is derived from the [FR-15 ticket](../../../docs/tickets/fr-15-redesign-policy-detail-and-proposal-review.md) and [UX decision log](.memlog.md). The customer accepted the current policy-detail and proposal-review reference layouts on 2026-11-25.
 
 ## Colors
 
@@ -92,7 +92,7 @@ Use `{typography.family.fontFamily}` throughout. Page title, section title, body
 
 ## Layout & Spacing
 
-[ASSUMPTION] Keep a coherent reading path for the policy and proposal journey, with aligned subcolumns only where they aid comparison. Policy detail starts with identity, status, term, and coverage, then beneficiaries, limitations, the active-policy request action, and full source evidence. Proposal review opens with the non-binding boundary and change/cost summary, followed by a field-by-field comparison, cited assessment, and decision actions.
+Keep a coherent reading path for the policy and proposal journey, with aligned subcolumns only where they aid comparison. Policy detail starts with identity, status, term, and coverage, then beneficiaries, limitations, the active-policy request action, and full source evidence. Proposal review opens with the non-binding boundary and change/cost summary, followed by a field-by-field comparison, cited assessment, and decision actions. The customer accepted this reference composition on 2026-11-25.
 
 Desktop uses a reading width near the existing policy detail shell, `{spacing.page-desktop}` outer padding, and `{spacing.section}` section separation. At 320px, use `{spacing.page-mobile}` outer padding and stack each field's current and proposed values inside the same row; keep the field label attached to both. Responsive behavior is specified in `EXPERIENCE.md` and demonstrated by the canonical browser pages [policy detail](../../../design/page/fr-15-policy-detail.html) and [proposal review](../../../design/page/fr-15-proposal-review.html). Captures show [policy desktop](mockups/policy-detail-desktop.png), [policy 320px](mockups/policy-detail-mobile-320.png), [proposal desktop](mockups/proposal-review-desktop.png), and [proposal 320px](mockups/proposal-review-mobile-320.png). The spines win if a mockup differs.
 

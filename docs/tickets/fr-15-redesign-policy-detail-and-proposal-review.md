@@ -2,11 +2,11 @@
 
 **Title:** [Story] Compare sourced policy facts and proposed changes clearly
 **Labels:** `type:story`, `role:dev`
-**GitHub Issue:** Not filed
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-15
 **Product context:** [PRD](../PRD.md)
 **Risk:** High — a misleading comparison could make a non-binding proposal look like issued coverage.
-**State:** Backlog draft; customer layout review pending
+**State:** Selected for delivery; ticket/UX handoff in review
 
 ## Summary and objective
 
@@ -18,9 +18,9 @@ As an authenticated customer, I can scan my current synthetic policy and compare
 
 ## Business or technical context
 
-- Source: [initiative requirements R3, R6, R8, R9 and C1–C5](../../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md); [screen audit](../UX_DESIGN_AUDIT.md) is a set of unapproved layout options.
+- Source: [initiative requirements R3, R6, R8, R9 and C1–C5](../../_bmad-output/initiative-customer-ui-redesign/initiative-customer-ui-redesign.md); [screen audit](../UX_DESIGN_AUDIT.md) records the options that informed the accepted FR-15 reference screens.
 - FR-14 defines synthetic coverage, exclusions, and cited unresolved states. FR-10 and FR-11 define proposal values and decision behavior. This ticket changes their presentation, not their values or rules.
-- The existing shadcn preset contract retains old layouts; accepted redesign layouts must update that contract and affected mockups together.
+- The shadcn preset contract and FR-15 UX handoff together govern the accepted reference layouts.
 - Use the runtime rose/Public Sans theme and shadcn/ui primitives. The UX handoff defines atoms, molecules, organisms, templates, and page states.
 
 ## Acceptance criteria
@@ -43,9 +43,9 @@ Out of scope: new coverage terms, new quote or eligibility rules, issuance, poli
 
 ## Dependencies
 
-- FR-14 coverage detail and citations must be available before implementing coverage-specific presentation; mockups may use its accepted synthetic fixtures before merge.
+- FR-14 coverage detail and citations are implemented; use their authorized synthetic fixtures and existing API boundary.
 - FR-10/FR-11 supply proposal data and decision behavior. Their API boundary remains authoritative.
-- Use the customer-selected lead question when reviewing the reference mockups.
+- Use the customer-selected lead question and accepted reference layouts when implementing the screens.
 
 ## Related subtasks
 
@@ -56,14 +56,15 @@ None yet; the atomic inventory belongs to this ticket rather than a separate imp
 - 2026-11-25: Start with policy detail and proposal review at desktop and 320px, using the same synthetic policy; record customer feedback before extending patterns.
 - 2026-11-25: FR-15 was selected as the first local ticket, then returned to the backlog at the user's request. The refined criteria are retained.
 - 2026-11-25: The customer chose “What would this request change and cost?” as the lead question. Current policy coverage remains accessible as the baseline for comparison.
-- Readiness: backlog draft. When selected again, review the criteria, move it to `docs/tickets/`, reconcile the proposed UX handoff after customer review, and open a ticket/UX PR.
+- 2026-11-25: The customer selected FR-15 for delivery and accepted the current policy-detail and proposal-review layouts as the implementation reference at desktop and 320px. No layout changes were requested.
+- Readiness: requirements, UX handoff, and FR-10/FR-11/FR-14 dependencies are ready for ticket/UX review. Create the Issue after this PR merges, then run ticket preflight before implementation.
 - High-risk review check: independently compare every displayed money and benefit value against the seeded server proposal and confirm that approval leaves the underlying policy unchanged.
 
 ## UX handoff references
 
 - [Current shadcn theme contract](../../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-chore-shadcn-preset/DESIGN.md) and [theme preview](../../design/page/shadcn-theme-preview.html) are visual sources, not accepted redesign layouts.
-- Proposed [FR-15 visual contract](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/DESIGN.md) and [experience contract](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/EXPERIENCE.md): customer layout review pending.
-- Browser-viewable reference mockups: [policy detail](../../design/page/fr-15-policy-detail.html) and [proposal review](../../design/page/fr-15-proposal-review.html), each responsive through 320px. These are proposals until reviewed.
+- Accepted [FR-15 visual contract](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/DESIGN.md) and [experience contract](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/EXPERIENCE.md).
+- Accepted browser-viewable reference mockups: [policy detail](../../design/page/fr-15-policy-detail.html) and [proposal review](../../design/page/fr-15-proposal-review.html), each responsive through 320px.
 - [UX validation report](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-15/validation-report.md) records the resolved rubric and accessibility findings; screen-reader behavior remains an implementation check.
 
 ## Definition of Done

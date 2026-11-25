@@ -6,7 +6,7 @@
 
 ## Overall verdict
 
-The two contracts cover the FR-15 customer task, the non-binding boundary, responsive comparison, and required states. The rubric's draft findings and the accessibility review's two medium findings were corrected. The marked layout assumptions still need customer review before implementation; screen-reader table navigation needs checking in the implemented UI.
+The two contracts cover the FR-15 customer task, the non-binding boundary, responsive comparison, and required states. The rubric's draft findings and the accessibility review's two medium findings were corrected. At validation time, the layout assumptions awaited customer review; the customer accepted the current layouts on 2026-11-25. Screen-reader table navigation still needs checking in the implemented UI.
 
 ## Category verdicts
 

@@ -3,7 +3,7 @@ name: FR-15 customer UI redesign experience
 status: final
 updated: 2026-11-25
 sources:
-  - docs/backlog/fr-15-redesign-policy-detail-and-proposal-review.md
+  - docs/tickets/fr-15-redesign-policy-detail-and-proposal-review.md
 ---
 
 # FR-15 experience contract
@@ -20,7 +20,7 @@ This is responsive web for authenticated customers using synthetic demo policies
 | Proposal review | Eligible request and proposal preparation, or authorized history link | “What would this request change and cost?” Exact current/proposed values, changed/unchanged meaning, assessment sources, then approve or reject when pending. |
 | Source anchor within policy detail | Visible source reference beside a fact | Full source title, version, section, excerpt, and unresolved explanation when applicable. |
 
-[ASSUMPTION] Policy detail may use a compact top snapshot and anchored source section; proposal review may use field-by-field comparison rows. These are audit hypotheses pending review of the mockups. The [policy detail](../../../design/page/fr-15-policy-detail.html) and [proposal review](../../../design/page/fr-15-proposal-review.html) mockups demonstrate the composition. The spines win on conflict.
+Policy detail uses a compact top snapshot and anchored source section; proposal review uses field-by-field comparison rows. The customer accepted these layouts on 2026-11-25. The [policy detail](../../../design/page/fr-15-policy-detail.html) and [proposal review](../../../design/page/fr-15-proposal-review.html) mockups demonstrate the composition. The spines win on conflict.
 
 ## Voice and Tone
 
@@ -92,7 +92,7 @@ No separate mobile product or alternate data set is implied; both widths present
 
 ## Inspiration & Anti-patterns
 
-The [screen audit](../../../docs/UX_DESIGN_AUDIT.md) identifies the current two-column proposal as a memory burden and offers field comparison and sourced snapshot layouts. Those layouts remain `[ASSUMPTION]` until the user reviews the reference mockups. Avoid generic dashboard grids, decorative charts, and the legacy purple/Inter mockup palette.
+The [screen audit](../../../docs/UX_DESIGN_AUDIT.md) identifies the current two-column proposal as a memory burden. The customer accepted the FR-15 field comparison and sourced snapshot reference layouts on 2026-11-25. Avoid generic dashboard grids, decorative charts, and the legacy purple/Inter mockup palette.
 
 ## Key Flows
 
