@@ -257,6 +257,8 @@ textarea:focus-visible,
   color: var(--muted-foreground);
   font-size: 14px;
   overflow-wrap: anywhere;
+}
+.policy-list .policy-id {
   font-variant-numeric: tabular-nums;
 }
 .policy-status {

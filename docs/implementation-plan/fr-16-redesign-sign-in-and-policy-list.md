@@ -147,6 +147,10 @@ The first browser attempt failed because the API lacked `DATABASE_URL`; after th
 | Obsolete macOS sign-in and list snapshots | Medium: those two screens changed, so their earlier zero-tolerance comparisons would fail on macOS. Removed only those comparisons; retained the policy detail and request form checks. Scoped new status-pill styling to the list so other screens keep their prior appearance. | Patch |
 | CI does not compare FR-16 pixels | Low: FR-16 baselines were reviewed on Windows, while ticket CI runs on Linux and skips their pixel comparisons. Linux exercises browser behavior, 320px overflow, and owner boundary; local Windows supplies the required pixel comparison. A reviewed Linux baseline would be needed for a CI pixel comparison, which this ticket does not require. | Accepted verification limit |
 
+### Fresh CI follow-up, 2026-11-25
+
+PR #158's first fresh-database CI run passed functional browser coverage, including every FR-16 case, but its two FR-08 Linux eligibility screenshots each differed by 126 pixels. The downloaded diff showed only numerals in the policy ID had changed. FR-16 had added tabular numerals to the shared `.policy-id` rule, which also styles the request page. Scoped that font variant to `.policy-list .policy-id`; the request page now retains its existing text rendering. The CI rerun is pending.
+
 ## Verification
 
 **Commands:**
