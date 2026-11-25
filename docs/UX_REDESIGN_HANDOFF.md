@@ -68,7 +68,7 @@ The accepted sign-in and policy-list layouts are implemented with existing label
 
 ## FR-17 proposed reference, 2026-11-25
 
-The customer selected FR-17 for delivery, chose existing authorized policy detail fields as current-value sources, and accepted the desktop/320px [request](../design/page/fr-17-request.html) and [eligibility](../design/page/fr-17-eligibility.html) reference layouts on 2026-11-25. The [visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/DESIGN.md), [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/EXPERIENCE.md), and [validation record](../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/validation-report.md) are linked from the [FR-17 ticket](tickets/fr-17-redesign-request-and-eligibility.md). The ticket/UX PR is the next delivery gate.
+The customer selected FR-17 for delivery, chose existing authorized policy detail fields as current-value sources, and accepted the desktop/320px [request](../design/page/fr-17-request.html) and [eligibility](../design/page/fr-17-eligibility.html) reference layouts on 2026-11-25. The [visual contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/DESIGN.md), [experience contract](../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/EXPERIENCE.md), and [validation record](../_bmad-output/initiative-customer-ui-redesign/ux-fr-17/validation-report.md) are linked from the [FR-17 ticket](tickets/fr-17-redesign-request-and-eligibility.md). [Ticket/UX PR #159](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/pull/159) merged and [Issue #160](https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/160) is open; the reciprocal ticket link is the next delivery gate.
 
 ## Progress log
 
