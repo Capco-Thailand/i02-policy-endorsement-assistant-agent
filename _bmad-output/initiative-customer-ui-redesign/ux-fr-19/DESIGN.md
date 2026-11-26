@@ -15,4 +15,6 @@ The header contains the brand without Change history navigation. Place a button-
 
 The recorded request is a single confirmation panel: status, ID, concise change summary, effective date, and one strong “Check eligibility” action. The proposal leads with status and annualized impact; aligned current/proposed values and decision actions follow. Remove the specified non-binding proposal notice from that review screen. No source evidence panel appears in either screen.
 
+The proposal status reuses the policy status badge treatment: pending and rejected decisions use the warning tint and dot; approved decisions use the success tint and dot. Keep the text label alongside color.
+
 Reference previews: [policy navigation](../../../design/page/fr-19-policy-navigation.html), [request recorded](../../../design/page/fr-19-request-recorded.html), [proposal review](../../../design/page/fr-19-proposal-review.html). On 2026-11-26 the customer reviewed and revised the layouts, then selected FR-19 for delivery with `bmad do fr-19`.

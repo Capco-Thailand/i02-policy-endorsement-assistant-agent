@@ -150,7 +150,6 @@ textarea:focus-visible,
   background: var(--background);
 }
 .auth-panel button[data-slot='button'] {
-  border-radius: var(--radius);
   font-weight: 700;
 }
 .auth-note {
@@ -303,7 +302,7 @@ textarea:focus-visible,
   font-weight: 750;
   letter-spacing: 0.06em;
 }
-.policy-list .policy-status {
+.policy-status.pill {
   border-radius: 999px;
   font-size: 12px;
 }
@@ -314,7 +313,10 @@ textarea:focus-visible,
   border-radius: 50%;
   background: currentColor;
 }
-.policy-status.expired {
+.policy-status.expired,
+.policy-status.draft,
+.policy-status.pending_approval,
+.policy-status.rejected {
   border-color: var(--warning-border);
   background: var(--warning-background);
   color: var(--warning-foreground);
@@ -583,7 +585,7 @@ textarea:focus-visible,
   margin: 22px 0;
   padding: 12px 18px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--radius);
   background: var(--primary);
   color: var(--primary-foreground);
   font-weight: 650;
@@ -902,56 +904,104 @@ textarea:focus-visible,
 .proposal-review {
   min-width: 0;
 }
+.proposal-shell {
+  padding: 36px 28px 72px;
+}
+.proposal-shell > .policy-back {
+  display: block;
+  width: fit-content;
+  margin: 0 0 24px;
+  font-size: 16px;
+}
 .proposal-review > h1 {
   margin: 8px 0 12px;
+  font-size: clamp(1.85rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
 }
-.proposal-review > .proposal-status {
-  margin: 8px 0 0;
+.proposal-review > .policy-status {
+  margin: 2px 0 0;
 }
 .proposal-review > .request-eyebrow {
   margin: 0 0 8px;
+}
+.proposal-review > .proposal-subtitle {
+  margin: 0;
+}
+.proposal-review p,
+.proposal-decision-panel p {
+  line-height: 1.55;
 }
 .proposal-review .request-panel {
   max-width: none;
 }
 .proposal-decision-panel {
   max-width: none;
+  display: block;
+  margin: 24px 0;
+}
+.proposal-decision-panel h2 {
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+.proposal-decision-panel > p {
+  margin: 0 0 18px;
+}
+.proposal-decision-actions {
+  margin-top: 18px;
+}
+.proposal-decision-actions [data-slot='button'] {
+  padding: 10px 18px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.proposal-decision-actions [data-slot='button'] + [data-slot='button'] {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 .proposal-review .policy-heading h1 {
   font-size: clamp(28px, 3vw, 34px);
   line-height: 1.15;
 }
-.proposal-status {
-  display: inline-flex;
-  flex: 0 0 auto;
-  padding: 6px 10px;
-  border: 1px solid var(--warning-border);
-  border-radius: 999px;
-  background: var(--warning-background);
-  color: var(--warning-foreground);
-  font-size: 12px;
-  font-weight: 700;
-}
-.proposal-status.approved {
-  border-color: var(--success-border);
-  background: var(--success-background);
-  color: var(--success-foreground);
-}
 .proposal-boundary {
   border-left: 3px solid var(--primary);
 }
 .proposal-quote-summary {
+  display: block;
+  margin: 24px 0;
+  padding-bottom: 46px;
   border-left: 4px solid var(--primary);
   font-variant-numeric: tabular-nums;
 }
+.proposal-quote-summary > .request-eyebrow {
+  margin: 0 0 12px;
+}
 .proposal-quote-summary h2 {
-  font-size: clamp(24px, 3vw, 32px);
+  margin: 0 0 18px;
+  font-size: 1.26rem;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+}
+.proposal-quote-summary > p {
+  margin: 0 0 12px;
+}
+.proposal-quote-summary > p:last-child {
+  margin-bottom: 0;
 }
 .proposal-quote-summary .proposal-quote-note {
   color: var(--muted-foreground);
 }
 .proposal-comparison-table {
-  margin-top: 32px;
+  margin: 24px 0;
+}
+.proposal-comparison-table h2 {
+  margin: 0 0 18px;
+  font-size: 1.26rem;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
 }
 .proposal-compare {
   width: 100%;
@@ -960,7 +1010,7 @@ textarea:focus-visible,
 }
 .proposal-compare th,
 .proposal-compare td {
-  padding: 15px;
+  padding: 13px 15px;
   border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: top;
@@ -969,14 +1019,17 @@ textarea:focus-visible,
   background: var(--muted);
 }
 .proposal-compare tbody th {
-  font-weight: 600;
+  font-weight: 700;
 }
 .proposal-compare td small {
-  display: block;
+  margin-left: 6px;
   color: var(--muted-foreground);
 }
 .proposal-compare .proposal-change {
-  display: block;
+  margin-left: 6px;
+}
+.proposal-compare .proposal-change::before {
+  content: '· ';
 }
 .proposal-table-head {
   display: grid;
@@ -1023,6 +1076,13 @@ textarea:focus-visible,
   font-weight: 700;
 }
 @media (max-width: 600px) {
+  .proposal-shell {
+    padding: 28px 16px 56px;
+  }
+  .proposal-review .request-panel,
+  .proposal-decision-panel {
+    padding: 20px;
+  }
   .proposal-compare,
   .proposal-compare tbody,
   .proposal-compare tr,

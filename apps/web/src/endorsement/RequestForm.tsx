@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { StatusBadge } from '../components/StatusBadge';
 import type { RequestBody } from '../lib/api';
 import { useCreateRequest, usePolicy } from '../lib/queries';
 import { routes } from '../lib/routes';
@@ -255,7 +256,7 @@ export function RequestForm({ policyId }: { policyId: string }) {
               {policy.label} · {policy.id}
             </p>
           </div>
-          <span className="policy-status active">ACTIVE</span>
+          <StatusBadge status="ACTIVE">ACTIVE</StatusBadge>
         </div>
       )}
       {saved ? (

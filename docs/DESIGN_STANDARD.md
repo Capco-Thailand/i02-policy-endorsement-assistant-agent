@@ -4,6 +4,8 @@ PO/UX design output is browser-viewable HTML, CSS, and JavaScript under `design/
 
 `design/global.css` styles the standalone mockups. The running Next.js app imports `apps/web/src/app/styles.css` and uses shadcn preset `b51GFh7y6` for its semantic theme, Public Sans typography, and Base UI components. New mockups should reflect the [preset UX handoff](../_bmad-output/initiative-pea-001-policy-list-and-detail/ux-chore-shadcn-preset/DESIGN.md); do not import mockup CSS into the app.
 
+Runtime buttons use the shared `Button` component with `var(--radius)` (10px at the default root size). Button-styled links use the same radius. Use variants for action color and hierarchy, not a different corner shape; page-specific styles should not override button radius. Status badges may use a pill shape because they are labels. Match this rule in new browser previews.
+
 ## Layout
 
 - `design/global.css`: shared colors, type, spacing, and page styles.

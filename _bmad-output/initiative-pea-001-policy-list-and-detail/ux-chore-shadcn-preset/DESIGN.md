@@ -12,7 +12,7 @@ colors:
 typography:
   family: 'Public Sans from preset b51GFh7y6'
 rounded:
-  control: 'shadcn radius scale from preset b51GFh7y6'
+  control: 'var(--radius), 0.625rem (10px at the default root size)'
 spacing:
   page: '24px wide, 18px narrow'
   section: '30px'
@@ -45,7 +45,7 @@ Use flat surfaces, borders, and minimal shadows. Avoid gradients, glass, and lay
 
 ## Shapes
 
-Use `{rounded.control}` and the preset's radius scale consistently. Avoid large rounding on every surface.
+Use `{rounded.control}` for interactive buttons and button-styled links, including primary, outline, retry, and confirmation actions. The shared `Button` primitive owns this shape; page styles may change spacing and color but should not redefine its radius. Status badges may remain pill-shaped because they are labels, not actions. Avoid large rounding on every surface.
 
 ## Components
 
