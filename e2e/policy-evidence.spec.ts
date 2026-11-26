@@ -10,6 +10,11 @@ async function signIn(page: Page) {
   await expect(
     page.getByRole('heading', { name: 'Your policies' }),
   ).toBeVisible();
+  await expect
+    .poll(async () =>
+      (await page.request.get(`${api}/api/auth/session`)).status(),
+    )
+    .toBe(200);
 }
 
 test('FR-19 policy detail hides evidence UI while the owner-scoped API retains citations', async ({

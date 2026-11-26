@@ -88,7 +88,7 @@ for (const width of [1280, 320]) {
     await expect(
       page.getByRole('region', { name: 'Annualized scheduled total' }),
     ).toContainText('THB');
-    await expect(page.getByRole('row')).toHaveCount(4);
+    await expect(page.locator('.proposal-compare tbody tr')).toHaveCount(3);
     await expect(page.getByText(/Calculation source/)).toHaveCount(0);
     await expect(
       page.getByRole('heading', { name: 'Assessment and sources' }),
