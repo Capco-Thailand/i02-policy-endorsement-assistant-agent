@@ -3,7 +3,7 @@
 **Title:** [Bug] FR-20 Customer change history cannot fetch data
 **Feature ID:** FR-20
 **Labels:** `type:bug`, `role:dev`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/170
 **Product context:** [PRD](../PRD.md)
 **State:** Selected; reproduction details pending
 
