@@ -52,6 +52,7 @@ None proposed.
 
 ## Accepted decisions and readiness
 
+- 2026-11-26: Customer requested the “Pending your decision” badge use the same colored status component as Active/Expired. Use the warning tint and dot for pending and rejected proposal states and the success tint and dot for approved; retain text labels.
 - 2026-11-26: Customer requested removal of source wording, source links, and Policy evidence from active policy detail, the synthetic request form notice, more space above the recorded request’s proposal outcome, and closer Proposal Review fidelity to the FR-19 reference. Apply the same source-detail removal to expired policy detail for consistency; retain evidence in API and audit data.
 - 2026-11-26: After implementation, customer reported that Request Recorded and Proposal Review did not match the FR-19 previews and requested removal of Source wording from expired policy detail. The runtime layout will follow those previews while retaining functional navigation and controls.
 

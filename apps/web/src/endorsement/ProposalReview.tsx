@@ -1,4 +1,5 @@
 import type { Proposal } from '../lib/api';
+import { StatusBadge } from '../components/StatusBadge';
 import { useEffect, useRef } from 'react';
 
 const money = (satang: number) =>
@@ -199,13 +200,15 @@ export function ProposalReview({ proposal }: { proposal: Proposal }) {
       <p className="request-eyebrow">
         Policy {proposal.policyId} / Proposal {proposal.id}
       </p>
-      <span className={`proposal-status ${proposal.status.toLowerCase()}`}>
+      <StatusBadge status={proposal.status} pill>
         {proposal.status === 'PENDING_APPROVAL'
           ? 'Pending your decision'
           : proposal.status === 'APPROVED'
             ? 'Approved decision recorded'
-            : 'Rejected decision recorded'}
-      </span>
+            : proposal.status === 'REJECTED'
+              ? 'Rejected decision recorded'
+              : 'Draft proposal'}
+      </StatusBadge>
       <h1>Review your proposed change</h1>
       <p className="proposal-subtitle">
         {proposal.requestedChange.changeType === 'PAYMENT_FREQUENCY'

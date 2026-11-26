@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { StatusBadge } from '../components/StatusBadge';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -48,9 +49,9 @@ export function PolicyList() {
                 <strong>{policy.label}</strong>
                 <span className="policy-id">{policy.id}</span>
               </span>
-              <span className={`policy-status ${policy.status.toLowerCase()}`}>
+              <StatusBadge status={policy.status} pill>
                 {policy.status === 'ACTIVE' ? 'Active' : 'Expired'}
-              </span>
+              </StatusBadge>
             </span>
             <span className="policy-linkline">
               View policy <span aria-hidden="true">→</span>

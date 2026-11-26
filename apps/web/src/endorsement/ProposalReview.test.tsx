@@ -90,6 +90,11 @@ it('FR-19 proposal shows exact quote and policy facts without source panel or no
   ).not.toBeInTheDocument();
   expect(screen.queryByRole('note')).not.toBeInTheDocument();
   expect(screen.getByText('Policy POL / Proposal PROP')).toBeInTheDocument();
+  expect(screen.getByText('Pending your decision')).toHaveClass(
+    'policy-status',
+    'pending_approval',
+    'pill',
+  );
   const table = screen.getByRole('table');
   expect(table.querySelectorAll('tbody tr')).toHaveLength(3);
   const payment = screen.getByRole('row', { name: /Premium per installment/ });
@@ -209,6 +214,11 @@ it('FR-11 recorded review shows the dated decision without the proposal notice',
     />,
   );
   view.rerender(<ProposalReview proposal={proposal} />);
+  expect(screen.getByText('Approved decision recorded')).toHaveClass(
+    'policy-status',
+    'approved',
+    'pill',
+  );
   expect(screen.getByText(/Your decision was recorded/)).toBeInTheDocument();
   expect(
     screen.getByRole('heading', { name: 'Your decision was recorded' }),
@@ -216,4 +226,13 @@ it('FR-11 recorded review shows the dated decision without the proposal notice',
   expect(
     screen.queryByRole('button', { name: 'Approve proposal' }),
   ).not.toBeInTheDocument();
+  view.rerender(
+    <ProposalReview
+      proposal={{ ...proposal, status: 'DRAFT', decidedAt: undefined }}
+    />,
+  );
+  expect(screen.getByText('Draft proposal')).toHaveClass(
+    'policy-status',
+    'draft',
+  );
 });

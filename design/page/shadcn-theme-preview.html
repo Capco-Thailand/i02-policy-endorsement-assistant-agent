@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shadcn theme preview · Policy Endorsement Assistant</title>
     <style>
-      :root { font-family: 'Public Sans', system-ui, sans-serif; color: oklch(.148 .004 228.8); background: oklch(.987 .002 197.1); --primary: oklch(.514 .222 16.935); --border: oklch(.925 .005 214.3); --muted: oklch(.56 .021 213.5); }
+      :root { font-family: 'Public Sans', system-ui, sans-serif; color: oklch(.148 .004 228.8); background: oklch(.987 .002 197.1); --primary: oklch(.514 .222 16.935); --border: oklch(.925 .005 214.3); --muted: oklch(.56 .021 213.5); --radius: .625rem; }
       * { box-sizing: border-box; }
       body { margin: 0; }
       header { border-bottom: 1px solid var(--border); background: white; padding: 18px max(20px, calc((100vw - 1040px)/2)); font-weight: 700; }
@@ -19,7 +19,7 @@
       .panel { border: 1px solid var(--border); border-radius: 10px; background: white; padding: 26px; }
       label { display: block; margin: 16px 0 6px; font-size: .875rem; font-weight: 600; }
       input { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font: inherit; }
-      button { min-height: 42px; padding: 8px 16px; border: 1px solid var(--primary); border-radius: 7px; background: var(--primary); color: white; font: 600 .875rem 'Public Sans', system-ui, sans-serif; cursor: pointer; }
+      button { min-height: 42px; padding: 8px 16px; border: 1px solid var(--primary); border-radius: var(--radius); background: var(--primary); color: white; font: 600 .875rem 'Public Sans', system-ui, sans-serif; cursor: pointer; }
       button.secondary { background: white; color: var(--primary); }
       button:focus-visible, input:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
       .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }

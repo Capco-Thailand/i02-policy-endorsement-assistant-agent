@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { StatusBadge } from '../components/StatusBadge';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -159,9 +160,7 @@ function PolicyBody({ policy }: { policy: Policy }) {
           <FocusHeading>{policy.label}</FocusHeading>
           <p className="policy-id">{policy.id}</p>
         </div>
-        <span className={`policy-status ${policy.status.toLowerCase()}`}>
-          {policy.status}
-        </span>
+        <StatusBadge status={policy.status}>{policy.status}</StatusBadge>
       </div>
       <PolicyFacts policy={policy} />
       <PolicyTerms terms={policy.terms} mode="facts" />

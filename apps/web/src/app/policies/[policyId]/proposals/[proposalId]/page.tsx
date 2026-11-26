@@ -15,7 +15,7 @@ export default async function Page({
         <Brand />
         <SignOutButton />
       </header>
-      <main className="policy-shell">
+      <main className="policy-shell proposal-shell">
         <ProposalPage policyId={policyId} proposalId={proposalId} />
       </main>
     </SessionGate>
