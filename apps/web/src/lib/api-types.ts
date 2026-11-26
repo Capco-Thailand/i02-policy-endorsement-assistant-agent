@@ -240,7 +240,8 @@ export interface paths {
                 proposalId: string;
                 policyId: string;
                 policyLabel: string;
-                requestedChange:
+                requestId: string;
+                requestedChange?:
                   | {
                       /** @enum {string} */
                       changeType: 'BENEFICIARY';

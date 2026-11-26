@@ -10,6 +10,7 @@ import type { HistoryResult } from '../lib/api';
 
 type HistoryEntry = HistoryResult['history'][number];
 function changeSummary(change: HistoryEntry['requestedChange']): string {
+  if (!change) return 'Change details unavailable';
   switch (change.changeType) {
     case 'ADDRESS':
       return 'Correspondence address change';
@@ -43,14 +44,18 @@ function HistoryList({ entries }: { entries: HistoryEntry[] }) {
                 {entry.policyLabel} · {entry.policyId}
               </p>
               <p className="history-request">
-                Request ID: <span>{entry.requestedChange.id}</span>
+                Request ID: <span>{entry.requestId}</span>
               </p>
-              <Link
-                href={routes.proposal(entry.policyId, entry.proposalId)}
-                aria-label={`View recorded proposal for ${entry.policyLabel}, request ${entry.requestedChange.id}`}
-              >
-                View recorded proposal
-              </Link>
+              {entry.requestedChange ? (
+                <Link
+                  href={routes.proposal(entry.policyId, entry.proposalId)}
+                  aria-label={`View recorded proposal for ${entry.policyLabel}, request ${entry.requestId}`}
+                >
+                  View recorded proposal
+                </Link>
+              ) : (
+                <p>Original proposal details unavailable.</p>
+              )}
             </div>
             <div className="history-meta">
               <strong>Approved</strong>

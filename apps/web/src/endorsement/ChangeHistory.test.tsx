@@ -37,6 +37,7 @@ it('shows approved snapshot details and a keyboard accessible link', () => {
       history: [
         {
           proposalId: 'P1',
+          requestId: 'REQUEST-1',
           policyId: 'POL-1',
           policyLabel: 'Family Protection Plan',
           status: 'APPROVED',
@@ -61,6 +62,34 @@ it('shows approved snapshot details and a keyboard accessible link', () => {
   expect(
     screen.getByText(/policy and coverage did not change/i),
   ).toBeInTheDocument();
+});
+
+it('shows an approved legacy decision when change details are unavailable', () => {
+  vi.mocked(useHistory).mockReturnValue({
+    isPending: false,
+    isError: false,
+    data: {
+      history: [
+        {
+          proposalId: 'P-LEGACY',
+          policyId: 'POL-1',
+          policyLabel: 'Family Protection Plan',
+          requestId: 'REQ-LEGACY',
+          status: 'APPROVED',
+          decidedAt: '2026-11-18T03:42:00.000Z',
+        },
+      ],
+    },
+  } as ReturnType<typeof useHistory>);
+  renderHistory();
+  expect(
+    screen.getByRole('heading', { name: 'Change details unavailable' }),
+  ).toBeInTheDocument();
+  expect(screen.getByText('REQ-LEGACY')).toBeInTheDocument();
+  expect(screen.getByText('Approved')).toBeInTheDocument();
+  expect(
+    screen.queryByRole('link', { name: /View recorded proposal/i }),
+  ).not.toBeInTheDocument();
 });
 
 it('distinguishes empty history from a retryable failure', async () => {
@@ -111,6 +140,7 @@ it('FR-18 shows safe summaries and request IDs in server order', () => {
     data: {
       history: changes.map((requestedChange, index) => ({
         proposalId: `P${index}`,
+        requestId: `REQUEST-${index}`,
         policyId: 'POL-1',
         policyLabel: 'Family Protection Plan',
         status: 'APPROVED',
@@ -178,6 +208,7 @@ it('FR-18 labels approved records and links each exact proposal', () => {
       history: [
         {
           proposalId: 'P9',
+          requestId: 'REQUEST-9',
           policyId: 'POL-9',
           policyLabel: 'Secure Future Plan',
           status: 'APPROVED',

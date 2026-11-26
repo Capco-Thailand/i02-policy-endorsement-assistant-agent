@@ -8,8 +8,12 @@ import {
 } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { Pool } from 'pg';
+import { Value } from '@sinclair/typebox/value';
 import type { Customer, Policy } from './auth/data.js';
-import type { RequestRecord } from './endorsement/schema.js';
+import {
+  RequestRecordSchema,
+  type RequestRecord,
+} from './endorsement/schema.js';
 import { SESSION_LIFETIME_MS } from './auth/session.js';
 import { ENCODER_VERSION } from '../../ai/retrieval.js';
 import { RULE_ENCODER_VERSION } from '../../ai/rule-retrieval.js';
@@ -418,20 +422,35 @@ export function database(url = process.env.DATABASE_URL) {
     },
     async approvedHistory(customerId: string) {
       const result = await pool.query(
-        `SELECT p.id AS proposal_id, p.policy_id, p.decided_at, p.payload
+        `SELECT p.id AS proposal_id, p.policy_id, p.request_id, p.decided_at, p.payload,
+                pol.label AS policy_label, req.payload AS request_payload
          FROM endorsement_proposals p
+         JOIN policies pol ON pol.id=p.policy_id AND pol.customer_id=p.requester_id
+         LEFT JOIN endorsement_requests req ON req.id=p.request_id
+           AND req.requester_id=p.requester_id AND req.policy_id=p.policy_id
          WHERE p.requester_id=$1 AND p.status='APPROVED'
          ORDER BY p.decided_at DESC, p.id DESC`,
         [customerId],
       );
-      return result.rows.map((row) => ({
-        proposalId: row.proposal_id as string,
-        policyId: row.policy_id as string,
-        decidedAt: new Date(row.decided_at).toISOString(),
-        requestedChange: row.payload.requestedChange as unknown,
-        policyLabel: row.payload.current.label as string,
-        status: 'APPROVED' as const,
-      }));
+      return result.rows.map((row) => {
+        const snapshot = row.payload.requestedChange;
+        const requestedChange = Value.Check(RequestRecordSchema, snapshot)
+          ? snapshot
+          : row.request_payload;
+        return {
+          proposalId: row.proposal_id as string,
+          policyId: row.policy_id as string,
+          requestId: row.request_id as string,
+          decidedAt: new Date(row.decided_at).toISOString(),
+          requestedChange: Value.Check(RequestRecordSchema, requestedChange)
+            ? requestedChange
+            : undefined,
+          policyLabel: (row.payload.current?.label ??
+            row.policy_label ??
+            `Policy ${row.policy_id}`) as string,
+          status: 'APPROVED' as const,
+        };
+      });
     },
     async saveProposal(
       proposal: {
