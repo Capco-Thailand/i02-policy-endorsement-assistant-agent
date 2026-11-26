@@ -910,6 +910,9 @@ textarea:focus-visible,
 .proposal-review .request-panel {
   max-width: none;
 }
+.proposal-decision-panel {
+  max-width: none;
+}
 .proposal-review .policy-heading h1 {
   font-size: clamp(28px, 3vw, 34px);
   line-height: 1.15;
