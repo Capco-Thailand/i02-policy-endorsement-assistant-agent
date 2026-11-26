@@ -3,9 +3,9 @@
 **Title:** [Bug] FR-20 Customer change history cannot fetch data
 **Feature ID:** FR-20
 **Labels:** `type:bug`, `role:dev`
-**GitHub Issue:** Not filed
+**GitHub Issue:** Pending ticket/UX PR merge
 **Product context:** [PRD](../PRD.md)
-**State:** Backlog draft; reproduction details pending
+**State:** Selected; reproduction details pending
 
 ## Bug summary
 
@@ -39,7 +39,16 @@ Customer report only. The web UI uses `useHistory()` → `getHistory()` → `GET
 
 ## Related Issues or PRs
 
-FR-12 and FR-18 tickets above. GitHub Issue for this bug is pending backlog selection.
+FR-12 and FR-18 tickets above. GitHub Issue is pending the ticket/UX PR merge.
+
+## Accepted decisions and readiness
+
+- 2026-11-26: Customer invoked `bmad do fr-20`, selecting this bug for delivery. Reproduce the reported failure before assigning a cause or changing implementation.
+- Ticket/UX PR merge and tracking Issue creation remain before implementation.
+
+## UX handoff references
+
+Use the existing [FR-18 experience](../../_bmad-output/initiative-customer-ui-redesign/ux-fr-18/EXPERIENCE.md) and [history mockup](../../design/page/fr-18-history.html). This bug does not propose a new layout.
 
 ## Verification criteria
 

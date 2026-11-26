@@ -1,8 +1,8 @@
 ---
 name: FR-19 customer UI refinement
-status: proposed
+status: final
 updated: 2026-11-26
-source: docs/backlog/fr-19-refine-customer-ui.md
+source: docs/tickets/fr-19-refine-customer-ui.md
 ---
 
 # Experience contract
