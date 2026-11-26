@@ -7,7 +7,7 @@ source: docs/tickets/fr-19-refine-customer-ui.md
 
 # Experience contract
 
-Follow-up, 2026-11-26: The recorded request presents one confirmation panel containing the check action. Proposal review presents status, annualized impact, aligned comparison, then decision controls. Expired policy detail omits Source wording and source links while keeping its policy facts and evidence check available.
+Follow-up, 2026-11-26: The recorded request presents one confirmation panel containing the check action, with space before the proposal outcome. Proposal review presents status, annualized impact, an aligned table, then decision controls. Active and expired policy detail omit Source wording, View source links, and Policy evidence while keeping policy facts available. Evidence remains in the API and audit contract. The request entry form omits the specified synthetic request notice.
 
 1. On the Policies screen, the customer can open Change history from a button-styled link by the page heading. It is absent from the top navigation, works by keyboard, and leads to the existing authorized history route. Each policy displays Active or Expired in text.
 2. After a request is recorded, focus moves to the confirmation heading. The saved request ID, requested value, date, and pending-check state are readable before the “Check eligibility” action. This action runs the existing separate check; recording alone changes no policy data.

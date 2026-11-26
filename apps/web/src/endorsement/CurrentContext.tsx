@@ -48,11 +48,6 @@ export function CurrentContext({
                 {coverage.value.name} · {coverage.value.currency}{' '}
                 {coverage.value.amount.toLocaleString('en-US')}
               </p>
-              <Link
-                href={`${routes.policy(policy.id)}#source-${coverage.citation.sectionId.replaceAll('.', '-')}`}
-              >
-                View cited policy term
-              </Link>
             </>
           ) : (
             <p>
@@ -63,9 +58,7 @@ export function CurrentContext({
           <p>Current rider on/off state is not supplied.</p>
         </>
       )}
-      <Link href={routes.policy(policy.id)}>
-        View current policy facts and sources
-      </Link>
+      <Link href={routes.policy(policy.id)}>View current policy facts</Link>
     </section>
   );
 }

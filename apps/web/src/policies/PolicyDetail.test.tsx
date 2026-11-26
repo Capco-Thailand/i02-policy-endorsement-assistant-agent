@@ -28,6 +28,7 @@ const show = (state: object) => {
 };
 
 beforeEach(() => {
+  vi.mocked(useEvidence).mockClear();
   vi.mocked(useEvidence).mockReturnValue({
     isPending: false,
     isError: false,
@@ -36,35 +37,7 @@ beforeEach(() => {
 });
 
 describe('FR-03 policy detail', () => {
-  it('FR-15 links status, dates, payment, and beneficiaries to full authorized evidence', () => {
-    const sections: Record<string, string> = {
-      status: 'What is the policy status?',
-      dates: 'When does protection begin?',
-      payment: 'How are premiums paid?',
-      beneficiaries: 'Who receives the benefit?',
-    };
-    vi.mocked(useEvidence).mockImplementation((_id, question) => {
-      const sectionId =
-        Object.entries(sections).find(([, value]) => value === question)?.[0] ??
-        'dates';
-      return {
-        isPending: false,
-        isError: false,
-        data: {
-          status: 'available',
-          match: 'Matches policy facts',
-          citations: [
-            {
-              sourceId: 'POL-NARIN-001:v1',
-              title: 'Family Protection Plan synthetic policy',
-              version: 'v1',
-              sectionId,
-              excerpt: `${sectionId} excerpt`,
-            },
-          ],
-        },
-      } as ReturnType<typeof useEvidence>;
-    });
+  it('keeps policy facts without requesting or showing source content', () => {
     show({
       isPending: false,
       isError: false,
@@ -85,23 +58,23 @@ describe('FR-03 policy detail', () => {
         },
       },
     });
-    for (const section of Object.keys(sections)) {
-      const link = screen.getAllByRole('link', {
-        name: `View source · ${section}`,
-      })[0];
-      expect(link).toHaveAttribute('href', `#source-${section}`);
-      expect(document.querySelector(`#source-${section}`)).toHaveTextContent(
-        `${section} excerpt`,
-      );
-    }
+    expect(screen.getByText('1 January 2025')).toBeInTheDocument();
+    expect(screen.getByText('Arisa K.')).toBeInTheDocument();
+    expect(useEvidence).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('heading', { name: 'Source wording' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Policy evidence' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /View source/ }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Back to policies' }),
     ).toHaveAttribute('href', '/policies');
-    expect(
-      screen.getAllByRole('link', { name: 'View source · dates' }),
-    ).toHaveLength(2);
   });
-  it('FR-15 explains a missing source without linking to an absent citation', () => {
+  it('explains unresolved policy values without a source link', () => {
     show({
       isPending: false,
       isError: false,
@@ -123,7 +96,7 @@ describe('FR-03 policy detail', () => {
       },
     });
     expect(
-      screen.getByText(/Source unavailable for product/i),
+      screen.getByText(/Unresolved: We can't confirm this coverage detail/),
     ).toBeInTheDocument();
     expect(
       screen.queryByText(/Synthetic policy data for this prototype/),
@@ -132,7 +105,7 @@ describe('FR-03 policy detail', () => {
       screen.queryByRole('link', { name: /View source.*product/i }),
     ).not.toBeInTheDocument();
   });
-  it('FR-14 shows cited product, coverage, and exclusions', () => {
+  it('shows product and coverage facts without source links', () => {
     show({
       isPending: false,
       isError: false,
@@ -187,16 +160,9 @@ describe('FR-03 policy detail', () => {
     });
     expect(screen.getByText('Example Mutual (Synthetic)')).toBeInTheDocument();
     expect(screen.getByText(/THB 1,000,000/)).toBeInTheDocument();
-    const source = screen.getByRole('link', {
-      name: /View source.*coverage.life/i,
-    });
-    expect(source).toHaveAttribute('href', '#source-coverage-life');
-    expect(document.querySelector('#source-coverage-life')).toHaveTextContent(
-      'Family Protection Plan synthetic policy',
-    );
-    expect(document.querySelector('#source-coverage-life')).toHaveTextContent(
-      'v1',
-    );
+    expect(
+      screen.queryByRole('link', { name: /View source/ }),
+    ).not.toBeInTheDocument();
     expect(
       screen
         .getByRole('heading', { name: /Coverage listed/i })

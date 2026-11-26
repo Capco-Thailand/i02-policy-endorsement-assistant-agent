@@ -52,6 +52,7 @@ it('shows four change choices and only selected fields for an active policy', ()
     </QueryClientProvider>,
   );
   expect(screen.getByText(/POL-NARIN-001/)).toBeInTheDocument();
+  expect(screen.queryByText(/Synthetic request only/)).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Record request' })).toBeDisabled();
   const choices = screen.getByRole('combobox', { name: 'Change type' });
   expect(choices.querySelectorAll('option')).toHaveLength(5);
@@ -160,11 +161,11 @@ it('FR-17 current values: shows only authorized context for all four changes', (
     screen.getByText(/Current rider on\/off state is not supplied/),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('link', { name: /View cited policy term/ }),
-  ).toHaveAttribute(
-    'href',
-    '/policies/POL-NARIN-001#source-coverage-accidental-death',
-  );
+    screen.queryByRole('link', { name: /View cited policy term/ }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole('link', { name: 'View current policy facts' }),
+  ).toHaveAttribute('href', '/policies/POL-NARIN-001');
 });
 
 it('keeps entered address on service failure and confirms only a recorded pending request', async () => {

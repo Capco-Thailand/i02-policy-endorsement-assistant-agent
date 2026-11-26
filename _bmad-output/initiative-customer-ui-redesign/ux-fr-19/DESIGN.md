@@ -7,7 +7,7 @@ source: docs/tickets/fr-19-refine-customer-ui.md
 
 # Visual contract
 
-Follow-up, 2026-11-26: The running Request Recorded and Proposal Review screens must use the reference previews' hierarchy and panel treatments. The expired policy detail retains policy facts and its Policy evidence check while omitting the Source wording section and in-page source links. Preview links and disabled controls are static artifacts; runtime navigation and controls remain functional.
+Follow-up, 2026-11-26: The running Request Recorded and Proposal Review screens use the reference previews' hierarchy and panel treatments. Active and expired policy detail retain policy facts while omitting Source wording, View source links, and the Policy evidence section. The request entry form omits the specified synthetic request notice. Give the “Can proceed to a proposal” outcome more space above it. Proposal Review uses the preview's aligned comparison table. Preview links and disabled controls are static artifacts; runtime navigation and controls remain functional.
 
 Use the shadcn preset `b51GFh7y6` theme as shown on the FR-16 sign-in reference. The FR-19 CSS imports `fr-16-redesign.css`, which imports the FR-15 token sheet. Use its semantic tokens, Public Sans, and existing heading scale. The brand is a primary red square monogram with foreground “PE”; the adjacent product name supplies the accessible name. Remove decorative prototype tags and subtitles.
 

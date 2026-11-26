@@ -32,7 +32,9 @@ FR-16 owns the policy list, FR-17 the request and assessment, FR-15 the proposal
 - [ ] Loading, empty, error, approved/rejected, and narrow-screen states keep usable navigation, understandable status text, visible focus, and no horizontal overflow.
 
 - [ ] The Request Recorded and Proposal Review runtime hierarchy and spacing match the reviewed FR-19 reference layouts while retaining functional actions.
-- [ ] Expired policy detail hides Source wording and in-page source links while retaining policy facts and the Policy evidence check.
+- [ ] Active and expired policy detail hide Source wording, View source links, and the Policy evidence section while retaining policy facts. Evidence remains available through the existing API.
+- [ ] The request entry form omits the specified “Synthetic request only” notice. On Request Recorded, the “Can proceed to a proposal” section has clear space above it.
+- [ ] Proposal Review uses the reference preview’s aligned comparison table and panel hierarchy, with current and proposed values and functional decision actions.
 
 ## Scope and out of scope
 
@@ -50,6 +52,7 @@ None proposed.
 
 ## Accepted decisions and readiness
 
+- 2026-11-26: Customer requested removal of source wording, source links, and Policy evidence from active policy detail, the synthetic request form notice, more space above the recorded request’s proposal outcome, and closer Proposal Review fidelity to the FR-19 reference. Apply the same source-detail removal to expired policy detail for consistency; retain evidence in API and audit data.
 - 2026-11-26: After implementation, customer reported that Request Recorded and Proposal Review did not match the FR-19 previews and requested removal of Source wording from expired policy detail. The runtime layout will follow those previews while retaining functional navigation and controls.
 
 - 2026-11-26: Customer requested these five UI changes and asked for a backlog draft with UX/UI to review.
