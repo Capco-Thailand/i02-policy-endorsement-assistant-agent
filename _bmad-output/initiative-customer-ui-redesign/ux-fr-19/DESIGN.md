@@ -1,8 +1,8 @@
 ---
 name: FR-19 customer UI refinement
-status: proposed
+status: final
 updated: 2026-11-26
-source: docs/backlog/fr-19-refine-customer-ui.md
+source: docs/tickets/fr-19-refine-customer-ui.md
 ---
 
 # Visual contract
@@ -13,4 +13,4 @@ The header contains the brand without Change history navigation. Place a button-
 
 The recorded request is a single confirmation panel: status, ID, concise change summary, effective date, and one strong “Check eligibility” action. The proposal leads with status and annualized impact; aligned current/proposed values and decision actions follow. Remove the specified non-binding proposal notice from that review screen. No source evidence panel appears in either screen.
 
-Reference previews: [policy navigation](../../../design/page/fr-19-policy-navigation.html), [request recorded](../../../design/page/fr-19-request-recorded.html), [proposal review](../../../design/page/fr-19-proposal-review.html). On 2026-11-26 the customer reviewed the layouts, requested theme alignment, then directed these navigation, status, notice, and spacing revisions. Delivery has not been selected.
+Reference previews: [policy navigation](../../../design/page/fr-19-policy-navigation.html), [request recorded](../../../design/page/fr-19-request-recorded.html), [proposal review](../../../design/page/fr-19-proposal-review.html). On 2026-11-26 the customer reviewed and revised the layouts, then selected FR-19 for delivery with `bmad do fr-19`.

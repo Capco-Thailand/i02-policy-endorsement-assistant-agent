@@ -2,11 +2,11 @@
 
 **Title:** [Story] Make policy navigation and request review clearer
 **Labels:** `type:story`, `role:dev`, `role:ux`
-**GitHub Issue:** Not filed
+**GitHub Issue:** Pending ticket/UX PR merge
 **Feature ID:** FR-19
 **Product context:** [PRD](../PRD.md)
 **Risk:** Medium — removing visible evidence and prototype labels could obscure the non-binding boundary.
-**State:** Backlog draft; revised UX ready for customer review
+**State:** Selected; UX handoff ready for ticket/UX PR
 
 ## Summary and objective
 
@@ -39,7 +39,7 @@ Out of scope: API responses, evidence retrieval, authorization, quote calculatio
 
 ## Dependencies
 
-Build on the existing FR-15 to FR-18 UX contracts. Customer review of the proposed layouts is required before selection for delivery.
+Build on the existing FR-15 to FR-18 UX contracts. The FR-19 layout and theme were reviewed through PR #166 and the customer's subsequent revisions.
 
 ## Related subtasks
 
@@ -52,8 +52,9 @@ None proposed.
 - 2026-11-26: Customer chose a Change history button outside top navigation, required Active/Expired status labels, removed the Policies synthetic notice, and requested more space below back links.
 - 2026-11-26: Customer asked to restore the arrow icons with correct characters and reuse the current FR-16 policy status badge design. The history fetch bug is a separate FR-20 backlog draft.
 - 2026-11-26: Customer requested removal of the specified policy-detail and proposal-review notices and asked that Active/Expired badges use the current runtime success/warning colors.
+- 2026-11-26: Customer invoked `bmad do fr-19`, selecting FR-19 for delivery with the revised UX handoff. Ticket/UX PR merge and Issue creation remain before implementation.
 - Assumption for review: use a red square monogram for the brand mark. Retain non-binding notices at request and proposal actions.
-- Readiness: theme-aligned reference layouts are ready for review; delivery selection pending.
+- Readiness: selected; ticket/UX PR and tracking Issue pending.
 
 ## UX handoff references
 
