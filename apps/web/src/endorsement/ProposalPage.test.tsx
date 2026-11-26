@@ -108,6 +108,11 @@ it('FR-11 approval is direct and a failed write keeps retry actions visible', as
   const view = render(
     <ProposalDecision onDecide={onDecide} isPending={false} isError={false} />,
   );
+  expect(
+    screen.getByText(
+      /records your decision only.*policy and coverage stay unchanged/i,
+    ),
+  ).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Approve proposal' }));
   expect(onDecide).toHaveBeenCalledWith('APPROVED');
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();

@@ -42,7 +42,7 @@ describe('FR-04 evidence section', () => {
       },
     });
     expect(
-      screen.getByRole('heading', { name: 'Synthetic policy evidence' }),
+      screen.getByRole('heading', { name: 'Policy evidence' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Matches policy facts')).toBeInTheDocument();
     expect(

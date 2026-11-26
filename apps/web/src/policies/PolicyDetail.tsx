@@ -244,9 +244,7 @@ function PolicyTerms({
             className="policy-section"
             aria-labelledby="coverage-heading"
           >
-            <h2 id="coverage-heading">
-              Coverage listed in this synthetic policy
-            </h2>
+            <h2 id="coverage-heading">Coverage listed in this policy</h2>
             <ul className="policy-term-list">
               {terms.coverages.map((item) => (
                 <li key={item.id}>
@@ -357,7 +355,7 @@ function PolicyBody({ policy }: { policy: Policy }) {
   return (
     <>
       <Link className="policy-back" href={routes.policies}>
-        ← Back to policies
+        <span aria-hidden="true">←</span> Back to policies
       </Link>
       <div className="policy-heading">
         <div>
@@ -371,10 +369,6 @@ function PolicyBody({ policy }: { policy: Policy }) {
           <FactSource source={status} label="status" />
         </div>
       </div>
-      <p className="policy-note policy-intro-note">
-        Synthetic policy data for this prototype. Viewing a policy does not
-        change coverage.
-      </p>
       <PolicyFacts policy={policy} dates={dates} payment={payment} />
       {policy.terms && <PolicyTerms terms={policy.terms} mode="facts" />}
       <Beneficiaries policy={policy} source={beneficiaries} />
@@ -418,7 +412,7 @@ export function PolicyDetail({ policyId }: { policyId: string }) {
     return (
       <>
         <Link className="policy-back" href={routes.policies}>
-          ← Back to policies
+          <span aria-hidden="true">←</span> Back to policies
         </Link>
         <FocusHeading>
           {query.error.message === 'NOT_FOUND'

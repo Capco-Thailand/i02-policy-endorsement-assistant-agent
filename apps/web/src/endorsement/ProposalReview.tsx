@@ -164,27 +164,6 @@ function ImpactComparison({ impact }: { impact: Proposal['impact'] }) {
   );
 }
 
-function ProposalEvidence({ citations }: { citations: Proposal['citations'] }) {
-  return (
-    <section className="request-panel">
-      <h2>Assessment and sources</h2>
-      <p>
-        This request can proceed based on the cited policy wording and
-        endorsement rules.
-      </p>
-      <ul>
-        {citations.map((item) => (
-          <li key={`${item.kind}:${item.sourceId}:${item.sectionId}`}>
-            {item.kind === 'POLICY' ? 'Policy wording' : 'Endorsement rule'} ·{' '}
-            {item.sourceId} · version {item.version} · section {item.sectionId}
-            {item.kind === 'RULE' ? ` · ${item.ruleId}` : ` · ${item.excerpt}`}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 function QuoteSummary({ impact }: { impact: Proposal['impact'] }) {
   if (impact.status === 'UNCHANGED') return null;
   return (
@@ -224,22 +203,17 @@ export function ProposalReview({ proposal }: { proposal: Proposal }) {
             {proposal.id}
           </p>
         </div>
-        <span className="policy-status active">
-          {proposal.status.replace('_', ' ')}
+        <span className={`proposal-status ${proposal.status.toLowerCase()}`}>
+          {proposal.status === 'PENDING_APPROVAL'
+            ? 'Awaiting your decision'
+            : proposal.status === 'APPROVED'
+              ? 'Approved decision recorded'
+              : 'Rejected decision recorded'}
         </span>
       </div>
-      <section className="request-panel proposal-boundary" role="note">
-        <h2>This is a non-binding proposal.</h2>
-        <p>
-          Approval records your decision only. The underlying policy and
-          coverage stay unchanged.
-        </p>
-        <p>Synthetic policy and calculation data for this prototype.</p>
-      </section>
       <QuoteSummary impact={proposal.impact} />
       <RequestedChange proposal={proposal} />
       <ImpactComparison impact={proposal.impact} />
-      <ProposalEvidence citations={proposal.citations} />
       {(proposal.status === 'APPROVED' || proposal.status === 'REJECTED') && (
         <section className="request-panel" aria-live="polite">
           <h2 ref={recordedHeading} tabIndex={-1}>

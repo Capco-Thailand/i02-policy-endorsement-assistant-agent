@@ -55,7 +55,7 @@ for (const width of [1280, 320]) {
     ).toBeVisible();
     await expect(page.getByText('POL-MALI-001')).toHaveCount(0);
     await expect(
-      page.getByRole('link', { name: 'Customer change history' }),
+      page.getByRole('link', { name: 'Change history' }),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
     expect(
@@ -317,7 +317,7 @@ for (const change of [
       page.locator('.recorded-request').getByText(/Request ID: [0-9a-f-]{36}/),
     ).toBeVisible();
     await expect(
-      page.getByText('No policy coverage has changed.'),
+      page.getByText(/did not approve it or change your policy coverage/),
     ).toBeVisible();
   });
 }

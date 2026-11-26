@@ -56,7 +56,7 @@ it.each([
   ['CANNOT_PROCEED', 'Cannot proceed'],
   ['NEEDS_REVIEW', 'Needs review'],
 ])(
-  'FR-08 UI: %s result shows reason, citation, next step and unchanged coverage',
+  'FR-19 assessment: %s shows reason and next step without source details',
   (outcome, heading) => {
     state({
       data: {
@@ -87,12 +87,8 @@ it.each([
     expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();
     expect(screen.getByRole('listitem')).toHaveTextContent('Safe reason');
     expect(screen.getByText('Next step')).toBeInTheDocument();
-    expect(
-      screen.getByText(/Rule SRC.*version 1.*section S.*rule RULE/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Policy wording WORDING.*version v1.*section P/),
-    ).toBeInTheDocument();
+    expect(screen.queryByText('Available sources')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Rule SRC.*version 1/)).not.toBeInTheDocument();
     expect(
       screen.getByText(/No policy coverage has changed/),
     ).toBeInTheDocument();
@@ -147,8 +143,8 @@ it('FR-08 UI: referral shows safe source IDs when no citation is available', () 
   });
   renderCheck();
   expect(
-    screen.getByText(/Unresolved source SYNTHETIC:SRC/),
-  ).toBeInTheDocument();
+    screen.queryByText(/Unresolved source SYNTHETIC:SRC/),
+  ).not.toBeInTheDocument();
 });
 
 it('FR-17 unresolved sources: identifies missing source even when another rule is cited', () => {
@@ -172,8 +168,8 @@ it('FR-17 unresolved sources: identifies missing source even when another rule i
   });
   renderCheck();
   expect(
-    screen.getByText(/Unresolved source RULE:MISSING/),
-  ).toBeInTheDocument();
+    screen.queryByText(/Unresolved source RULE:MISSING/),
+  ).not.toBeInTheDocument();
   expect(screen.getByText('Reason')).toBeInTheDocument();
   expect(screen.getByText('Next action')).toBeInTheDocument();
 });

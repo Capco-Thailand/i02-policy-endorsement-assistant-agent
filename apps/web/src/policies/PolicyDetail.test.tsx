@@ -95,6 +95,9 @@ describe('FR-03 policy detail', () => {
       );
     }
     expect(
+      screen.getByRole('link', { name: 'Back to policies' }),
+    ).toHaveAttribute('href', '/policies');
+    expect(
       screen.getAllByRole('link', { name: 'View source · dates' }),
     ).toHaveLength(2);
   });
@@ -122,6 +125,9 @@ describe('FR-03 policy detail', () => {
     expect(
       screen.getByText(/Source unavailable for product/i),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Synthetic policy data for this prototype/),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: /View source.*product/i }),
     ).not.toBeInTheDocument();

@@ -31,17 +31,17 @@ test('FR-04 owned policy shows a bounded citation at 320px; foreign policy stays
   await signIn(page);
   await page.goto('/policies/POL-NARIN-001');
   await expect(
-    page.getByRole('heading', { name: 'Synthetic policy evidence' }),
+    page.getByRole('heading', { name: 'Policy evidence' }),
   ).toBeVisible();
   await expect(page.getByText('Matches policy facts')).toBeVisible();
   await expect(
     page
-      .getByRole('region', { name: 'Synthetic policy evidence' })
+      .getByRole('region', { name: 'Policy evidence' })
       .getByText('Family Protection Plan synthetic policy', { exact: true }),
   ).toBeVisible();
   await expect(
     page
-      .getByRole('region', { name: 'Synthetic policy evidence' })
+      .getByRole('region', { name: 'Policy evidence' })
       .getByText(/Version v1 · Section dates/),
   ).toBeVisible();
   expect(
@@ -66,7 +66,7 @@ test('FR-04 owned policy shows a bounded citation at 320px; foreign policy stays
     page.getByRole('heading', { name: 'This policy is unavailable.' }),
   ).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Synthetic policy evidence' }),
+    page.getByRole('heading', { name: 'Policy evidence' }),
   ).toHaveCount(0);
 });
 

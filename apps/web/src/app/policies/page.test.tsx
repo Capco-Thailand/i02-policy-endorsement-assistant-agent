@@ -22,11 +22,14 @@ describe('FR-03 policy list page', () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/expired policy values are historical/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Customer change history' }),
+      screen.getByRole('link', { name: 'Change history' }),
     ).toHaveAttribute('href', '/history');
+    expect(
+      screen.queryByText(/These are synthetic policies/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Your policies' }).parentElement,
+    ).toContainElement(screen.getByRole('link', { name: 'Change history' }));
     expect(
       screen.getByRole('button', { name: 'Sign out' }),
     ).toBeInTheDocument();

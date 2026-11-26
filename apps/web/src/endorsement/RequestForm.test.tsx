@@ -225,20 +225,29 @@ it('keeps entered address on service failure and confirms only a recorded pendin
   ).toHaveValue('123 Demo Road');
   fireEvent.click(screen.getByRole('button', { name: 'Record request' }));
   expect(
-    await screen.findByRole('heading', { name: 'Pending checks' }),
+    await screen.findByRole('heading', {
+      name: 'Your change request is recorded',
+    }),
   ).toBeInTheDocument();
   await waitFor(() =>
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Request recorded' }),
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Your change request is recorded',
+      }),
     ).toHaveFocus(),
   );
   expect(screen.getByRole('status')).toHaveTextContent(
-    /No policy coverage has changed/,
+    /did not approve it or change your policy coverage/,
   );
   expect(screen.getByText('123 Demo Road')).toBeInTheDocument();
+  expect(screen.getByText('2026-12-01')).toBeInTheDocument();
+  expect(screen.getByText('Pending eligibility check')).toBeInTheDocument();
   expect(screen.getByRole('status')).toHaveTextContent(/Request ID: REQ-1/);
   expect(
-    screen.getByText(/eligibility is a separate check/i),
+    screen.getByText(
+      'Next, check eligibility to see whether this request can continue.',
+    ),
   ).toBeInTheDocument();
   expect(
     screen.queryByRole('heading', { name: 'Mock document upload' }),

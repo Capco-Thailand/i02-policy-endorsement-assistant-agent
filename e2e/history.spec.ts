@@ -88,7 +88,7 @@ test('FR-18 owner sees approved requests, rejection exclusion, original detail, 
   await expect(page.getByText(/Rejected on/)).toBeVisible();
   const rejectedProposalPath = new URL(page.url()).pathname;
   await page.goto('/policies');
-  await page.getByRole('link', { name: 'Customer change history' }).click();
+  await page.getByRole('link', { name: 'Change history' }).click();
   await expect(
     page.getByRole('heading', { name: 'Customer change history' }),
   ).toBeVisible();
@@ -168,7 +168,7 @@ test('FR-18 failed history read shows retry, not empty success', async ({
       body: JSON.stringify({ error: 'HISTORY_UNAVAILABLE' }),
     }),
   );
-  await page.getByRole('link', { name: 'Customer change history' }).click();
+  await page.getByRole('link', { name: 'Change history' }).click();
   await expect(
     page.getByRole('alert').filter({ hasText: 'could not load' }),
   ).toBeVisible();
@@ -189,7 +189,7 @@ test('FR-18 signed-out history is guarded on narrow screens', async ({
     page.getByRole('heading', { name: 'Sign in to view your policies' }),
   ).toBeVisible();
   await signIn(page, 'mali', 'MaliDemo123!');
-  await page.getByRole('link', { name: 'Customer change history' }).click();
+  await page.getByRole('link', { name: 'Change history' }).click();
   await expect(
     page.getByRole('heading', { name: 'Customer change history' }),
   ).toBeVisible();
@@ -239,7 +239,7 @@ for (const width of [1280, 320]) {
         }),
       }),
     );
-    await page.getByRole('link', { name: 'Customer change history' }).click();
+    await page.getByRole('link', { name: 'Change history' }).click();
     await expect(
       page.getByRole('heading', {
         name: 'Payment frequency · Requested Monthly',

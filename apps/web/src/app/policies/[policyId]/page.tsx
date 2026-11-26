@@ -1,6 +1,7 @@
 import { SessionGate } from '../../../auth/SessionGate';
 import { SignOutButton } from '../../../auth/SignOutButton';
 import { PolicyDetail } from '../../../policies/PolicyDetail';
+import { Brand } from '../../../components/Brand';
 
 export default async function PolicyDetailPage({
   params,
@@ -11,11 +12,7 @@ export default async function PolicyDetailPage({
   return (
     <SessionGate>
       <header className="site-header">
-        <span className="brand-mark">PEA</span>
-        <span>
-          Policy Endorsement Assistant
-          <small>Synthetic insurance prototype</small>
-        </span>
+        <Brand />
         <SignOutButton />
       </header>
       <main className="policy-shell policy-detail-shell">

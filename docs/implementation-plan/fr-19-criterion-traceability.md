@@ -1,0 +1,15 @@
+# FR-19 criterion traceability
+
+Run date: 2026-11-26 (Asia/Bangkok). Checkout: FR-19 implementation worktree at baseline `e7f5610a736833aec510b835e429c2f10bd54a4e`, with uncommitted UI changes.
+
+| Ticket criterion | Verification seam | Result and remaining check |
+| --- | --- | --- |
+| History action beside Policies; authorized route; 320px | `apps/web/src/app/policies/page.test.tsx` checks heading adjacency and route. `e2e/fr19.spec.ts` checks keyboard focus and desktop/320px layout. | Component passed. Browser check pending disposable database. |
+| Active/Expired rows, labels, colors, arrow | Existing `PolicyList.test.tsx` checks both status labels and links. CSS retains success/warning tokens and dot; `e2e/fr19.spec.ts` checks both at desktop/320px. | Component passed. Browser color and overflow checks pending. |
+| Red PE brand; no decorative prototype labels; preserve policy facts | Shared `Brand` across sign-in and signed-in routes; policy page, detail, and evidence component tests. `e2e/fr19.spec.ts` checks mark and labels. | Component passed. Browser visual review pending. Policy facts with “Synthetic” values remain visible. |
+| Recorded request: ID, value, date, pending status, separate check, non-binding | `RequestForm.test.tsx` runs the record mutation and checks confirmation panel focus, fields, and separate check action. `e2e/fr19.spec.ts` checks the full journey. | Component passed. Browser and unchanged policy API equality pending. |
+| Assessment outcome, reason, next step without sources | `EligibilityCheck.test.tsx` covers proceed, referral, rejection, retry, and source-panel absence. | Component passed. Browser pending. Citations remain in the API response. |
+| Proposal status, cost and benefits, no sources or specified notice, decision | `ProposalReview.test.tsx` checks exact quote/current/proposed values, source and notice absence, recorded decision. `ProposalPage.test.tsx` checks decision messaging and mutation controls. | Components passed. Browser and updated visual baseline pending. |
+| Loading, empty, errors, decided, session ended, 320px, focus and overflow | Existing component tests and `e2e/fr19.spec.ts` for desktop/320px flow and screenshots. | Components passed. Browser pending. Existing FR-15–18 screenshot baselines may need review after the intentional branding and copy changes. |
+
+Red/green evidence: Policies page 1/2 to 2/2; recorded request 6/7 to 7/7; assessment 7/12 to 12/12; proposal review 2/3 to 3/3; policy detail/evidence 9/11 to 11/11; decision messaging 4/5 to 5/5. Each red failure was the expected missing presentation. Final web suite: 63/63. Root `npm run typecheck` and `npm run format:check` passed. Root `npm test` could not pass: 14 API tests require `DATABASE_URL`; the web suite passed. Targeted `npm run test:e2e -- e2e/fr19.spec.ts` did not reach Chromium because this worktree lacks local Next modules; the runner now resolves hoisted packages. Do not use the historical application Neon database for tests. Run the browser journey and update reviewed desktop/320px baselines in CI with a disposable synthetic database.

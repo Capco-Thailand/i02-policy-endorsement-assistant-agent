@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { ProposalReview } from './ProposalReview';
 import type { Proposal } from '../lib/api';
 
-it('FR-10 review shows exact quote, citations, and non-binding boundary', () => {
+it('FR-19 proposal shows exact quote and policy facts without source panel or notice', () => {
   render(
     <ProposalReview
       proposal={{
@@ -84,20 +84,18 @@ it('FR-10 review shows exact quote, citations, and non-binding boundary', () => 
   expect(screen.getAllByText(/THB 1,000,000/)).toHaveLength(2);
   expect(screen.getAllByText(/THB 250,000/)).toHaveLength(2);
   expect(screen.getAllByText(/Unchanged/).length).toBeGreaterThanOrEqual(2);
-  expect(screen.getByText(/WORDING.*v3.*6.4/)).toBeInTheDocument();
+  expect(screen.queryByText(/WORDING.*v3.*6.4/)).not.toBeInTheDocument();
   expect(
-    screen.getByText(/underlying policy and coverage stay unchanged/),
-  ).toBeInTheDocument();
+    screen.queryByRole('heading', { name: 'Assessment and sources' }),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  expect(screen.getByText(/Synthetic.*Policy POL/)).toBeInTheDocument();
   const payment = screen.getByRole('group', {
     name: 'Premium per installment',
   });
   expect(payment).toHaveTextContent('THB 1,215.00');
   expect(payment).toHaveTextContent('THB 13,500.00');
   expect(payment).toHaveTextContent('Changed');
-  expect(
-    screen.getByRole('note').compareDocumentPosition(payment) &
-      Node.DOCUMENT_POSITION_FOLLOWING,
-  ).toBeTruthy();
   const summary = screen.getByRole('region', {
     name: 'Annualized scheduled total',
   });
@@ -166,7 +164,7 @@ it('FR-10 unchanged review labels premium, schedule and benefits unchanged', () 
   ).toHaveTextContent('Unchanged');
 });
 
-it('FR-11 recorded review shows the dated decision after the notice', () => {
+it('FR-11 recorded review shows the dated decision without the proposal notice', () => {
   const proposal: Proposal = {
     id: 'PROP',
     requestId: 'REQ',

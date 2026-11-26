@@ -19,7 +19,7 @@ export function ProposalPage({
   return (
     <>
       <Link className="policy-back" href={routes.policy(policyId)}>
-        ← Back to policy
+        <span aria-hidden="true">←</span> Back to policy
       </Link>
       {proposal.isPending ? (
         <p role="status">Loading proposal…</p>
