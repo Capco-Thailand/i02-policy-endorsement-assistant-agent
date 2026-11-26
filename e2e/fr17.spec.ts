@@ -112,10 +112,10 @@ for (const width of [1280, 320]) {
     await page.getByLabel('Requested effective date').fill('2027-01-01');
     await page.getByRole('button', { name: 'Record request' }).click();
     await expect(
-      page.getByRole('heading', { name: 'Your change request is recorded' }),
+      page.getByRole('heading', { name: 'Your request was recorded' }),
     ).toBeVisible();
     await expect(page.locator('.recorded-request')).toContainText(
-      /Request ID: [0-9a-f-]{36}/,
+      /Request [0-9a-f-]{36}/,
     );
     await expect(page.locator('.recorded-request')).toContainText(
       'did not approve it or change your policy coverage',

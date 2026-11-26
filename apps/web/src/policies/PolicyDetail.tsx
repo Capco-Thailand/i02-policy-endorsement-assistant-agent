@@ -46,7 +46,16 @@ function sourceFor(
     : { reason: 'The matching policy section was not returned.' };
 }
 
-function FactSource({ source, label }: { source: SourceState; label: string }) {
+function FactSource({
+  source,
+  label,
+  show = true,
+}: {
+  source: SourceState;
+  label: string;
+  show?: boolean;
+}) {
+  if (!show) return null;
   return source.citation ? (
     <Citation citation={source.citation} />
   ) : (
@@ -60,10 +69,12 @@ function PolicyFacts({
   policy,
   dates,
   payment,
+  showSources,
 }: {
   policy: Policy;
   dates: SourceState;
   payment: SourceState;
+  showSources: boolean;
 }) {
   return (
     <section className="policy-section" aria-labelledby="facts-heading">
@@ -72,19 +83,27 @@ function PolicyFacts({
         <div>
           <dt>Effective date</dt>
           <dd>{date(policy.effectiveDate)}</dd>
-          <FactSource source={dates} label="effective date" />
+          <FactSource
+            source={dates}
+            label="effective date"
+            show={showSources}
+          />
         </div>
         <div>
           <dt>Expiry date</dt>
           <dd>{date(policy.expiryDate)}</dd>
-          <FactSource source={dates} label="expiry date" />
+          <FactSource source={dates} label="expiry date" show={showSources} />
         </div>
         <div>
           <dt>Payment frequency</dt>
           <dd>
             {policy.paymentFrequency === 'MONTHLY' ? 'Monthly' : 'Annual'}
           </dd>
-          <FactSource source={payment} label="payment frequency" />
+          <FactSource
+            source={payment}
+            label="payment frequency"
+            show={showSources}
+          />
         </div>
       </dl>
     </section>
@@ -94,9 +113,11 @@ function PolicyFacts({
 function Beneficiaries({
   policy,
   source,
+  showSources,
 }: {
   policy: Policy;
   source: SourceState;
+  showSources: boolean;
 }) {
   return (
     <section className="policy-section" aria-labelledby="beneficiaries-heading">
@@ -113,7 +134,7 @@ function Beneficiaries({
           ))}
         </ul>
       )}
-      <FactSource source={source} label="beneficiaries" />
+      <FactSource source={source} label="beneficiaries" show={showSources} />
     </section>
   );
 }
@@ -190,9 +211,11 @@ function TermSources({
 function PolicyTerms({
   terms,
   mode,
+  showSources,
 }: {
   terms: Policy['terms'];
   mode: 'facts' | 'exclusions';
+  showSources: boolean;
 }) {
   const product = terms.product;
   return (
@@ -221,7 +244,7 @@ function PolicyTerms({
                     <dd>{product.value.version}</dd>
                   </div>
                 </dl>
-                <Citation citation={product.citation} />
+                {showSources && <Citation citation={product.citation} />}
               </>
             ) : (
               <>
@@ -229,7 +252,7 @@ function PolicyTerms({
                   Unresolved: We can't confirm this coverage detail from the
                   available policy wording ({product.reason}).
                 </p>
-                {product.citation ? (
+                {!showSources ? null : product.citation ? (
                   <Citation citation={product.citation} />
                 ) : (
                   <p>
@@ -262,7 +285,7 @@ function PolicyTerms({
                       available policy wording ({item.reason}).
                     </span>
                   )}
-                  {item.citation ? (
+                  {!showSources ? null : item.citation ? (
                     <Citation citation={item.citation} />
                   ) : (
                     <p>
@@ -294,7 +317,7 @@ function PolicyTerms({
                       available policy wording ({item.reason}).
                     </p>
                   )}
-                  {item.citation ? (
+                  {!showSources ? null : item.citation ? (
                     <Citation citation={item.citation} />
                   ) : (
                     <p>
@@ -352,6 +375,7 @@ function PolicyBody({ policy }: { policy: Policy }) {
     payment.citation,
     beneficiaries.citation,
   ].filter((item): item is EvidenceCitation => Boolean(item));
+  const showSources = policy.status === 'ACTIVE';
   return (
     <>
       <Link className="policy-back" href={routes.policies}>
@@ -366,13 +390,34 @@ function PolicyBody({ policy }: { policy: Policy }) {
           <span className={`policy-status ${policy.status.toLowerCase()}`}>
             {policy.status}
           </span>
-          <FactSource source={status} label="status" />
+          <FactSource source={status} label="status" show={showSources} />
         </div>
       </div>
-      <PolicyFacts policy={policy} dates={dates} payment={payment} />
-      {policy.terms && <PolicyTerms terms={policy.terms} mode="facts" />}
-      <Beneficiaries policy={policy} source={beneficiaries} />
-      {policy.terms && <PolicyTerms terms={policy.terms} mode="exclusions" />}
+      <PolicyFacts
+        policy={policy}
+        dates={dates}
+        payment={payment}
+        showSources={showSources}
+      />
+      {policy.terms && (
+        <PolicyTerms
+          terms={policy.terms}
+          mode="facts"
+          showSources={showSources}
+        />
+      )}
+      <Beneficiaries
+        policy={policy}
+        source={beneficiaries}
+        showSources={showSources}
+      />
+      {policy.terms && (
+        <PolicyTerms
+          terms={policy.terms}
+          mode="exclusions"
+          showSources={showSources}
+        />
+      )}
       {policy.status === 'ACTIVE' ? (
         <Link className="request-action" href={routes.request(policy.id)}>
           Start a change request
@@ -382,7 +427,7 @@ function PolicyBody({ policy }: { policy: Policy }) {
           This policy is expired. Change requests are unavailable.
         </p>
       )}
-      {policy.terms && (
+      {policy.status === 'ACTIVE' && policy.terms && (
         <TermSources terms={policy.terms} additional={additional} />
       )}
       <EvidenceSection policyId={policy.id} />

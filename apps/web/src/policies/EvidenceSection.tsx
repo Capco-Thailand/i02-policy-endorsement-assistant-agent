@@ -46,8 +46,8 @@ export function EvidenceSection({ policyId }: { policyId: string }) {
     >
       <h2 id="evidence-heading">Policy evidence</h2>
       <p>
-        Source wording explains these policy details. The policy facts above
-        remain the record of truth.
+        Evidence explains these policy details. The policy facts above remain
+        the record of truth.
       </p>
       {query.isPending ? (
         <p role="status" aria-live="polite">

@@ -147,8 +147,16 @@ function ImpactComparison({ impact }: { impact: Proposal['impact'] }) {
     },
   ];
   return (
-    <section className="request-panel" aria-labelledby="comparison-heading">
+    <section
+      className="proposal-comparison-table"
+      aria-labelledby="comparison-heading"
+    >
       <h2 id="comparison-heading">Current and proposed values</h2>
+      <div className="proposal-table-head" aria-hidden="true">
+        <span>Field</span>
+        <span>Current policy</span>
+        <span>Proposed</span>
+      </div>
       <div className="proposal-fields">
         {fields.map((field) => (
           <ComparisonRow key={field.label} field={field} />
@@ -166,18 +174,27 @@ function ImpactComparison({ impact }: { impact: Proposal['impact'] }) {
 
 function QuoteSummary({ impact }: { impact: Proposal['impact'] }) {
   if (impact.status === 'UNCHANGED') return null;
+  const difference = impact.quote.difference.annualizedScheduledTotalSatang;
   return (
     <section
       className="request-panel proposal-quote-summary"
       aria-labelledby="quote-summary-heading"
     >
-      <h2 id="quote-summary-heading">Annualized scheduled total</h2>
-      <p>
-        Current {money(impact.quote.before.annualizedScheduledTotalSatang)} per
-        year · proposed{' '}
-        {money(impact.quote.after.annualizedScheduledTotalSatang)} per year
+      <p id="quote-summary-heading" className="request-eyebrow">
+        Annualized scheduled total
       </p>
-      <p>Server quote {impact.quote.ratingVersion}</p>
+      <h2>
+        {difference === 0
+          ? 'No change per year'
+          : `${money(Math.abs(difference))} ${difference < 0 ? 'less' : 'more'} per year`}
+      </h2>
+      <p>
+        Current {money(impact.quote.before.annualizedScheduledTotalSatang)} ·
+        proposed {money(impact.quote.after.annualizedScheduledTotalSatang)}
+      </p>
+      <p className="proposal-quote-note">
+        Compare yearly totals when payment frequency changes.
+      </p>
     </section>
   );
 }
@@ -195,24 +212,43 @@ export function ProposalReview({ proposal }: { proposal: Proposal }) {
   }, [proposal.status]);
   return (
     <div className="proposal-review">
-      <div className="policy-heading">
-        <div>
-          <h1>What would this request change and cost?</h1>
-          <p className="policy-id">
-            {proposal.current.label} · Policy {proposal.policyId} · Proposal{' '}
-            {proposal.id}
-          </p>
-        </div>
-        <span className={`proposal-status ${proposal.status.toLowerCase()}`}>
-          {proposal.status === 'PENDING_APPROVAL'
-            ? 'Awaiting your decision'
-            : proposal.status === 'APPROVED'
-              ? 'Approved decision recorded'
-              : 'Rejected decision recorded'}
-        </span>
-      </div>
+      <p className="request-eyebrow">
+        {proposal.current.label} · Policy {proposal.policyId} / Proposal{' '}
+        {proposal.id}
+      </p>
+      <span className={`proposal-status ${proposal.status.toLowerCase()}`}>
+        {proposal.status === 'PENDING_APPROVAL'
+          ? 'Pending your decision'
+          : proposal.status === 'APPROVED'
+            ? 'Approved decision recorded'
+            : 'Rejected decision recorded'}
+      </span>
+      <h1>Review your proposed change</h1>
+      <p className="proposal-subtitle">
+        {proposal.requestedChange.changeType === 'PAYMENT_FREQUENCY'
+          ? 'Payment frequency'
+          : proposal.requestedChange.changeType === 'ADDRESS'
+            ? 'Correspondence address'
+            : proposal.requestedChange.changeType === 'BENEFICIARY'
+              ? 'Beneficiaries'
+              : 'Accidental-death rider'}{' '}
+        · requested effective date{' '}
+        {new Intl.DateTimeFormat('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'UTC',
+        }).format(
+          new Date(
+            `${proposal.requestedChange.requestedEffectiveDate}T00:00:00Z`,
+          ),
+        )}
+      </p>
       <QuoteSummary impact={proposal.impact} />
-      <RequestedChange proposal={proposal} />
+      {(proposal.requestedChange.changeType !== 'PAYMENT_FREQUENCY' ||
+        proposal.impact.status === 'UNCHANGED') && (
+        <RequestedChange proposal={proposal} />
+      )}
       <ImpactComparison impact={proposal.impact} />
       {(proposal.status === 'APPROVED' || proposal.status === 'REJECTED') && (
         <section className="request-panel" aria-live="polite">
