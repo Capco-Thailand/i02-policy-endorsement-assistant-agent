@@ -89,13 +89,13 @@ it('FR-19 proposal shows exact quote and policy facts without source panel or no
     screen.queryByRole('heading', { name: 'Assessment and sources' }),
   ).not.toBeInTheDocument();
   expect(screen.queryByRole('note')).not.toBeInTheDocument();
-  expect(screen.getByText(/Synthetic.*Policy POL/)).toBeInTheDocument();
+  expect(screen.getByText('Policy POL / Proposal PROP')).toBeInTheDocument();
   const table = screen.getByRole('table');
   expect(table.querySelectorAll('tbody tr')).toHaveLength(3);
   const payment = screen.getByRole('row', { name: /Premium per installment/ });
   expect(payment).toHaveTextContent('THB 1,215');
   expect(payment).toHaveTextContent('THB 13,500');
-  expect(payment).toHaveTextContent('Changed');
+  expect(payment).not.toHaveTextContent('Changed');
   const summary = screen.getByRole('region', {
     name: 'Annualized scheduled total',
   });
