@@ -11,9 +11,11 @@ import { ProposalPrepare } from './ProposalPrepare';
 export function EligibilityCheck({
   policyId,
   requestId,
+  compact = false,
 }: {
   policyId: string;
   requestId: string;
+  compact?: boolean;
 }) {
   const check = useEligibilityCheck(policyId, requestId);
   const router = useRouter();
@@ -39,9 +41,14 @@ export function EligibilityCheck({
     );
   const decision = check.isError ? undefined : check.data;
   return (
-    <section aria-labelledby="eligibility-heading">
-      <h3 id="eligibility-heading">Eligibility</h3>
-      <p>Check this recorded request, your policy, and cited rules.</p>
+    <section
+      aria-label={compact ? 'Eligibility' : undefined}
+      aria-labelledby={compact ? undefined : 'eligibility-heading'}
+    >
+      {!compact && <h3 id="eligibility-heading">Eligibility</h3>}
+      {!compact && (
+        <p>Check this recorded request, your policy, and cited rules.</p>
+      )}
       <Button
         type="button"
         disabled={check.isPending}
@@ -91,12 +98,12 @@ export function EligibilityCheck({
               <ProposalPrepare policyId={policyId} requestId={requestId} />
             )}
           </div>
-        ) : (
+        ) : !compact ? (
           <p>
             Not checked yet. Select Check eligibility to see whether this
             request can continue.
           </p>
-        )}
+        ) : null}
       </div>
     </section>
   );

@@ -140,6 +140,10 @@ test('FR-04 expired policy can read evidence but cannot request; session failure
   await page.goto('/policies/POL-NARIN-002');
   await expect(page.getByText('Matches policy facts')).toBeVisible();
   await expect(
+    page.getByRole('heading', { name: 'Source wording' }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /View source/ })).toHaveCount(0);
+  await expect(
     page.getByText('This policy is expired. Change requests are unavailable.'),
   ).toBeVisible();
   await expect(

@@ -240,26 +240,36 @@ export function RequestForm({ policyId }: { policyId: string }) {
   };
   return (
     <>
-      <Link className="policy-back" href={routes.policy(policyId)}>
-        <span aria-hidden="true">←</span> Back to policy
+      <Link
+        className="policy-back"
+        href={saved ? routes.policies : routes.policy(policyId)}
+      >
+        <span aria-hidden="true">←</span>{' '}
+        {saved ? 'Back to policies' : 'Back to policy'}
       </Link>
-      <div className="policy-heading">
-        <div>
-          <FocusHeading>
-            {saved ? 'Request recorded' : 'Request a policy change'}
-          </FocusHeading>
-          <p className="policy-id">
-            {policy.label} · {policy.id}
-          </p>
+      {!saved && (
+        <div className="policy-heading">
+          <div>
+            <FocusHeading>Request a policy change</FocusHeading>
+            <p className="policy-id">
+              {policy.label} · {policy.id}
+            </p>
+          </div>
+          <span className="policy-status active">ACTIVE</span>
         </div>
-        <span className="policy-status active">ACTIVE</span>
-      </div>
+      )}
       {saved ? (
-        <section className="request-panel">
-          <RecordedRequest request={saved} />
-          <EligibilityCheck policyId={policyId} requestId={saved.id} />
-          <Link href={routes.policy(policyId)}>Return to policy</Link>
-        </section>
+        <div className="request-recorded-page">
+          <p className="request-eyebrow">Policy {policy.id} / Request</p>
+          <section className="request-panel recorded-panel">
+            <RecordedRequest request={saved} policy={policy} />
+            <EligibilityCheck
+              policyId={policyId}
+              requestId={saved.id}
+              compact
+            />
+          </section>
+        </div>
       ) : (
         <form
           className="request-panel"

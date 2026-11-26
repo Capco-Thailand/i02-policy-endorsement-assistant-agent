@@ -311,13 +311,15 @@ for (const change of [
     await change.fill(page);
     await page.getByRole('button', { name: 'Record request' }).click();
     await expect(
-      page.getByRole('heading', { name: 'Request recorded' }),
+      page.getByRole('heading', { name: 'Your request was recorded' }),
     ).toBeVisible();
     await expect(
-      page.locator('.recorded-request').getByText(/Request ID: [0-9a-f-]{36}/),
+      page.locator('.recorded-request').getByText(/Request [0-9a-f-]{36}/),
     ).toBeVisible();
     await expect(
-      page.getByText(/did not approve it or change your policy coverage/),
+      page.getByText(
+        /did not approve a change or alter your policy or coverage/,
+      ),
     ).toBeVisible();
   });
 }
@@ -337,7 +339,7 @@ test('FR-02 AC3: invalid beneficiary allocation stays editable and creates no re
   ).toBeDisabled();
   await expect(page.getByLabel('Beneficiary name 1')).toHaveValue('New Person');
   await expect(
-    page.getByRole('heading', { name: 'Request recorded' }),
+    page.getByRole('heading', { name: 'Your request was recorded' }),
   ).toHaveCount(0);
 });
 

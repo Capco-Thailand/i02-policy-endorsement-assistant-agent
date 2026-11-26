@@ -31,6 +31,9 @@ FR-16 owns the policy list, FR-17 the request and assessment, FR-15 the proposal
 - [ ] Redesign proposal review with a clear pending/recorded decision state, current-versus-proposed values, annualized cost comparison when applicable, benefit differences, and approve/reject controls. Remove the specified non-binding proposal notice from the review screen; preserve non-binding decision semantics in behavior and required decision messaging.
 - [ ] Loading, empty, error, approved/rejected, and narrow-screen states keep usable navigation, understandable status text, visible focus, and no horizontal overflow.
 
+- [ ] The Request Recorded and Proposal Review runtime hierarchy and spacing match the reviewed FR-19 reference layouts while retaining functional actions.
+- [ ] Expired policy detail hides Source wording and in-page source links while retaining policy facts and the Policy evidence check.
+
 ## Scope and out of scope
 
 In scope: customer-facing layout, branding, navigation, and wording on the named screens.
@@ -46,6 +49,8 @@ Build on the existing FR-15 to FR-18 UX contracts. The FR-19 layout and theme we
 None proposed.
 
 ## Accepted decisions and readiness
+
+- 2026-11-26: After implementation, customer reported that Request Recorded and Proposal Review did not match the FR-19 previews and requested removal of Source wording from expired policy detail. The runtime layout will follow those previews while retaining functional navigation and controls.
 
 - 2026-11-26: Customer requested these five UI changes and asked for a backlog draft with UX/UI to review.
 - 2026-11-26: Customer said the layouts look acceptable and asked that the previews follow the shadcn theme used by the FR-16 sign-in screen. The previews now import the FR-15 token sheet also used by FR-16. This is a theme revision, not a selection for delivery.

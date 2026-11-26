@@ -292,11 +292,40 @@ describe('FR-03 policy detail', () => {
           expiryDate: '2025-01-01',
           paymentFrequency: 'ANNUAL',
           beneficiaries: [],
+          terms: {
+            product: {
+              status: 'confirmed',
+              value: {
+                insurer: 'Example Mutual',
+                type: 'Life',
+                name: 'Classic Life Plan',
+                version: 'v1',
+              },
+              citation: {
+                sourceId: 'POL-NARIN-002:v1',
+                title: 'Classic Life Plan',
+                version: 'v1',
+                sectionId: 'product',
+                excerpt: '',
+              },
+            },
+            coverages: [],
+            exclusions: [],
+          },
         },
       },
     });
     expect(screen.getByText('EXPIRED')).toBeInTheDocument();
     expect(screen.getByText(/No beneficiaries/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Product and plan' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Source wording' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /View source/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('clears protected cache and returns to sign-in when the session ends', async () => {

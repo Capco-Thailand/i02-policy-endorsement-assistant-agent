@@ -48,16 +48,20 @@ for (const width of [1280, 320]) {
     await page.getByLabel('Requested effective date').fill('2027-01-01');
     await page.getByRole('button', { name: 'Record request' }).click();
     await expect(
-      page.getByRole('heading', { name: 'Your change request is recorded' }),
+      page.getByRole('heading', { name: 'Your request was recorded' }),
     ).toBeFocused();
-    await expect(page.getByText('Pending eligibility check')).toBeVisible();
+    await expect(page.getByText('Pending checks')).toBeVisible();
     await expect(page.locator('.recorded-request')).toContainText(
-      /Request ID: [0-9a-f-]{36}/,
+      /Request [0-9a-f-]{36}/,
     );
-    await expect(page.locator('.recorded-request')).toContainText('ANNUAL');
-    await expect(page.locator('.recorded-request')).toContainText('2027-01-01');
     await expect(page.locator('.recorded-request')).toContainText(
-      'did not approve it or change your policy coverage',
+      'Monthly → Annual',
+    );
+    await expect(page.locator('.recorded-request')).toContainText(
+      '1 January 2027',
+    );
+    await expect(page.locator('.recorded-request')).toContainText(
+      'did not approve a change or alter your policy or coverage',
     );
     await capture(page, info, `Recorded request ${width}px`);
 
@@ -73,10 +77,10 @@ for (const width of [1280, 320]) {
       .click();
     await expect(
       page.getByRole('heading', {
-        name: 'What would this request change and cost?',
+        name: 'Review your proposed change',
       }),
     ).toBeVisible();
-    await expect(page.getByText('Awaiting your decision')).toBeVisible();
+    await expect(page.getByText('Pending your decision')).toBeVisible();
     await expect(
       page.getByRole('group', { name: 'Annualized total' }),
     ).toContainText('THB');

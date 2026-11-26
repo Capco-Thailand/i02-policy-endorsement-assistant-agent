@@ -101,7 +101,9 @@ it('FR-19 proposal shows exact quote and policy facts without source panel or no
   });
   expect(summary).toHaveTextContent('THB 14,580.00');
   expect(summary).toHaveTextContent('THB 13,500.00');
-  expect(summary).toHaveTextContent('synthetic-rating-v1');
+  expect(
+    screen.getByText('Calculation source: synthetic-rating-v1'),
+  ).toBeInTheDocument();
 });
 
 it('FR-10 unchanged review labels premium, schedule and benefits unchanged', () => {

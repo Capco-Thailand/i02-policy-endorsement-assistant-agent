@@ -16,7 +16,6 @@ export default async function RequestPage({
         <SignOutButton />
       </header>
       <main className="policy-shell">
-        <p className="auth-kicker">Customer access / Change request</p>
         <RequestForm policyId={policyId} />
       </main>
     </SessionGate>

@@ -27,7 +27,7 @@ async function start(page: Page, type: 'ADDRESS' | 'PAYMENT_FREQUENCY') {
     .click();
   await expect(
     page.getByRole('heading', {
-      name: 'What would this request change and cost?',
+      name: 'Review your proposed change',
     }),
   ).toBeVisible({ timeout: 20_000 });
 }
@@ -44,7 +44,7 @@ test('FR-10 unchanged proposal: owner reviews citations, unchanged impact and no
   page,
 }) => {
   await start(page, 'ADDRESS');
-  await expect(page.getByText('Awaiting your decision')).toBeVisible();
+  await expect(page.getByText('Pending your decision')).toBeVisible();
   await expect(page.getByText('Premium: Unchanged')).toBeVisible();
   await expect(page.getByText('Benefits: Unchanged')).toBeVisible();
   await expect(
@@ -85,7 +85,7 @@ test('FR-11 rejection needs confirmation and Cancel preserves the proposal', asy
   await expect(
     page.getByRole('button', { name: 'Reject proposal' }),
   ).toBeFocused();
-  await expect(page.getByText('Awaiting your decision')).toBeVisible();
+  await expect(page.getByText('Pending your decision')).toBeVisible();
   await page.getByRole('button', { name: 'Reject proposal' }).click();
   await page.getByRole('button', { name: 'Confirm rejection' }).click();
   await expect(page.getByText(/Rejected on/)).toBeVisible();

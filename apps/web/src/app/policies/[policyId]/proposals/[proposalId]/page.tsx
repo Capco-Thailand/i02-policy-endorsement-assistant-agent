@@ -16,7 +16,6 @@ export default async function Page({
         <SignOutButton />
       </header>
       <main className="policy-shell">
-        <p className="auth-kicker">Customer access / Proposal review</p>
         <ProposalPage policyId={policyId} proposalId={proposalId} />
       </main>
     </SessionGate>
