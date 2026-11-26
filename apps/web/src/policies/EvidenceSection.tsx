@@ -44,9 +44,9 @@ export function EvidenceSection({ policyId }: { policyId: string }) {
       className="policy-section evidence-section"
       aria-labelledby="evidence-heading"
     >
-      <h2 id="evidence-heading">Synthetic policy evidence</h2>
+      <h2 id="evidence-heading">Policy evidence</h2>
       <p>
-        Mock source documents explain policy details. The policy facts above
+        Source wording explains these policy details. The policy facts above
         remain the record of truth.
       </p>
       {query.isPending ? (

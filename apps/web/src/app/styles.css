@@ -86,8 +86,8 @@ textarea:focus-visible,
   width: 34px;
   height: 34px;
   border-radius: 6px;
-  background: var(--foreground);
-  color: var(--card);
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-size: 12px;
   font-weight: 750;
 }
@@ -175,6 +175,34 @@ textarea:focus-visible,
 }
 .policy-list-shell h1 {
   font-weight: 700;
+}
+.policy-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+.policy-list-heading h1 {
+  margin-bottom: 0;
+}
+.history-nav {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground);
+  font-weight: 650;
+  text-decoration: none;
+}
+.history-nav:hover {
+  background: var(--muted);
+}
+.history-nav:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
 }
 .policy-shell > p {
   color: var(--muted-foreground);
@@ -619,6 +647,17 @@ textarea:focus-visible,
   padding-bottom: 18px;
   border-bottom: 1px solid var(--border);
 }
+.recorded-request-status {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid var(--warning-border);
+  border-radius: 999px;
+  background: var(--warning-background);
+  color: var(--warning-foreground);
+  font-size: 12px;
+  font-weight: 700;
+}
 .recorded-request dl {
   display: grid;
   gap: 12px;
@@ -833,6 +872,22 @@ textarea:focus-visible,
 .proposal-review .policy-heading h1 {
   font-size: clamp(28px, 3vw, 34px);
   line-height: 1.15;
+}
+.proposal-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid var(--warning-border);
+  border-radius: 999px;
+  background: var(--warning-background);
+  color: var(--warning-foreground);
+  font-size: 12px;
+  font-weight: 700;
+}
+.proposal-status.approved {
+  border-color: var(--success-border);
+  background: var(--success-background);
+  color: var(--success-foreground);
 }
 .proposal-boundary {
   border-left: 3px solid var(--primary);

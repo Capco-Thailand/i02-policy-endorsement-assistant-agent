@@ -94,7 +94,7 @@ export function ChangeHistory() {
     <main className="policy-shell history-shell">
       <p className="auth-kicker">Your account / Decision history</p>
       <Link className="policy-back" href={routes.policies}>
-        ← Back to policies
+        <span aria-hidden="true">←</span> Back to policies
       </Link>
       <h1>Customer change history</h1>
       <p>Find the proposals you approved for your synthetic policies.</p>

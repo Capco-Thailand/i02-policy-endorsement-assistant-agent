@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SignInForm } from './SignInForm';
 import { useSignIn } from '../lib/queries';
 import { routes } from '../lib/routes';
+import { Brand } from '../components/Brand';
 
 export function SignInScreen({ ended }: { ended: boolean }) {
   const signIn = useSignIn();
@@ -20,11 +21,7 @@ export function SignInScreen({ ended }: { ended: boolean }) {
   return (
     <>
       <header className="site-header">
-        <span className="brand-mark">PEA</span>
-        <span>
-          Policy Endorsement Assistant
-          <small>Synthetic insurance prototype</small>
-        </span>
+        <Brand />
       </header>
       <main className="auth-shell">
         <section className="auth-copy">

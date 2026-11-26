@@ -1,7 +1,10 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { mkdir, rename, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 const timestamp = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Bangkok',
@@ -40,7 +43,7 @@ await mkdir(reportDir, { recursive: true });
 if (!process.env.CI && !process.env.E2E_SKIP_BUILD) {
   const build = spawn(
     process.execPath,
-    ['node_modules/next/dist/bin/next', 'build', 'apps/web'],
+    [require.resolve('next/dist/bin/next'), 'build', 'apps/web'],
     { stdio: 'inherit' },
   );
   const buildExit = await new Promise((resolve) => {
@@ -51,7 +54,11 @@ if (!process.env.CI && !process.env.E2E_SKIP_BUILD) {
 }
 const child = spawn(
   process.execPath,
-  ['node_modules/@playwright/test/cli.js', 'test', ...process.argv.slice(2)],
+  [
+    join(dirname(require.resolve('@playwright/test/package.json')), 'cli.js'),
+    'test',
+    ...process.argv.slice(2),
+  ],
   {
     stdio: 'inherit',
     env: { ...process.env, PLAYWRIGHT_HTML_OUTPUT_DIR: reportDir },

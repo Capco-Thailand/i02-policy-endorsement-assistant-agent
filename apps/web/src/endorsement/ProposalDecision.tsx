@@ -31,6 +31,10 @@ export function ProposalDecision({ onDecide, isPending, isError }: Props) {
   return (
     <section className="request-panel" aria-labelledby="decision-heading">
       <h2 id="decision-heading">Your decision</h2>
+      <p>
+        Approval records your decision only. Your policy and coverage stay
+        unchanged.
+      </p>
       {isError && (
         <p role="alert">Your decision was not recorded. Try again.</p>
       )}

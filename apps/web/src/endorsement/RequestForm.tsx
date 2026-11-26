@@ -241,11 +241,11 @@ export function RequestForm({ policyId }: { policyId: string }) {
   return (
     <>
       <Link className="policy-back" href={routes.policy(policyId)}>
-        ← Back to policy
+        <span aria-hidden="true">←</span> Back to policy
       </Link>
       <div className="policy-heading">
         <div>
-          <FocusHeading key={saved ? 'saved' : 'entry'}>
+          <FocusHeading>
             {saved ? 'Request recorded' : 'Request a policy change'}
           </FocusHeading>
           <p className="policy-id">

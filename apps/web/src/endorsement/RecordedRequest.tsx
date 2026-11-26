@@ -1,19 +1,27 @@
+import { useEffect, useRef } from 'react';
 import type { RequestResult } from '../lib/api';
 
 type Request = RequestResult['request'];
 
 export function RecordedRequest({ request }: { request: Request }) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus();
+  }, []);
   return (
     <div className="recorded-request" role="status">
-      <h2>Pending checks</h2>
+      <span className="recorded-request-status">Pending eligibility check</span>
+      <h2 ref={heading} tabIndex={-1}>
+        Your change request is recorded
+      </h2>
       <p>
-        Your request was recorded and is pending checks. No policy coverage has
-        changed.
+        Recording this request did not approve it or change your policy
+        coverage.
       </p>
       <p>
         Request ID: <strong className="request-id">{request.id}</strong>
       </p>
-      <p>The request is saved; eligibility is a separate check.</p>
+      <p>Next, check eligibility to see whether this request can continue.</p>
       <h3>Requested change</h3>
       <dl>
         <div>

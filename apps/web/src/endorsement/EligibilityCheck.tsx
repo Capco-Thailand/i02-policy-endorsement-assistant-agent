@@ -47,7 +47,8 @@ export function EligibilityCheck({
         disabled={check.isPending}
         onClick={() => check.mutate()}
       >
-        {check.isPending ? 'Checking this request…' : 'Check eligibility'}
+        {check.isPending ? 'Checking this request…' : 'Check eligibility'}{' '}
+        <span aria-hidden="true">→</span>
       </Button>
       {check.isError && (
         <p role="alert">Could not complete the check. Try again.</p>
@@ -85,33 +86,6 @@ export function EligibilityCheck({
             )}
             <h5>Next action</h5>
             <p className="eligibility-next-step">{decision.nextStep}</p>
-            {decision.citations.length > 0 && <h5>Available sources</h5>}
-            {decision.citations.map((item) => (
-              <p
-                className="eligibility-citation"
-                key={`${item.kind}:${item.sourceId}:${item.sectionId}`}
-              >
-                {item.kind === 'POLICY' ? 'Policy wording' : 'Rule'}{' '}
-                {item.sourceId} · version {item.version} · section{' '}
-                {item.sectionId}
-                {item.kind === 'POLICY'
-                  ? ` · ${item.excerpt}`
-                  : ` · rule ${item.ruleId}`}
-              </p>
-            ))}
-            {decision.outcome === 'NEEDS_REVIEW' &&
-              decision.sourceIds
-                .filter(
-                  (sourceId) =>
-                    !decision.citations.some(
-                      (item) => item.sourceId === sourceId,
-                    ),
-                )
-                .map((sourceId) => (
-                  <p className="eligibility-citation" key={sourceId}>
-                    Unresolved source {sourceId}
-                  </p>
-                ))}
             <p>No policy coverage has changed.</p>
             {decision.outcome === 'CAN_PROCEED' && (
               <ProposalPrepare policyId={policyId} requestId={requestId} />

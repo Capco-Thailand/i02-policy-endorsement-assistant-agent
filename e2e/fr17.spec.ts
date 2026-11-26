@@ -112,13 +112,13 @@ for (const width of [1280, 320]) {
     await page.getByLabel('Requested effective date').fill('2027-01-01');
     await page.getByRole('button', { name: 'Record request' }).click();
     await expect(
-      page.getByRole('heading', { name: 'Pending checks' }),
+      page.getByRole('heading', { name: 'Your change request is recorded' }),
     ).toBeVisible();
     await expect(page.locator('.recorded-request')).toContainText(
       /Request ID: [0-9a-f-]{36}/,
     );
     await expect(page.locator('.recorded-request')).toContainText(
-      'No policy coverage has changed.',
+      'did not approve it or change your policy coverage',
     );
     await expect(page.getByText('Not checked yet.')).toBeVisible();
     let proposalCalls = 0;
@@ -137,7 +137,7 @@ for (const width of [1280, 320]) {
     await expect(
       page.getByRole('heading', { name: 'Next action' }),
     ).toBeVisible();
-    await expect(page.getByText(/Rule .*version .*section/)).toBeVisible();
+    await expect(page.getByText('Available sources')).toHaveCount(0);
     expect(proposalCalls).toBe(0);
     await expect
       .poll(() =>
