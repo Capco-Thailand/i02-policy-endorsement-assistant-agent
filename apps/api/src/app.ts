@@ -212,7 +212,8 @@ const HistoryEntrySchema = Type.Object({
   proposalId: Type.String(),
   policyId: Type.String(),
   policyLabel: Type.String(),
-  requestedChange: RequestRecordSchema,
+  requestId: Type.String(),
+  requestedChange: Type.Optional(RequestRecordSchema),
   status: Type.Literal('APPROVED'),
   decidedAt: Type.String(),
 });
