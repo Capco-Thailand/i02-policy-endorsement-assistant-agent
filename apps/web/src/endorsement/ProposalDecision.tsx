@@ -29,7 +29,10 @@ export function ProposalDecision({ onDecide, isPending, isError }: Props) {
     setConfirming(false);
   };
   return (
-    <section className="request-panel" aria-labelledby="decision-heading">
+    <section
+      className="request-panel proposal-decision-panel"
+      aria-labelledby="decision-heading"
+    >
       <h2 id="decision-heading">Your decision</h2>
       <p>
         Approval records your decision only. Your policy and coverage stay
