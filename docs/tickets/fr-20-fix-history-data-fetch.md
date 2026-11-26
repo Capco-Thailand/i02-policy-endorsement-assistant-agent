@@ -29,6 +29,8 @@ Expected: An authorized customer sees only their approved proposal records, or a
 
 Actual: Customer reports history data cannot be fetched. The exact UI state and HTTP failure are not yet established.
 
+The first diagnostic check should distinguish an expired session (`401`), a successful empty history (`200` with an empty array), and a service failure. Do not treat an empty history as a fetch failure.
+
 ## Environment
 
 Local prototype with Next.js web app, Fastify API, and synthetic PostgreSQL data. Affected deployment and browser are unconfirmed.
