@@ -1,0 +1,50 @@
+@import url('fr-16-redesign.css');
+/* FR-19 uses the same shadcn preset tokens as the FR-16 sign-in reference. */
+body { color: var(--foreground); background: var(--background); }
+.header { border-bottom: 1px solid var(--border); background: var(--card); }
+.header-inner { max-width: 1120px; margin: auto; padding: 14px 28px; display: flex; align-items: center; gap: 11px; }
+.mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: var(--radius); background: var(--primary); color: var(--primary-foreground); font-weight: 800; }
+.brand { font-weight: 750; margin-right: auto; }
+.nav { display: flex; gap: 22px; flex-wrap: wrap; }
+.nav a { color: var(--foreground); text-decoration: none; font-weight: 650; }
+.nav a:hover { color: var(--primary); text-decoration: underline; }
+.nav [aria-current] { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 4px; }
+.shell { max-width: 1040px; margin: auto; padding: 36px 28px 72px; }
+.eyebrow { color: var(--primary); font-size: .78rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.shell h1 { margin: 8px 0 12px; }
+.shell h2 { margin: 0 0 18px; }
+.muted, .preview-note { color: var(--muted-foreground); }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin: 24px 0; }
+.panel-accent { border-left: 4px solid var(--primary); }
+.status { display: inline-block; border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; font-size: .75rem; font-weight: 700; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid var(--primary); border-radius: var(--radius); background: var(--primary); color: var(--primary-foreground); padding: 10px 18px; text-decoration: none; font: inherit; font-weight: 700; }
+.button.secondary { background: var(--card); color: var(--primary); }
+.button:disabled { opacity: .7; cursor: not-allowed; }
+.row { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid var(--border); padding: 16px 0; }
+.row:first-of-type { border-top: 0; }
+.compare { width: 100%; border-collapse: collapse; background: var(--card); }
+.compare th, .compare td { text-align: left; border-bottom: 1px solid var(--border); padding: 15px; }
+.compare thead th { background: var(--muted); }
+.boundary { border-left: 3px solid var(--primary); padding: 10px 16px; background: var(--muted); }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.preview-note { font-size: .76rem; margin-top: 40px; }
+.page-actions { display: flex; justify-content: flex-end; margin: 0 0 24px; }
+.history-button { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px; border: 1px solid var(--primary); border-radius: var(--radius); color: var(--primary); background: var(--card); font-weight: 700; text-decoration: none; }
+.history-button:hover { background: var(--muted); text-decoration: underline; }
+.fr16-status { display: inline-flex; align-items: center; gap: 7px; border-color: var(--success-border); background: var(--success-background); color: var(--success-foreground); }
+.fr16-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.fr16-status.expired { border-color: var(--warning-border); background: var(--warning-background); color: var(--warning-foreground); }
+.back-link { display: inline-block; margin-bottom: 28px; }
+@media (max-width: 600px) {
+  .header-inner { padding: 14px 16px; flex-wrap: wrap; }
+  .brand { flex: 1; }
+  .nav { width: 100%; justify-content: space-between; }
+  .shell { padding: 28px 16px 56px; }
+  .panel { padding: 20px; }
+  .row { display: block; }
+  .compare, .compare tbody, .compare tr, .compare th, .compare td { display: block; }
+  .compare thead { display: none; }
+  .compare td { padding: 8px 12px; }
+  .compare td::before { content: attr(data-label); display: block; font-size: .76rem; color: var(--muted-foreground); }
+  .compare tr { border-bottom: 1px solid var(--border); padding: 12px 0; }
+}
