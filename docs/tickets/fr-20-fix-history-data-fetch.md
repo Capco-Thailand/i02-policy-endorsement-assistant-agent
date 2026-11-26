@@ -60,6 +60,11 @@ Use the existing [FR-18 experience](../../_bmad-output/initiative-customer-ui-re
 - [ ] Verify cross-account isolation: no customer can fetch another account's history.
 - [ ] Add regression coverage at the boundary that reproduced the failure.
 
+## Acceptance criteria
+
+- [ ] An authenticated customer loads all of their approved history, including legacy entries with incomplete change details, with readable policy labels and no other customer's records.
+- [ ] Empty history, session failure, and transient service failure remain distinguishable and actionable.
+
 ## Verification traceability
 
 | Criterion | Evidence | Result |
