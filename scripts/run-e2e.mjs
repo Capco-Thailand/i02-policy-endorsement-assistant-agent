@@ -1,7 +1,7 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { mkdir, rename, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -55,7 +55,7 @@ if (!process.env.CI && !process.env.E2E_SKIP_BUILD) {
 const child = spawn(
   process.execPath,
   [
-    require.resolve('@playwright/test/cli.js'),
+    join(dirname(require.resolve('@playwright/test/package.json')), 'cli.js'),
     'test',
     ...process.argv.slice(2),
   ],
