@@ -96,9 +96,9 @@ test('FR-18 owner sees approved requests, rejection exclusion, original detail, 
   await expect(
     page.getByText(/Approval records your decision on a synthetic proposal/),
   ).toBeVisible();
-  expect(await page.locator('.history-request').count()).toBeGreaterThanOrEqual(
-    2,
-  );
+  await expect
+    .poll(() => page.locator('.history-request').count())
+    .toBeGreaterThanOrEqual(2);
   await expect(page.locator('.history-request').first()).toContainText(
     /Request ID: [0-9a-f-]{36}/,
   );

@@ -137,7 +137,7 @@ for (const width of [1280, 320]) {
     await expect(
       page.getByRole('heading', { name: 'Next action' }),
     ).toBeVisible();
-    await expect(page.getByText(/Rule .*version .*section/)).toBeVisible();
+    await expect(page.getByText('Available sources')).toHaveCount(0);
     expect(proposalCalls).toBe(0);
     await expect
       .poll(() =>

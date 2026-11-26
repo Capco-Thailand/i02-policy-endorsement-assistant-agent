@@ -44,18 +44,15 @@ test('FR-10 unchanged proposal: owner reviews citations, unchanged impact and no
   page,
 }) => {
   await start(page, 'ADDRESS');
-  await expect(page.getByText('PENDING APPROVAL')).toBeVisible();
+  await expect(page.getByText('Awaiting your decision')).toBeVisible();
   await expect(page.getByText('Premium: Unchanged')).toBeVisible();
   await expect(page.getByText('Benefits: Unchanged')).toBeVisible();
   await expect(
     page.getByText(/underlying policy and coverage stay unchanged/),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(
-    page.getByText(/Policy wording.*version.*section/).first(),
-  ).toBeVisible();
-  await expect(
-    page.getByText(/Endorsement rule.*version.*section/).first(),
-  ).toBeVisible();
+    page.getByRole('heading', { name: 'Assessment and sources' }),
+  ).toHaveCount(0);
   await expect(
     page.getByRole('button', { name: 'Approve proposal' }),
   ).toBeVisible();
@@ -88,7 +85,7 @@ test('FR-11 rejection needs confirmation and Cancel preserves the proposal', asy
   await expect(
     page.getByRole('button', { name: 'Reject proposal' }),
   ).toBeFocused();
-  await expect(page.getByText('PENDING APPROVAL')).toBeVisible();
+  await expect(page.getByText('Awaiting your decision')).toBeVisible();
   await page.getByRole('button', { name: 'Reject proposal' }).click();
   await page.getByRole('button', { name: 'Confirm rejection' }).click();
   await expect(page.getByText(/Rejected on/)).toBeVisible();

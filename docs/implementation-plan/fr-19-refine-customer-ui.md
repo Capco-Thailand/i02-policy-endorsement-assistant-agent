@@ -81,6 +81,7 @@ context:
 
 - Quick review: confirmation focus landed on the page heading. Confirmed and moved focus to the confirmation panel heading; the component regression and browser assertion now check that heading.
 - Quick review: browser visual and boundary coverage remains pending. Component tests cover loading, empty, failure, referral, rejection, session end, and decided states; CI's disposable test database will run the desktop and 320px browser journey. Screenshots are attached for review; visual baseline comparison remains an explicit acceptance check.
+- CI browser run: 55 passed, 6 failed where earlier E2E assertions expected the intentionally hidden source panels or old pending label, plus a history read asserted before asynchronous rows rendered. Updated those assertions to the accepted UI and wait for history rows.
 
 ## Verification
 

@@ -361,10 +361,10 @@ test('FR-08 recorded address request checks eligibility without upload', async (
   await expect(
     page.getByRole('heading', { name: 'Can proceed to a proposal' }),
   ).toBeVisible();
-  await expect(page.getByText(/Rule .*version .*section/)).toBeVisible();
   await expect(
-    page.getByText(/Policy wording .*version .*section/).first(),
+    page.getByRole('heading', { name: 'Next action' }),
   ).toBeVisible();
+  await expect(page.getByText('Available sources')).toHaveCount(0);
 });
 
 test('FR-08 payment can pass without a receipt on narrow UI', async ({
