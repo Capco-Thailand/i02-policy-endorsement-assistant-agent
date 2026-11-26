@@ -2,7 +2,7 @@
 
 **Title:** [Story] Make policy navigation and request review clearer
 **Labels:** `type:story`, `role:dev`, `role:ux`
-**GitHub Issue:** Pending ticket/UX PR merge
+**GitHub Issue:** https://github.com/Capco-Thailand/i02-policy-endorsement-assistant-agent/issues/168
 **Feature ID:** FR-19
 **Product context:** [PRD](../PRD.md)
 **Risk:** Medium — removing visible evidence and prototype labels could obscure the non-binding boundary.
