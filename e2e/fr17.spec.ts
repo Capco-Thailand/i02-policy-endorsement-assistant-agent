@@ -73,7 +73,7 @@ for (const width of [1280, 320]) {
       page.getByLabel('Accidental-death rider action'),
     ).toBeVisible();
     await expect(
-      page.getByRole('link', { name: 'View cited policy term' }),
+      page.getByRole('link', { name: 'View current policy facts' }),
     ).toBeVisible();
     await expect
       .poll(() =>

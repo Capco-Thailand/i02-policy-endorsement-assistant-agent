@@ -276,10 +276,6 @@ export function RequestForm({ policyId }: { policyId: string }) {
           onSubmit={(event) => void submit(event)}
           noValidate
         >
-          <p className="request-boundary">
-            Synthetic request only. Recording it does not approve a change or
-            bind coverage.
-          </p>
           <h2>What would you like to change?</h2>
           <label htmlFor="change-type">Change type</label>
           <select

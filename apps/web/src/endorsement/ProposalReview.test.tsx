@@ -80,30 +80,28 @@ it('FR-19 proposal shows exact quote and policy facts without source panel or no
       }}
     />,
   );
-  expect(screen.getAllByText(/THB 13,500.00/).length).toBeGreaterThanOrEqual(2);
+  expect(screen.getAllByText(/THB 13,500/).length).toBeGreaterThanOrEqual(2);
   expect(screen.getAllByText(/THB 1,000,000/)).toHaveLength(2);
-  expect(screen.getAllByText(/THB 250,000/)).toHaveLength(2);
-  expect(screen.getAllByText(/Unchanged/).length).toBeGreaterThanOrEqual(2);
+  expect(screen.queryByText(/THB 250,000/)).not.toBeInTheDocument();
+  expect(screen.getByText('Unchanged')).toBeInTheDocument();
   expect(screen.queryByText(/WORDING.*v3.*6.4/)).not.toBeInTheDocument();
   expect(
     screen.queryByRole('heading', { name: 'Assessment and sources' }),
   ).not.toBeInTheDocument();
   expect(screen.queryByRole('note')).not.toBeInTheDocument();
-  expect(screen.getByText(/Synthetic.*Policy POL/)).toBeInTheDocument();
-  const payment = screen.getByRole('group', {
-    name: 'Premium per installment',
-  });
-  expect(payment).toHaveTextContent('THB 1,215.00');
-  expect(payment).toHaveTextContent('THB 13,500.00');
-  expect(payment).toHaveTextContent('Changed');
+  expect(screen.getByText('Policy POL / Proposal PROP')).toBeInTheDocument();
+  const table = screen.getByRole('table');
+  expect(table.querySelectorAll('tbody tr')).toHaveLength(3);
+  const payment = screen.getByRole('row', { name: /Premium per installment/ });
+  expect(payment).toHaveTextContent('THB 1,215');
+  expect(payment).toHaveTextContent('THB 13,500');
+  expect(payment).not.toHaveTextContent('Changed');
   const summary = screen.getByRole('region', {
     name: 'Annualized scheduled total',
   });
-  expect(summary).toHaveTextContent('THB 14,580.00');
-  expect(summary).toHaveTextContent('THB 13,500.00');
-  expect(
-    screen.getByText('Calculation source: synthetic-rating-v1'),
-  ).toBeInTheDocument();
+  expect(summary).toHaveTextContent('THB 14,580');
+  expect(summary).toHaveTextContent('THB 13,500');
+  expect(screen.queryByText(/Calculation source/)).not.toBeInTheDocument();
 });
 
 it('FR-10 unchanged review labels premium, schedule and benefits unchanged', () => {

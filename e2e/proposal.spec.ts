@@ -153,18 +153,18 @@ test('FR-10 calculated proposal: narrow review shows exact THB values and owner 
   await page.setViewportSize({ width: 320, height: 800 });
   await start(page, 'PAYMENT_FREQUENCY');
   await expect(
-    page.getByRole('group', { name: 'Premium per installment' }),
-  ).toContainText('THB 1,215.00');
-  await expect(page.getByText('THB 13,500.00').first()).toBeVisible();
-  await expect(page.getByRole('group', { name: 'Life benefit' })).toContainText(
+    page.getByRole('row', { name: /Premium per installment/ }),
+  ).toContainText('THB 1,215');
+  await expect(page.getByText('THB 13,500').first()).toBeVisible();
+  await expect(page.getByRole('row', { name: /Life benefit/ })).toContainText(
     'Unchanged',
   );
   await expect(
-    page.getByRole('group', { name: 'Annualized total' }),
-  ).toContainText('THB 14,580.00');
+    page.getByRole('region', { name: 'Annualized scheduled total' }),
+  ).toContainText('THB 14,580');
   await expect(
-    page.getByRole('group', { name: 'Annualized total' }),
-  ).toContainText('THB 13,500.00');
+    page.getByRole('region', { name: 'Annualized scheduled total' }),
+  ).toContainText('THB 13,500');
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
