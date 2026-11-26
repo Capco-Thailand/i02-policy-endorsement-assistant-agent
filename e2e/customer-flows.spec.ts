@@ -317,7 +317,9 @@ for (const change of [
       page.locator('.recorded-request').getByText(/Request [0-9a-f-]{36}/),
     ).toBeVisible();
     await expect(
-      page.getByText(/did not approve it or change your policy coverage/),
+      page.getByText(
+        /did not approve a change or alter your policy or coverage/,
+      ),
     ).toBeVisible();
   });
 }

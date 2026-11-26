@@ -118,9 +118,11 @@ for (const width of [1280, 320]) {
       /Request [0-9a-f-]{36}/,
     );
     await expect(page.locator('.recorded-request')).toContainText(
-      'did not approve it or change your policy coverage',
+      'did not approve a change or alter your policy or coverage',
     );
-    await expect(page.getByText('Not checked yet.')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Check eligibility' }),
+    ).toBeVisible();
     let proposalCalls = 0;
     page.on('request', (request) => {
       if (

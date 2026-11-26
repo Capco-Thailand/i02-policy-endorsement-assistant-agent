@@ -205,9 +205,9 @@ test('FR-14 accepted terms: expired Classic Life shows historical amount without
   await signIn(page);
   await page.goto('/policies/POL-NARIN-002');
   await expect(page.getByText('THB 500,000', { exact: true })).toBeVisible();
-  await expect(page.locator('#source-coverage-life')).toContainText(
-    'Classic Life Plan synthetic policy',
-  );
+  await expect(
+    page.getByRole('heading', { name: 'Source wording' }),
+  ).toHaveCount(0);
   await expect(page.getByText('EXPIRED', { exact: true })).toBeVisible();
   await expect(
     page.getByText('This policy is expired. Change requests are unavailable.'),
